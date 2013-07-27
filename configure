@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -f ./configure ]
+then
+	echo "Don't execute this script in the source directory"
+else
+	sed -e "s/!SRC!/$(dirname $0)/g" $(dirname $0)/scripts/Makefile > ./Makefile
+fi
