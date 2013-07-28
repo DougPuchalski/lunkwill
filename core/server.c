@@ -60,6 +60,7 @@ void *client_trhead(void * arg)
 
 	}
 	
+	close(client_sock);
 	pthread_exit(NULL);
 	
 	HTTP404:
@@ -67,6 +68,7 @@ void *client_trhead(void * arg)
 		send(client_sock, buf, strlen(buf), 0);
 		strcpy(buf, HTTP_404_MESS);
 		send(client_sock, buf, strlen(buf), 0);
+		close(client_sock);
 		pthread_exit(NULL);
 }
 

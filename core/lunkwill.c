@@ -1,3 +1,4 @@
+#define __MAIN__
 #include "lunkwill.h"
 
 int main(int argc, char** argv)

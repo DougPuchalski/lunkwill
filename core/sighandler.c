@@ -38,22 +38,31 @@ void sighndlr_remove(void *(*func)(void *), void *param)
 }
 
 
-void sighndlr_safe_exit()
+void sighndlr_safe_exit(int param)
 {
 	sighndlr_list *sig_list;
+	sig_list=session.sighndlr;
+	printf("Please wait ");
 	while(1){
-		sig_list=session.sighndlr;
+		printf(".");
 		if(sig_list!=NULL){
 			if(sig_list->func!=NULL){
 				sig_list->func(sig_list->param);
 			}
-		}else return;
+		}
+		else
+		{
+			printf("\n");
+			exit(0);
+		}
+		sig_list=sig_list->next;
 	}
 }
 
 void init_sighndlr()
 {
 	session.sighndlr=calloc(sizeof(sighndlr_list),1);
-	signal(SIGINT, sighndlr_safe_exit);
 	signal(SIGPIPE, SIG_IGN);
+	signal(SIGINT, sighndlr_safe_exit);
+	signal(SIGTERM, sighndlr_safe_exit);
 }

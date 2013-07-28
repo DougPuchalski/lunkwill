@@ -1,6 +1,12 @@
 #ifndef __LUNKWILL_H__
 #define __LUNKWILL_H__
 
+#ifndef __MAIN__
+#define EXTERN extern
+#else
+#define EXTERN
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,22 +36,19 @@
 #define HTTP_404_MESS "<html><body><h1>FILE NOT FOUND</h1></body></html>"
 
 
-
-static struct{
+EXTERN struct{
 	void *(*module[62])(void *);
     config_t config;
 	void *sighndlr;
 } session;
 
+extern int start_server();
 
-int start_server();
+extern void init_sighndlr();
+extern void sighndlr_add(void *(*func)(void *), void *param);
+extern void sighndlr_remove(void *(*func)(void *), void *param);
 
-void init_sighndlr();
-void sighndlr_add(void *(*func)(void *), void *param);
-void sighndlr_remove(void *(*func)(void *), void *param);
-
-
-int load_config(char *config_file_name);
+extern int load_config(char *config_file_name);
 
 
 #endif
