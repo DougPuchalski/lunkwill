@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -g -pthread
+CFLAGS=-Wall -g -pthread -lconfig
 SRC_DIRS= core modules modules/tickets modules/git modules/wiki modules/doc
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard !SRC!/$(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,%.o,$(SRCS))
@@ -10,9 +10,9 @@ all: $(OBJS)
 	@$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
 $(OBJS): $(SRCS)
-	@echo CC -c $< -o $@
+	@echo CC -c $(patsubst %.o,!SRC!/%.c,$@) -o $@
 	@mkdir $(dir $@) -p
-	@$(CC) -c $(CFLAGS) $< -o $@
+	@$(CC) -c $(CFLAGS) $(patsubst %.o,!SRC!/%.c,$@) -o $@
 
 clean:
 	@echo Cleaning build directory ...
