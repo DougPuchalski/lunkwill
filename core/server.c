@@ -108,9 +108,16 @@ int start_server()
 	server_addr.sin_port = htons(port);
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr));
+	
+	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
+		fprintf(stderr, "Error binding to port\n");
+		return 1;
+	}
 
-	listen(server_sock, con);
+	if((listen(server_sock, con)) < 0){
+		fprintf(stderr, "Error listening on port\n");
+		return 1;
+	}
  
 
 	while(1)
