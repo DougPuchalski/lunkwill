@@ -1,8 +1,6 @@
 #ifndef __PROJECTS_H__
 #define __PROJECTS_H__
 
-#include <stdio.h>
-#include <stdlib.h>
-
+extern char projects_init_module(int id);
 
 #endif

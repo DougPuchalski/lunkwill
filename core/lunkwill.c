@@ -41,12 +41,14 @@ int main(int argc, char** argv)
 	{
 		printf("INITIALIZING LUNKWILL\n");
 		printf("USING DEFAULT CONFIG\n");
-		if(load_config("default_config.conf")!=0)
+		if(load_config("default.conf")!=0)
 		{
 			err="Failed to load configuration";
 			goto _fail;
 		}
 	}
+
+	init_modules();
 
 	if(start_server()!=0)
 	{

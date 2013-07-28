@@ -23,11 +23,21 @@ void *client_trhead(void * arg)
 
 		char *tmp=NULL;
 
-		if(file_name[0]>='0'&&file_name[0]<='9')
-		{
-			if(session.module[file_name[0]-'0']!=NULL)
+		if(file_name[0]==' '){
+			if(session.module[0]!=NULL)
 			{
-				tmp=session.module[file_name[0]-'0'](file_name);
+				tmp=session.module[0](file_name);
+				if(tmp==NULL) goto HTTP404;
+				send(client_sock, tmp, strlen(tmp), 0);
+				free(tmp);
+			}
+			else goto HTTP404;			
+		}
+		else if(file_name[0]>='0'&&file_name[0]<='9')
+		{
+			if(session.module[file_name[0]-'0'+1]!=NULL)
+			{
+				tmp=session.module[file_name[0]-'0'+1](file_name);
 				if(tmp==NULL) goto HTTP404;
 				send(client_sock, tmp, strlen(tmp), 0);
 				free(tmp);
@@ -36,9 +46,9 @@ void *client_trhead(void * arg)
 		}
 		else if(file_name[0]>='a'&&file_name[0]<='z')
 		{
-			if(session.module[file_name[0]-'a']!=NULL)
+			if(session.module[file_name[0]-'a'+11]!=NULL)
 			{
-				tmp=session.module[file_name[0]-'a'](file_name);
+				tmp=session.module[file_name[0]-'a'+11](file_name);
 				if(tmp==NULL) goto HTTP404;
 				send(client_sock, tmp, strlen(tmp), 0);
 				free(tmp);
@@ -47,9 +57,9 @@ void *client_trhead(void * arg)
 		}
 		else if(file_name[0]>='A'&&file_name[0]<='Z')
 		{
-			if(session.module[file_name[0]-'A']!=NULL)
+			if(session.module[file_name[0]-'A'+37]!=NULL)
 			{
-				tmp=session.module[file_name[0]-'A'](file_name);
+				tmp=session.module[file_name[0]-'A'+37](file_name);
 				if(tmp==NULL) goto HTTP404;
 				send(client_sock, tmp, strlen(tmp), 0);
 				free(tmp);

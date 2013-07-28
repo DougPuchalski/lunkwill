@@ -1,9 +1,6 @@
 #ifndef __MODULES_H__
 #define __MODULES_H__
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "../core/lunkwill.h"
 
 #include "dummy/module.h"
@@ -12,5 +9,6 @@
 #include "source/module.h"
 #include "wiki/module.h"
 
+extern int init_modules();
 
 #endif

@@ -37,10 +37,21 @@
 
 
 EXTERN struct{
-	void *(*module[62])(void *);
+	void *(*module[63])(void *);
     config_t config;
 	void *sighndlr;
 } session;
+
+/** \brief Supported MIME types */
+enum mime_types{
+	MIME_UNKNOWN=0,
+	MIME_PLAINTEXT,
+	MIME_HTML,
+	MIME_JAVASCRIPT,
+	MIME_CSS,
+	MIME_PNG
+};
+
 
 extern int start_server();
 
@@ -50,7 +61,7 @@ extern void sighndlr_remove(void *(*func)(void *), void *param);
 
 extern int load_config(char *config_file_name);
 
-extern int send_file(char *buffer, char *file_path, char *mime_type);
+extern int send_file(char *buffer, char *file_path, int mime_type);
 extern int get_mime(char *file_path);
 extern int send_string(char *buffer, char *string);
 
