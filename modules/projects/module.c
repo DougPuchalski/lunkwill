@@ -49,7 +49,7 @@ static int callback(void *data, int argc, char **argv, char **azColName){
 /** \brief Parses get requests */
 char *projects_get_request(char *request){
 	char answer[BUFSIZ],*a,*sql;
-	char *http_answer = malloc(BUFSIZ+100);	
+	char *http_answer = malloc(BUFSIZ);	
 	sqlite3 *db;
 	char *zErrMsg = 0;
 	int rc;

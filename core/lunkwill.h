@@ -62,7 +62,7 @@ extern void sighndlr_remove(void *(*func)(void *), void *param);
 
 extern int load_config(char *config_file_name);
 
-extern int send_file(char *buffer, char *file_path, int mime_type);
+extern int send_file(char **buffer, char *file_path, int mime_type);
 extern int get_mime(char *file_path);
 extern int send_string(char *buffer, char *string);
 

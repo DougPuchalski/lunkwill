@@ -86,22 +86,19 @@
 
 var get_json=function(url)
 { 
-	autocomplete = new XMLHttpRequest();
+	var autocomplete = new XMLHttpRequest();
 	autocomplete.open("GET", url, false);
 	autocomplete.send();
 	
 	if(autocomplete.readyState == 4){
 		if(autocomplete.status == 200){
-			var myObject = eval('(' + autocomplete.responseText + ')');
 		}
 	}
 	
-
-	if(myObject.hasOwnProperty("BASE") &&  myObject["BASE"].hasOwnProperty("HEAD"))
+	try
 	{
-
+		var myObject = JSON.parse(autocomplete.responseText);
 		var s="<table><tr>";
-		
 		console.log( myObject["BASE"]["HEAD"]["LIST"]);
 
 		for(i=0;i< myObject["BASE"]["HEAD"]["LIST"].length;i++)
@@ -113,14 +110,11 @@ var get_json=function(url)
 		s+= "</tr></table>";
 		document.getElementById("HEAD").innerHTML=s;
 	}
-
-	for( i in myObject)
+	catch(err)
 	{
-		if(myObject.hasOwnProperty(i)&&i!="HEAD")
-		{
-			console.log(myObject[i]);
-		}
+			document.getElementById("BODY").innerHTML= autocomplete.responseText;			
 	}
+
 };
 
 get_json("/ /");

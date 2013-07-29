@@ -3,7 +3,7 @@
 /** \brief Parses get requests */
 void *border(void *request){
 	char *path,p[BUFSIZ];
-	char *http_answer = malloc(BUFSIZ+100);
+	char *http_answer = malloc(BUFSIZ);
 	if(((char *)request)[0]==' '){
 		if (!config_lookup_string(&session.config, "SERVER_ROOT", (const char **)&path))
 		{
@@ -16,9 +16,8 @@ void *border(void *request){
 
 		strcat(p, "/index.html");
 
-		if(send_file(http_answer, p, MIME_HTML)==-1)
+		if(send_file(&http_answer, p, MIME_HTML)==-1)
 		{
-			free(http_answer);
 			return NULL;
 		}
 	}
@@ -35,6 +34,7 @@ void *border(void *request){
 				strcat(p,buf);
 			}
 		}
+		p[strlen(p)-1]=0;
 		strcat(p,"]}}}");
 		send_string(http_answer, p);
 	}

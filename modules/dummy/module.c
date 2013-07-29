@@ -25,9 +25,11 @@ char dummy_init_module(int id){
 /** \brief Parses get requests */
 char *dummy_get_request(char *request){
 	char answer[BUFSIZ];
-	char *http_answer = malloc(BUFSIZ+100);
+	char *http_answer = malloc(BUFSIZ);
 	
-	sprintf(answer, "<!DOCTYPE><html><head><title>Dummy Module</title></head><body>Hello! Greetings out of the dummy module :)\n\n<b>Request:</b><br><br>%s</body></html>", request);
+	sprintf(answer, "<!DOCTYPE><html><head><title>Dummy Module</title>"\
+	"</head><body>Hello! Greetings out of the dummy module :)\n\n<b>"\
+	"Request:</b><br><br>%s</body></html>", request);
 	send_string(http_answer, answer);
 	return http_answer;	
 }
