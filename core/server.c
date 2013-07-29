@@ -118,7 +118,8 @@ int start_server()
 	server_addr.sin_port = htons(port);
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	
+	int optval = 1;
+	setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
 	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
 		fprintf(stderr, "Error binding to port\n");
 		return 1;
