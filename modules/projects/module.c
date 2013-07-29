@@ -13,6 +13,10 @@ char projects_init_module(int id){
 	session.module[id]=(void *)projects_get_request;
 	sighndlr_add(projects_close_module, NULL);
 	
+	modules[id].id=id;
+	modules[id].name="Project";
+	modules[id].description="Manages Projects";
+	
 	return 1;
 }
 

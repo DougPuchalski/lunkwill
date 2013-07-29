@@ -11,4 +11,10 @@
 
 extern int init_modules();
 
+EXTERN struct{
+	int id;
+	char *name;
+	char *description;
+} modules[63];
+
 #endif

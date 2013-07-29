@@ -12,6 +12,12 @@ char dummy_init_module(int id){
 	printf("DUMMY MODULE INITIALIEZED AT: %d\n",id);
 	session.module[id]=(void *)dummy_get_request;
 	sighndlr_add(dummy_close_module, NULL);
+	
+	modules[id].id=id;
+	modules[id].name="Dummy";
+	modules[id].description="Only for debuging";
+	
+
 	return 1;
 }
 

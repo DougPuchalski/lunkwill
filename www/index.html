@@ -1,26 +1,28 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Testserver - Lunkwill</title>
+	<title>lunkwill</title>
 	<style type="text/css">
 		body{
-			background-color: #adadad;
+			background-color: #aa2211;
 			font-family: Verdana, Helvetica, Arial;
 		}
 		
 		.title{
-			font-size: 42px;
+			font-size: 46px;
+			color: #FFF;
+			font-weight:bold;
+			height:100;
+			background:#aa2211
 		}
 		
-		td.menu{
-			height: 50px;
-			width: 8%;
-			overflow: auto;
+		.menu{
+			width: 150px;
+			overflow: hidden;
 			text-align: center;
-			border-top: 1px solid #000000;
-			border-bottom: 1px solid #000000;
+			background: #aa2211;
 			font-weight: bold;
-			height: 25px;
+			height: 5px;
 		}
 		
 		a.silentlink{
@@ -28,34 +30,102 @@
 			text-decoration: none;
 		}
 		
+		.base{
+			position:absolute;
+			top:80;
+			bottom:50;
+			left:0;
+			right:0;
+			margin:auto;
+			width:100%;
+			height: 80%;
+			background:#FFF;
+		}
+		
+		.logo{
+			position:absolute;                 
+			bottom:20;                          
+			right:20;
+			width: 8%;
+			overflow: auto;
+			text-align: center;
+			border-top: 1px solid #000000;
+			border-bottom: 1px solid #000000;
+			font-weight: bold;
+			font-size: 10pt;
+			height: 15px;
+		}
+
+		a:link {color:#000;}   
+		a:visited {color:#000;}
+		a:hover {color:#000;}  
+		a:active {color:#000;} 
 	</style>
 </head>
 
 <body>
-<div>
-	<span class="title">Testserver</span>
-	<div style="float: right;">
-		<a href="https://github.com/0pq76r/lunkwill" target="_new">
-			<img src="logo.png" style="width: 200px; border=0; float: center;">
-		</a><br>
-			<span style="float: right;">v0.1</span>
-	</div>
-	<br><br><br>
-
-<div>
-<table id="menu">
-<tr>
-	<tr>
-		<td class="menu"><a href="./"  class="silentlink">Home</a></td>
-		<td class="menu"><a href="./0" class="silentlink">Dummy Page</a></td>
-		<td class="menu"><a href="./1" class="silentlink">Projects</a></td>
-		<td class="menu"><a href="./2" class="silentlink">More</a></td>	
-	</tr>
+<div class="title">
+	<span>lunkwill</span>
 </div>
 	
+
+<div class=base id=base>
+	<div id=HEAD></div>
+	<div id=BODY></div>
 </div>
 
+<div style="float: right; color:#000" class=logo>
+	
+	<a href="https://github.com/0pq76r/lunkwill" target="_new">
+	lunkwill
+	</a>
+	<span>v0.1</span>
+</div>
+
+<script type='text/javascript'>
+
+var get_json=function(url)
+{ 
+	autocomplete = new XMLHttpRequest();
+	autocomplete.open("GET", url, false);
+	autocomplete.send();
+	
+	if(autocomplete.readyState == 4){
+		if(autocomplete.status == 200){
+			var myObject = eval('(' + autocomplete.responseText + ')');
+		}
+	}
+	
+
+	if(myObject.hasOwnProperty("BASE") &&  myObject["BASE"].hasOwnProperty("HEAD"))
+	{
+
+		var s="<table><tr>";
+		
+		console.log( myObject["BASE"]["HEAD"]["LIST"]);
+
+		for(i=0;i< myObject["BASE"]["HEAD"]["LIST"].length;i++)
+		{
+			s+=("<td class='menu' onclick='javascript:get_json(\"/"+myObject["BASE"]["HEAD"]["LIST"][i].id+"\")'>"+
+			myObject["BASE"]["HEAD"]["LIST"][i].name+
+			"</td>");
+		}
+		s+= "</tr></table>";
+		document.getElementById("HEAD").innerHTML=s;
+	}
+
+	for( i in myObject)
+	{
+		if(myObject.hasOwnProperty(i)&&i!="HEAD")
+		{
+			console.log(myObject[i]);
+		}
+	}
+};
+
+get_json("/ /");
+
+</script>
 
 </body>
-
 </html>

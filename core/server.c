@@ -23,7 +23,7 @@ void *client_trhead(void * arg)
 
 		char *tmp=NULL;
 
-		if(file_name[0]==' '){
+		if(file_name[0]==' '||file_name[0]=='%'){
 			if(session.module[0]!=NULL)
 			{
 				tmp=session.module[0](file_name);
