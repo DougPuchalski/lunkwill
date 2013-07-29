@@ -25,6 +25,7 @@
 #include <pthread.h>   
 #include <getopt.h>
 #include <libconfig.h>
+#include <sqlite3.h> 
 
 #include "../modules/modules.h"
 

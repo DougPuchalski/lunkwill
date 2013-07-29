@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -g -pthread -lconfig
+CFLAGS=-Wall -g -pthread -lconfig -lsqlite3
 SRC_DIRS := ${shell find !SRC! -type d -print}
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,%.o,$(SRCS))

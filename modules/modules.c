@@ -13,7 +13,11 @@ void *border(void *request){
 	
 	strcat(path, "/index.html");
 	
-	if(send_file(http_answer, path, MIME_HTML)==-1) return NULL;
+	if(send_file(http_answer, path, MIME_HTML)==-1)
+	{
+		free(http_answer);
+		return NULL;
+	}
 	
 	return http_answer;	
 }
