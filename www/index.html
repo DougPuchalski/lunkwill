@@ -67,11 +67,7 @@
 <div class="title">
 	<span>lunkwill</span>
 </div>
-	
-
 <div class=base id=base>
-	<div id=HEAD></div>
-	<div id=BODY></div>
 </div>
 
 <div style="float: right; color:#000" class=logo>
@@ -84,7 +80,7 @@
 
 <script type='text/javascript'>
 
-var get_json=function(url)
+var get_url=function(url)
 { 
 	var autocomplete = new XMLHttpRequest();
 	autocomplete.open("GET", url, false);
@@ -95,29 +91,10 @@ var get_json=function(url)
 		}
 	}
 	
-	try
-	{
-		var myObject = JSON.parse(autocomplete.responseText);
-		var s="<table><tr>";
-		console.log( myObject["BASE"]["HEAD"]["LIST"]);
-
-		for(i=0;i< myObject["BASE"]["HEAD"]["LIST"].length;i++)
-		{
-			s+=("<td class='menu' onclick='javascript:get_json(\"/"+myObject["BASE"]["HEAD"]["LIST"][i].id+"\")'>"+
-			myObject["BASE"]["HEAD"]["LIST"][i].name+
-			"</td>");
-		}
-		s+= "</tr></table>";
-		document.getElementById("HEAD").innerHTML=s;
-	}
-	catch(err)
-	{
-			document.getElementById("BODY").innerHTML= autocomplete.responseText;			
-	}
-
+	document.getElementById("base").innerHTML= autocomplete.responseText;
 };
 
-get_json("/ /");
+get_url("/ /");
 
 </script>
 

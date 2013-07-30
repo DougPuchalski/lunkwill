@@ -16,7 +16,6 @@ int main(int argc, char** argv)
 		switch(opt)
 		{
 			case 'c':
-				if(config!=NULL) nfree(config);
 				config=malloc(strlen(optarg)+10);
 				strcpy(config, optarg);
 			break;
@@ -48,6 +47,7 @@ int main(int argc, char** argv)
 		}
 	}
 
+	init_html();
 	init_modules();
 
 	if(start_server()!=0)

@@ -2,8 +2,9 @@
 
 /** \brief Parses get requests */
 void *border(void *request){
-	char *path,p[BUFSIZ];
-	char *http_answer = malloc(BUFSIZ);
+	char *path,p[BUF_SIZE];
+	char *http_answer = malloc(BUF_SIZE);
+
 	if(((char *)request)[0]==' '){
 		if (!config_lookup_string(&session.config, "SERVER_ROOT", (const char **)&path))
 		{
@@ -24,19 +25,35 @@ void *border(void *request){
 	else
 	{
 		int i;
-		char buf[BUFSIZ];
+		char *tag_open, *tag_close;
+		void *html_ptr;
+		
+		new_html();
+		
+		tag_open=malloc(BUF_SIZE);
+		tag_close=malloc(BUF_SIZE);
 
-		strcpy(p,"{\"BASE\": {\"HEAD\":{\"LIST\":[");
+		strcpy(tag_open,"<table>");
+		strcpy(tag_close,"</table>");
+		html_ptr=html_add_tag(&session.user_iface->header, tag_open, NULL, tag_close);
+		
+		strcpy(tag_open,"<tr>");
+		strcpy(tag_close,"</tr>");
+		http_answer[0]=0;
+		html_ptr=html_add_tag(&html_ptr, tag_open, NULL, tag_close);
+		
 		for(i=0;i<63;i++){
-			if(modules[i].id==i&&modules[i].name!=NULL){
-				sprintf(buf,"{\"id\":\"%d\",\"name\":\"%s\",\"description\":\"%s\"}," \
-					,modules[i].id-1, modules[i].name, modules[i].description);
-				strcat(p,buf);
+			if(modules[i].name!=NULL){
+				sprintf(tag_open, \
+					"<td class='menu' onclick=\"javascript:get_url('/%d/')\">",\
+					modules[i].id);
+				strcpy(tag_close,"</td>");
+				sprintf(http_answer,"%s",modules[i].name);
+				html_add_tag(&html_ptr, tag_open, http_answer, tag_close);
 			}
-		}
-		p[strlen(p)-1]=0;
-		strcat(p,"]}}}");
-		send_string(http_answer, p);
+		}		
+		
+		send_string(http_answer, html_flush(&session.user_iface->header, 0));
 	}
 	return http_answer;	
 }

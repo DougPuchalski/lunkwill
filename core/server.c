@@ -29,7 +29,7 @@ void *client_trhead(void * arg)
 				tmp=session.module[0](file_name);
 				if(tmp==NULL) goto HTTP404;
 				send(client_sock, tmp, strlen(tmp), 0);
-				free(tmp);
+				nfree(tmp);
 			}
 			else goto HTTP404;			
 		}
@@ -40,7 +40,7 @@ void *client_trhead(void * arg)
 				tmp=session.module[file_name[0]-'0'+1](file_name);
 				if(tmp==NULL) goto HTTP404;
 				send(client_sock, tmp, strlen(tmp), 0);
-				free(tmp);
+				nfree(tmp);
 			}
 			else goto HTTP404;			
 		}
@@ -51,7 +51,7 @@ void *client_trhead(void * arg)
 				tmp=session.module[file_name[0]-'a'+11](file_name);
 				if(tmp==NULL) goto HTTP404;
 				send(client_sock, tmp, strlen(tmp), 0);
-				free(tmp);
+				nfree(tmp);
 			}
 			else goto HTTP404;			
 		}
@@ -62,7 +62,7 @@ void *client_trhead(void * arg)
 				tmp=session.module[file_name[0]-'A'+37](file_name);
 				if(tmp==NULL) goto HTTP404;
 				send(client_sock, tmp, strlen(tmp), 0);
-				free(tmp);
+				nfree(tmp);
 			}
 			else goto HTTP404;			
 		}

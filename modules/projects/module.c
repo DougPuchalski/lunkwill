@@ -25,31 +25,31 @@ static int callback(void *data, int argc, char **argv, char **azColName){
 	if(((char *)data)[0]==0){
 		for(i=0; i<argc; i++){
 			if(((char *)data)[0]==0){
-				strncpy(data, azColName[i],BUFSIZ);
+				strncpy(data, azColName[i],BUF_SIZE);
 			}
 			else
 			{
-				strncat(data, azColName[i],BUFSIZ);
+				strncat(data, azColName[i],BUF_SIZE);
 			}
-			strncat(data, "\t",BUFSIZ);
+			strncat(data, "\t",BUF_SIZE);
 		}
 	}
 
-	strncat(data, "\n",BUFSIZ);
+	strncat(data, "\n",BUF_SIZE);
 
 	for(i=0; i<argc; i++){
-		strncat(data, argv[i] ? argv[i] : "NULL",BUFSIZ);
-		strncat(data, "\t",BUFSIZ);
+		strncat(data, argv[i] ? argv[i] : "NULL",BUF_SIZE);
+		strncat(data, "\t",BUF_SIZE);
 	}
-	strncat(data, "\n",BUFSIZ);
+	strncat(data, "\n",BUF_SIZE);
 	return 0;
 }
 
 
 /** \brief Parses get requests */
 char *projects_get_request(char *request){
-	char answer[BUFSIZ],*a,*sql;
-	char *http_answer = malloc(BUFSIZ);	
+	char answer[BUF_SIZE],*a,*sql;
+	char *http_answer = malloc(BUF_SIZE);	
 	sqlite3 *db;
 	char *zErrMsg = 0;
 	int rc;
@@ -77,12 +77,12 @@ char *projects_get_request(char *request){
 	rc = sqlite3_open(a, &db);
 	if(rc)
 	{
-		free(http_answer);
+		nfree(http_answer);
 		return NULL;
 	}
 	
 	
-	a=malloc(BUFSIZ);
+	a=malloc(BUF_SIZE);
 	a[0]=0;
 
 	sql="SELECT * from PROJECTS";
@@ -112,7 +112,7 @@ char *projects_get_request(char *request){
 
 	sqlite3_close(db);
 	send_string(http_answer, a);
-	free(a);
+	nfree(a);
 	return http_answer;	
 }
 

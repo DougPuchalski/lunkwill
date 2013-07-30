@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "http.h"
+#include "lunkwill.h"
 
 /** \brief Fills the buffer with an HTTP file request answer 
  *  \returns The size of the answer to send */
@@ -19,9 +20,9 @@ int send_file(char **buffer, char *file_path, int mime_type){
 	file_size = ftell(file);
 	rewind(file);
 
-	*buffer=(char *)malloc(BUFSIZ+file_size);
+	*buffer=(char *)malloc(BUF_SIZE+file_size);
 
-	sprintf(*buffer, "HTTP/1.1 200 OK\nContent-Length: %d\nContent-Type: %s\n\n", file_size, content_types[mime_type]);
+	sprintf(*buffer, "HTTP/1.1 200 OK\nContent-Length: %u\nContent-Type: %s\n\n", file_size, content_types[mime_type]);
 	fread((*buffer+strlen(*buffer)), file_size, 1, file);
 	fclose(file);
 	

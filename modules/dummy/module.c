@@ -24,8 +24,8 @@ char dummy_init_module(int id){
 
 /** \brief Parses get requests */
 char *dummy_get_request(char *request){
-	char answer[BUFSIZ];
-	char *http_answer = malloc(BUFSIZ);
+	char answer[BUF_SIZE];
+	char *http_answer = malloc(BUF_SIZE);
 	
 	sprintf(answer, "<!DOCTYPE><html><head><title>Dummy Module</title>"\
 	"</head><body>Hello! Greetings out of the dummy module :)\n\n<b>"\
