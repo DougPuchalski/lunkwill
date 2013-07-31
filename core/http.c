@@ -1,13 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "http.h"
 #include "lunkwill.h"
 
 /** \brief Fills the buffer with an HTTP file request answer 
  *  \returns The size of the answer to send */
-int send_file(char **buffer, char *file_path, int mime_type){
+int send_file(char **buffer, char *file_path){
 	FILE *file;
 	unsigned int file_size;
 	
@@ -22,11 +18,12 @@ int send_file(char **buffer, char *file_path, int mime_type){
 
 	*buffer=(char *)malloc(BUF_SIZE+file_size);
 
-	sprintf(*buffer, "HTTP/1.1 200 OK\nContent-Length: %u\nContent-Type: %s\n\n", file_size, content_types[mime_type]);
+	sprintf(*buffer, "HTTP/1.1 200 OK\nContent-Length: %u\nContent-Type: %s\n\n", file_size, content_types[get_mime(file_path)]);
+	file_size+=strlen(*buffer);
 	fread((*buffer+strlen(*buffer)), file_size, 1, file);
 	fclose(file);
 	
-	return strlen(*buffer);
+	return file_size;
 }
 
 
@@ -37,15 +34,15 @@ int get_mime(char *file_path){
 	if(ptr == NULL)
 		return 0;
 	
-	if(strcmp(ptr, "txt") == 0)
+	if(strcasecmp(ptr, "txt") == 0)
 		return 1;
-	if(strcmp(ptr, "html") == 0 || strcmp(ptr, "htm"))
+	if(strcasecmp(ptr, "html") == 0 || strcasecmp(ptr, "htm"))
 		return 2;
-	if(strcmp(ptr, "js") == 0)
+	if(strcasecmp(ptr, "js") == 0)
 		return 3;
-	if(strcmp(ptr, "css") == 0)
+	if(strcasecmp(ptr, "css") == 0)
 		return 4;
-	if(strcmp(ptr, "png") == 0)
+	if(strcasecmp(ptr, "png") == 0)
 		return 5;
 		
 	return 0;
@@ -54,7 +51,8 @@ int get_mime(char *file_path){
 
 /** \brief Fills the buffer with an HTTP answer containing a string
  *  \returns The size of the answer to send */
-int send_string(char *buffer, char *string){
-	sprintf(buffer, "HTTP/1.1 200 OK\nContent-Length: %u\n\n%s", (unsigned int)strlen(string), string);
-	return strlen(buffer);
+int send_string(char **buffer, char *string){
+	*buffer=malloc(strlen(string)+BUF_SIZE);	
+	sprintf(*buffer, "HTTP/1.1 200 OK\nContent-Length: %u\n\n%s", (unsigned int)strlen(string), string);
+	return strlen(*buffer);
 }

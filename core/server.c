@@ -3,44 +3,41 @@
 void *client_trhead(void * arg)
 {
 	unsigned int client_sock;
-	int i;
-	char buf[BUF_SIZE];
+	char recv_buf[BUF_SIZE];
 	char *file_name=NULL;
+	char *send_buf=NULL;
+	int msg_len;
+	struct html_ui *user_iface=new_html();
  
 	client_sock = *(unsigned int *)arg;
 
-    if(recv(client_sock, buf, BUF_SIZE, 0)<0)
+	if(recv(client_sock, recv_buf, BUF_SIZE, 0)<0)
 	{
 		pthread_exit(NULL);
 	}
 	else
 	{
-		for(i=0;i<BUF_SIZE;i++){
-			if(file_name==NULL && buf[i]=='/'){
-				file_name=&buf[i+1];
-			}
-		} 
-
-		char *tmp=NULL;
-
-		if(file_name[0]==' '||file_name[0]=='%'){
-			if(session.module[0]!=NULL)
-			{
-				tmp=session.module[0](file_name);
-				if(tmp==NULL) goto HTTP404;
-				send(client_sock, tmp, strlen(tmp), 0);
-				nfree(tmp);
-			}
-			else goto HTTP404;			
+		file_name=strstr(recv_buf, "GET /");
+		if(file_name==NULL)
+		{
+			goto HTTP404;
 		}
-		else if(file_name[0]>='0'&&file_name[0]<='9')
+		else
+		{
+			file_name=&file_name[5];
+		}
+
+		if(session.module[0]!=NULL)
+		{
+			if(session.module[0](file_name,user_iface)!=0) goto HTTP404;
+		}
+		else goto HTTP404;			
+		
+		if(file_name[0]>='0'&&file_name[0]<='9')
 		{
 			if(session.module[file_name[0]-'0'+1]!=NULL)
 			{
-				tmp=session.module[file_name[0]-'0'+1](file_name);
-				if(tmp==NULL) goto HTTP404;
-				send(client_sock, tmp, strlen(tmp), 0);
-				nfree(tmp);
+				if(session.module[file_name[0]-'0'+1](file_name, user_iface)!=0) goto HTTP404;
 			}
 			else goto HTTP404;			
 		}
@@ -48,41 +45,90 @@ void *client_trhead(void * arg)
 		{
 			if(session.module[file_name[0]-'a'+11]!=NULL)
 			{
-				tmp=session.module[file_name[0]-'a'+11](file_name);
-				if(tmp==NULL) goto HTTP404;
-				send(client_sock, tmp, strlen(tmp), 0);
-				nfree(tmp);
+				if(session.module[file_name[0]-'a'+11](file_name, user_iface)!=0) goto HTTP404;
 			}
 			else goto HTTP404;			
 		}
-		else if(file_name[0]>='A'&&file_name[0]<='Z')
+		else if(file_name[0]>='A'&&file_name[0]<='Y')
 		{
 			if(session.module[file_name[0]-'A'+37]!=NULL)
 			{
-				tmp=session.module[file_name[0]-'A'+37](file_name);
-				if(tmp==NULL) goto HTTP404;
-				send(client_sock, tmp, strlen(tmp), 0);
-				nfree(tmp);
+				if(session.module[file_name[0]-'A'+37](file_name, user_iface)!=0) goto HTTP404;
 			}
 			else goto HTTP404;			
 		}
-		else goto HTTP404;
+		else if(file_name[0]=='Z'||file_name[0]==' ')
+		{
+			char path[BUF_SIZE<<5];
+			char *tmp;
 
+			if (file_name[0]==' ')
+			{
+				strcpy(file_name+1,"index.html");
+			}
+			else
+			{
+				int i;
+				for(i=0;i<BUF_SIZE;i++)
+				{
+					if(file_name[i]==' ')
+					{
+						file_name[i]=0;
+						break;
+					}
+				}
+			}
+			
+			if (config_lookup_string(&session.config, "WWW_ROOT", (const char**)&tmp))
+			{
+				sprintf(path,"%s/%s", tmp, &file_name[1]);
+			}
+			else
+			{
+				sprintf(path,"%s/%s", "www", &file_name[1]);
+			}
+			
+			if((msg_len=send_file(&send_buf, path))>0)
+			{
+				free(user_iface);
+				goto SEND;
+			}
+			else
+			{
+				goto HTTP404;
+			}
+		}
+		else
+		{	
+			html_add_tag( \
+				&user_iface->main, \
+				"<h1>", "lunkwill", "</h1><br>");
+
+			html_add_tag( \
+				&user_iface->main, \
+				"", "lunkwill is a lightweight bug tracking and project management tool.", "");
+		};
 	}
-	
-	close(client_sock);
-	pthread_exit(NULL);
+
+	if(send_string(&send_buf, html_flush(&user_iface->base, 0))<0)
+	{
+		goto HTTP404;
+	}
+	msg_len=strlen(send_buf);
+
+	SEND:
+		send(client_sock, send_buf, msg_len, 0);
+		nfree(send_buf);
+		close(client_sock);
+		pthread_exit(NULL);
 	
 	HTTP404:
-		strcpy(buf, HTTP_404);
-		send(client_sock, buf, strlen(buf), 0);
-		strcpy(buf, HTTP_404_MESS);
-		send(client_sock, buf, strlen(buf), 0);
+		free(user_iface);
+		send(client_sock, HTTP_404, strlen(HTTP_404), 0);
+		send(client_sock, HTTP_404_MESS, strlen(HTTP_404_MESS), 0);
 		close(client_sock);
 		pthread_exit(NULL);
 }
-
-
 
 int start_server()
 {
@@ -129,7 +175,6 @@ int start_server()
 		fprintf(stderr, "Error listening on port\n");
 		return 1;
 	}
- 
 
 	while(1)
 	{

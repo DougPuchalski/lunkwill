@@ -5,7 +5,7 @@
 #include "../modules.h"
 
 void *projects_close_module(void *arg);
-char *projects_get_request(char *request);
+int projects_get_request(char *request);
 
 /** \brief Initializes the module */
 char projects_init_module(int id){
@@ -47,7 +47,7 @@ static int callback(void *data, int argc, char **argv, char **azColName){
 
 
 /** \brief Parses get requests */
-char *projects_get_request(char *request){
+int projects_get_request(char *request){
 	char answer[BUF_SIZE],*a,*sql;
 	char *http_answer = malloc(BUF_SIZE);	
 	sqlite3 *db;
@@ -78,7 +78,7 @@ char *projects_get_request(char *request){
 	if(rc)
 	{
 		nfree(http_answer);
-		return NULL;
+		return 1;
 	}
 	
 	
@@ -111,9 +111,9 @@ char *projects_get_request(char *request){
 	}
 
 	sqlite3_close(db);
-	send_string(http_answer, a);
+	send_string(&http_answer, a);
 	nfree(a);
-	return http_answer;	
+	return 1;	
 }
 
 

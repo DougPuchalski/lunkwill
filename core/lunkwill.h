@@ -38,14 +38,14 @@
 
 
 struct html_ui{
+	void *base;
 	void *header;
 	void *sidebar;
 	void *main;
 };
 
 EXTERN struct{
-	struct html_ui *user_iface;
-	void *(*module[63])(void *);
+	int (*module[63])(void *, struct html_ui*);
     config_t config;
 	void *sighndlr;
 } session;
@@ -69,12 +69,11 @@ extern void sighndlr_remove(void *(*func)(void *), void *param);
 
 extern int load_config(char *config_file_name);
 
-extern int send_file(char **buffer, char *file_path, int mime_type);
+extern int send_file(char **buffer, char *file_path);
 extern int get_mime(char *file_path);
-extern int send_string(char *buffer, char *string);
+extern int send_string(char **buffer, char *string);
 
-extern void init_html();
-extern void new_html();
+struct html_ui *new_html();
 extern char *html_flush(void **html, int follow);
 extern void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close );
 

@@ -47,7 +47,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	init_html();
 	init_modules();
 
 	if(start_server()!=0)

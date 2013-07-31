@@ -49,6 +49,7 @@ char *html_flush(void **html, int follow)
 
 void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close ){
 	HTML_TAG **tag;
+
 	if((*((HTML_TAG **)parent)==NULL))
 	{
 		tag=(HTML_TAG **)parent;
@@ -91,28 +92,22 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	return (*tag);
 }
 
-void new_html()
+struct html_ui * new_html()
 {
-	html_flush(&session.user_iface->header,1);
-	html_flush(&session.user_iface->main,1);
-	html_flush(&session.user_iface->sidebar,1);
+	struct html_ui *user_iface;
+	
+	user_iface=calloc(1, sizeof(struct html_ui));
 
-	char *b_o=malloc(strlen(HEADER_OPEN)+BUF_SIZE);	
-	char *b_c=malloc(strlen(HEADER_CLOSE)+BUF_SIZE);	
-	strcpy(b_o, HEADER_OPEN);
-	strcpy(b_c, HEADER_CLOSE);
-	html_add_tag(&session.user_iface->header, b_o, NULL, b_c);
+	user_iface->base=html_add_tag(&user_iface->base, NULL, NULL, NULL);
 
-	strcpy(b_o, SIDEBAR_OPEN);
-	strcpy(b_c, SIDEBAR_CLOSE);
-	html_add_tag(&session.user_iface->sidebar,b_o, NULL, b_c );
+	user_iface->header = \
+		html_add_tag(&user_iface->base, HEADER_OPEN, NULL, HEADER_CLOSE);
 
-	strcpy(b_o, MAIN_OPEN);
-	strcpy(b_c, MAIN_CLOSE);
-	html_add_tag(&session.user_iface->main, b_o, NULL, b_c );
-}
+	user_iface->sidebar = \
+		html_add_tag(&user_iface->base, SIDEBAR_OPEN, NULL, SIDEBAR_CLOSE );
 
-void init_html()
-{
-	session.user_iface=calloc(1, sizeof(struct html_ui));
+	user_iface->main = \
+		html_add_tag(&user_iface->base, MAIN_OPEN, NULL, MAIN_CLOSE );
+		
+	return user_iface;
 }

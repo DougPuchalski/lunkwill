@@ -19,5 +19,7 @@ $(OBJS): $(SRCS)
 clean:
 	@echo Cleaning build directory ...
 	@mv Makefile .Makefile
+	@mv $(TARGET) .$(TARGET) >/dev/null 2>/dev/null || :
 	@rm -rf *
 	@mv .Makefile Makefile
+	@mv .$(TARGET) $(TARGET) >/dev/null 2>/dev/null || :
