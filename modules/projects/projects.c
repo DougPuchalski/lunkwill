@@ -9,7 +9,7 @@ int projects_get_request(char *request);
 
 /** \brief Initializes the module */
 char projects_init_module(int id){
-	printf("PROJECT MODULE INITIALIEZED AT: %d\n",id);
+	printf("PROJECT MODULE INITIALIEZED AT: /%d\n", id-1);
 	session.module[id]=(void *)projects_get_request;
 	sighndlr_add(projects_close_module, NULL);
 	
