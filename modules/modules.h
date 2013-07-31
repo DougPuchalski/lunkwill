@@ -3,9 +3,9 @@
 
 #include "../core/lunkwill.h"
 
-#include "dummy/module.h"
+#include "dummy/dummy.h"
 #include "tickets/module.h"
-#include "projects/module.h"
+#include "projects/projects.h"
 #include "source/module.h"
 #include "wiki/module.h"
 

@@ -9,7 +9,7 @@ void *client_trhead(void * arg)
  
 	client_sock = *(unsigned int *)arg;
 
-    if(recv(client_sock, buf, BUF_SIZE, 0)<0)
+	if(recv(client_sock, buf, BUF_SIZE, 0)<0)
 	{
 		pthread_exit(NULL);
 	}
@@ -19,21 +19,25 @@ void *client_trhead(void * arg)
 			if(file_name==NULL && buf[i]=='/'){
 				file_name=&buf[i+1];
 			}
+		}
+
+		if(file_name==NULL)
+		{
+			pthread_exit(NULL);
 		} 
 
 		char *tmp=NULL;
 
-		if(file_name[0]==' '||file_name[0]=='%'){
-			if(session.module[0]!=NULL)
-			{
-				tmp=session.module[0](file_name);
-				if(tmp==NULL) goto HTTP404;
-				send(client_sock, tmp, strlen(tmp), 0);
-				nfree(tmp);
-			}
-			else goto HTTP404;			
+		if(session.module[0]!=NULL)
+		{
+			tmp=session.module[0](file_name);
+			if(tmp==NULL) goto HTTP404;
+			send(client_sock, tmp, strlen(tmp), 0);
+			nfree(tmp);
 		}
-		else if(file_name[0]>='0'&&file_name[0]<='9')
+		else goto HTTP404;			
+		
+		if(file_name[0]>='0'&&file_name[0]<='9')
 		{
 			if(session.module[file_name[0]-'0'+1]!=NULL)
 			{
