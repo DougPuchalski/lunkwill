@@ -1,3 +1,4 @@
+
 #ifndef __MODULES_H__
 #define __MODULES_H__
 
@@ -8,6 +9,7 @@
 #include "projects/projects.h"
 #include "source/module.h"
 #include "wiki/module.h"
+#include "git/git.h"
 
 extern int init_modules();
 

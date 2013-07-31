@@ -31,5 +31,7 @@ int init_modules()
 	session.module[__COUNTER__]=border;
 	dummy_init_module(__COUNTER__);
 	projects_init_module(__COUNTER__);
+	git_init_module(__COUNTER__);
+	
 	return 0;
 }

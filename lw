@@ -1,0 +1,12 @@
+#!/bin/bash
+
+TARGET_DIR="/home/patrick/programmieren/lunkwill/"
+
+rm -rf ${TARGET_DIR}/build
+mkdir ${TARGET_DIR}/build
+cd ${TARGET_DIR}/build
+
+../configure
+make 
+bash
+rm -rf ${TARGET_DIR}/build
