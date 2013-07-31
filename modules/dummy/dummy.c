@@ -27,9 +27,10 @@ char *dummy_get_request(char *request){
 	char answer[BUF_SIZE];
 	char *http_answer = malloc(BUF_SIZE);
 	
-	sprintf(answer, "<!DOCTYPE><html><head><title>Dummy Module</title>"\
-	"</head><body>Hello! Greetings out of the dummy module :)\n\n<b>"\
+	sprintf(answer,	"</head><body>Hello! Greetings out of the dummy module :)<b>"\
 	"Request:</b><br><br>%s</body></html>", request);
+	
+	
 	send_string(http_answer, answer);
 	return http_answer;	
 }
