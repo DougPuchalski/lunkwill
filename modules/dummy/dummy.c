@@ -1,4 +1,4 @@
-/** \file module.c
+/** \file dummy.c
  *  \brief A sample dummy module
  */
 
@@ -10,7 +10,7 @@ int dummy_get_request(void *request, struct html_ui* user_iface);
 /** \brief Initializes the module */
 char dummy_init_module(int id)
 {
-	printf("DUMMY MODULE INITIALIEZED AT: %d\n",id);
+	printf("DUMMY MODULE INITIALIZED AT: %d\n",id);
 	session.module[id]=dummy_get_request;
 	sighndlr_add(dummy_close_module, NULL);
 	
