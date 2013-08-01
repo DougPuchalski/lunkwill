@@ -37,6 +37,7 @@
 #define HTTP_404_MESS "<html><body><h1>FILE NOT FOUND</h1></body></html>"
 
 
+/** \brief "html_ui" is required for module output */
 struct html_ui{
 	void *base;
 	void *header;
@@ -44,6 +45,7 @@ struct html_ui{
 	void *main;
 };
 
+/** \brief Global struct for module- and signal- handling */
 EXTERN struct{
 	int (*module[63])(void *, struct html_ui*);
     config_t config;

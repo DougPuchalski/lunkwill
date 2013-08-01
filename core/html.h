@@ -1,6 +1,7 @@
 #ifndef __HTML_H__
 #define __HTML_H__
 
+/** \brief "html_tag" contains a basic structure to represent xml-like files*/
 struct html_tag
 {
 	char *tag_open;

@@ -1,6 +1,7 @@
 #include "html.h"
 #include "lunkwill.h"
 
+/** \brief Turns "HTML_TAG" into an string and free's all elements */
 char *html_flush(void **html, int follow)
 {
 		char *ret=NULL;
@@ -12,6 +13,7 @@ char *html_flush(void **html, int follow)
 			return NULL;
 		}
 		
+		//Turn subordinated elements into a string  
 		children=html_flush(&((*((HTML_TAG**)html))->tag_embedded_tags), 1);
 		if(children==NULL){
 			children=calloc(1,1);
@@ -19,6 +21,7 @@ char *html_flush(void **html, int follow)
 		
 		if(follow)
 		{
+			//Proceed with the next element at the same depth  
 			following=html_flush(&((*((HTML_TAG**)html))->next_tag), 1);
 		}
 		else
@@ -29,7 +32,8 @@ char *html_flush(void **html, int follow)
 		if(following==NULL){
 			following=calloc(1,1);
 		}
-				
+		
+		
 		length=strlen((*((HTML_TAG**)html))->tag_open);		
 		length+=strlen((*((HTML_TAG**)html))->tag_content_string);
 		length+=strlen(children);
@@ -43,15 +47,18 @@ char *html_flush(void **html, int follow)
 		strcat(ret,(*((HTML_TAG**)html))->tag_close);
 		strcat(ret,following);
 
+		//Free everything
 		nfree((*((HTML_TAG**)html))->tag_open);
 		nfree((*((HTML_TAG**)html))->tag_close);
 		nfree((*((HTML_TAG**)html))->tag_content_string);
 		nfree(children);
 		nfree(following);
 		nfree((*html));
+
 		return ret;
 }
 
+/** \brief Adds a "HTML_TAG" into an existing tag */
 void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close ){
 	HTML_TAG **tag;
 
@@ -97,6 +104,7 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	return (*tag);
 }
 
+/** \brief Initializes a new html_ui */
 struct html_ui * new_html()
 {
 	struct html_ui *user_iface;

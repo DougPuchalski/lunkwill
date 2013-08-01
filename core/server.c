@@ -1,5 +1,6 @@
 #include "lunkwill.h"
 
+/** \brief Threads which handles client request */
 void *client_trhead(void * arg)
 {
 	unsigned int client_sock;
@@ -17,6 +18,7 @@ void *client_trhead(void * arg)
 	}
 	else
 	{
+		//Search HTTP GET method
 		file_name=strstr(recv_buf, "GET /");
 		if(file_name==NULL)
 		{
@@ -27,12 +29,17 @@ void *client_trhead(void * arg)
 			file_name=&file_name[5];
 		}
 
+		//Initialize list of modules
 		if(session.module[0]!=NULL)
 		{
 			if(session.module[0](file_name,user_iface)!=0) goto HTTP404;
 		}
 		else goto HTTP404;			
 		
+		/* Open module
+		 * Modules are identified with a single char [0-9a-zA-Y]
+		 * Char 'Z' allows to use the server as a normal http server
+		 * */ 
 		if(file_name[0]>='0'&&file_name[0]<='9')
 		{
 			if(session.module[file_name[0]-'0'+1]!=NULL)
@@ -57,8 +64,11 @@ void *client_trhead(void * arg)
 			}
 			else goto HTTP404;			
 		}
-		else if(file_name[0]=='Z'||file_name[0]==' ')
+		else if(file_name[0]=='Z'||file_name[0]==' ') 
 		{
+			//Open the file for sending.
+			//Request "GET / " is interpreted like "GET /Z/index.html"
+
 			char path[BUF_SIZE<<5];
 			char *tmp;
 
@@ -99,7 +109,8 @@ void *client_trhead(void * arg)
 			}
 		}
 		else
-		{	
+		{
+			
 			html_add_tag( \
 				&user_iface->main, \
 				"<h1>", "lunkwill", "</h1><br>");
@@ -107,7 +118,7 @@ void *client_trhead(void * arg)
 			html_add_tag( \
 				&user_iface->main, \
 				"", "lunkwill is a lightweight bug tracking and project management tool.", "");
-		};
+		}
 	}
 
 	if(send_string(&send_buf, html_flush(&user_iface->base, 0))<0)
@@ -130,6 +141,7 @@ void *client_trhead(void * arg)
 		pthread_exit(NULL);
 }
 
+/** \brief Server which spawns threads for all clients */
 int start_server()
 {
 	unsigned int server_sock, client_sock, addr_len;
@@ -156,8 +168,6 @@ int start_server()
 	if(con<=0||con>0xFF){
 		con=50;
 	}
-	
-
 
 	server_sock = socket(AF_INET, SOCK_STREAM, 0);
 	server_addr.sin_family = AF_INET;

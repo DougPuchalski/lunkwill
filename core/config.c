@@ -1,5 +1,6 @@
 #include "lunkwill.h"
 
+/** \brief Starting libconfig to parse config*/
 int load_config(char *config_file_name)
 {
     config_init(&session.config);

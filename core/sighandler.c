@@ -7,6 +7,8 @@ typedef struct{
 } sighndlr_list;
 
 
+/** \brief Adds a new functionn to the queue.
+ * The function will be executed on SIGINT or SIGTERM */
 void sighndlr_add(void *(*func)(void *), void *param)
 {
 	sighndlr_list *sig_list;
@@ -21,6 +23,7 @@ void sighndlr_add(void *(*func)(void *), void *param)
 	sig_list->param=param;
 }
 
+/** \brief Removes a new functionn from the queue. */
 void sighndlr_remove(void *(*func)(void *), void *param)
 {
 	sighndlr_list *sig_list, *sig_prev;
@@ -38,6 +41,7 @@ void sighndlr_remove(void *(*func)(void *), void *param)
 }
 
 
+/** \brief Works throu queue. */
 void sighndlr_safe_exit(int param)
 {
 	sighndlr_list *sig_list, *n;
@@ -61,6 +65,7 @@ void sighndlr_safe_exit(int param)
 	}
 }
 
+/** \brief Set up signalhandlers */
 void init_sighndlr()
 {
 	session.sighndlr=calloc(sizeof(sighndlr_list),1);
