@@ -33,7 +33,7 @@
 
 
 #define BUF_SIZE 1024
-#define HTTP_404 "HTTP/1.0 404 Not Found\nContent-Type:text/html\n\n"
+#define HTTP_404 "HTTP/1.0 404 Not Found\r\nContent-Type:text/html\r\n\r\n"
 #define HTTP_404_MESS "<html><body><h1>FILE NOT FOUND</h1></body></html>"
 
 
