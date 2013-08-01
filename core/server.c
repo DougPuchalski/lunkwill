@@ -7,6 +7,7 @@ void *client_trhead(void * arg)
 	char recv_buf[BUF_SIZE];
 	char *file_name=NULL;
 	char *send_buf=NULL;
+	void *leek;
 	int msg_len;
 	struct html_ui *user_iface=new_html();
  
@@ -102,11 +103,12 @@ void *client_trhead(void * arg)
 			
 			if((msg_len=send_file(&send_buf, path))>0)
 			{
-				free(user_iface);
+				nfree(user_iface);
 				goto SEND;
 			}
 			else
 			{
+				nfree(send_buf);
 				goto HTTP404;
 			}
 		}
@@ -123,20 +125,23 @@ void *client_trhead(void * arg)
 		}
 	}
 
-	if(send_string(&send_buf, html_flush(&user_iface->base, 0))<0)
+	if(send_string(&send_buf, (leek=html_flush(&user_iface->base, 0)))<0)
 	{
+		nfree(leek);
 		goto HTTP404;
 	}
+	nfree(leek);
 	msg_len=strlen(send_buf);
 
 	SEND:
 		send(client_sock, send_buf, msg_len, 0);
 		nfree(send_buf);
+		nfree(user_iface);
 		close(client_sock);
 		pthread_exit(NULL);
 	
 	HTTP404:
-		free(user_iface);
+		nfree(user_iface);
 		send(client_sock, HTTP_404, strlen(HTTP_404), 0);
 		close(client_sock);
 		pthread_exit(NULL);
