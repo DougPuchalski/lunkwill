@@ -136,7 +136,6 @@ void *client_trhead(void * arg)
 	HTTP404:
 		free(user_iface);
 		send(client_sock, HTTP_404, strlen(HTTP_404), 0);
-		send(client_sock, HTTP_404_MESS, strlen(HTTP_404_MESS), 0);
 		close(client_sock);
 		pthread_exit(NULL);
 }

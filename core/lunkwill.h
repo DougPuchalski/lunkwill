@@ -32,9 +32,8 @@
 #define nfree(a) free(a);a=NULL;
 
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 2048
 #define HTTP_404 "HTTP/1.0 404 Not Found\r\nContent-Type:text/html\r\n\r\n"
-#define HTTP_404_MESS "<html><body><h1>FILE NOT FOUND</h1></body></html>"
 
 
 /** \brief "html_ui" is required for module output */

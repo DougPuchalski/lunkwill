@@ -6,19 +6,28 @@
 int send_file(char **buffer, char *file_path){
 	FILE *file;
 	unsigned int file_size;
+	struct stat statbuf;
+
+	if(stat(file_path, &statbuf) == -1) {
+		fprintf(stderr, "Could not open requested file\n");
+		return -1;
+	}
+	
+	if(!S_ISREG(statbuf.st_mode)){
+		fprintf(stderr, "Could not open requested file\n");
+		return -1;
+	}
 	
 	if((file = fopen(file_path, "r")) == NULL){
 		fprintf(stderr, "Could not open requested file\n");
 		return -1;
 	}
 	
-	fseek(file, 0, SEEK_END);
-	file_size = ftell(file);
-	rewind(file);
+	file_size = statbuf.st_size;
 
-	*buffer=(char *)malloc(BUF_SIZE+file_size);
+	*buffer=(char *)calloc(BUF_SIZE+file_size,1);
 
-	sprintf(*buffer, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %u\r\nConnection: close\r\n\r\n", content_types[get_mime(file_path)], file_size );
+	sprintf(*buffer, "HTTP/1.0 200 OK\r\nContent-Type: %s\r\nContent-Length: %u\r\nConnection: close\r\n\r\n", content_types[get_mime(file_path)], file_size );
 	file_size+=strlen(*buffer);
 	fread((*buffer+strlen(*buffer)), file_size, 1, file);
 	fclose(file);
@@ -54,6 +63,6 @@ int get_mime(char *file_path){
  *  \returns The size of the answer to send */
 int send_string(char **buffer, char *string){
 	*buffer=malloc(strlen(string)+BUF_SIZE);	
-	sprintf(*buffer, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %u\r\nConnection: close\r\n\r\n%s", (unsigned int)strlen(string), string);
+	sprintf(*buffer, "HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %u\r\nConnection: close\r\n\r\n%s", (unsigned int)strlen(string), string);
 	return strlen(*buffer);
 }

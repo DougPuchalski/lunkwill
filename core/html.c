@@ -79,15 +79,15 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	
 	if(tag_open==NULL)
 	{
-		tag_open=calloc(1,sizeof(char *));
+		tag_open=calloc(1,sizeof(char));
 	}
 	if(tag_close==NULL)
 	{
-		tag_close=calloc(1,sizeof(char *));
+		tag_close=calloc(1,sizeof(char));
 	}
 	if(content_string==NULL)
 	{
-		content_string=calloc(1,sizeof(char *));
+		content_string=calloc(1,sizeof(char));
 	}
 
 	(*tag)=malloc(sizeof(HTML_TAG));
