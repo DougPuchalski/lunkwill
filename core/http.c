@@ -36,7 +36,7 @@ int get_mime(char *file_path){
 	
 	if(strcasecmp(ptr, "txt") == 0)
 		return 1;
-	if(strcasecmp(ptr, "html") == 0 || strcasecmp(ptr, "htm"))
+	if(strcasecmp(ptr, "html") == 0 || strcasecmp(ptr, "htm") == 0)
 		return 2;
 	if(strcasecmp(ptr, "js") == 0)
 		return 3;
