@@ -53,6 +53,6 @@ int get_mime(char *file_path){
  *  \returns The size of the answer to send */
 int send_string(char **buffer, char *string){
 	*buffer=malloc(strlen(string)+BUF_SIZE);	
-	sprintf(*buffer, "HTTP/1.1 200 OK\nContent-Length: %u\n\n%s", (unsigned int)strlen(string), string);
+	sprintf(*buffer, "HTTP/1.1 200 OK\nContent-Length: %u\nContent-Type: text/plain\n\n%s", (unsigned int)strlen(string), string);
 	return strlen(*buffer);
 }
