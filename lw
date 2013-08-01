@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET_DIR="/home/patrick/programmieren/lunkwill/"
+TARGET_DIR=$(dirname $0)
 
 rm -rf ${TARGET_DIR}/build
 mkdir ${TARGET_DIR}/build

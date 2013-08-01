@@ -40,7 +40,7 @@ void sighndlr_remove(void *(*func)(void *), void *param)
 
 void sighndlr_safe_exit(int param)
 {
-	sighndlr_list *sig_list;
+	sighndlr_list *sig_list, *n;
 	sig_list=session.sighndlr;
 	printf("Please wait ");
 	while(1){
@@ -55,7 +55,9 @@ void sighndlr_safe_exit(int param)
 			printf("\n");
 			exit(0);
 		}
+		n=sig_list;
 		sig_list=sig_list->next;
+		nfree(n);
 	}
 }
 

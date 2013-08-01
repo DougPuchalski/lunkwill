@@ -43,6 +43,11 @@ char *html_flush(void **html, int follow)
 		strcat(ret,(*((HTML_TAG**)html))->tag_close);
 		strcat(ret,following);
 
+		nfree((*((HTML_TAG**)html))->tag_open);
+		nfree((*((HTML_TAG**)html))->tag_close);
+		nfree((*((HTML_TAG**)html))->tag_content_string);
+		nfree(children);
+		nfree(following);
 		nfree((*html));
 		return ret;
 }
