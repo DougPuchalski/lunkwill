@@ -34,7 +34,9 @@ void *client_trhead(void * arg)
 		{
 			if(session.module[0](file_name,user_iface)!=0) goto HTTP404;
 		}
-		else goto HTTP404;			
+		else goto HTTP404;
+		
+		if(file_name[1]!='/' && file_name[0]!=' ' && file_name[0]!='%') goto HTTP404;
 		
 		/* Open module
 		 * Modules are identified with a single char [0-9a-zA-Y]

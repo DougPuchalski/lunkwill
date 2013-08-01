@@ -27,7 +27,7 @@ int send_file(char **buffer, char *file_path){
 
 	*buffer=(char *)calloc(BUF_SIZE+file_size,1);
 
-	sprintf(*buffer, "HTTP/1.0 200 OK\r\nContent-Type: %s\r\nContent-Length: %u\r\nConnection: close\r\n\r\n", content_types[get_mime(file_path)], file_size );
+	sprintf(*buffer, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %u\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n", content_types[get_mime(file_path)], file_size );
 	file_size+=strlen(*buffer);
 	fread((*buffer+strlen(*buffer)), file_size, 1, file);
 	fclose(file);
@@ -63,6 +63,6 @@ int get_mime(char *file_path){
  *  \returns The size of the answer to send */
 int send_string(char **buffer, char *string){
 	*buffer=malloc(strlen(string)+BUF_SIZE);	
-	sprintf(*buffer, "HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %u\r\nConnection: close\r\n\r\n%s", (unsigned int)strlen(string), string);
+	sprintf(*buffer, "HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %u\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n%s", (unsigned int)strlen(string), string);
 	return strlen(*buffer);
 }
