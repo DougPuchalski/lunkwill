@@ -61,6 +61,7 @@ char *html_flush(void **html, int follow)
 /** \brief Adds a "HTML_TAG" into an existing tag */
 void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close ){
 	HTML_TAG **tag;
+	void *leeko=NULL,*leekc=NULL, *leekcs=NULL;
 
 	if((*((HTML_TAG **)parent)==NULL))
 	{
@@ -79,15 +80,15 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	
 	if(tag_open==NULL)
 	{
-		tag_open=calloc(1,sizeof(char));
+		leeko=tag_open=calloc(1,sizeof(char));
 	}
 	if(tag_close==NULL)
 	{
-		tag_close=calloc(1,sizeof(char));
+		leekc=tag_close=calloc(1,sizeof(char));
 	}
 	if(content_string==NULL)
 	{
-		content_string=calloc(1,sizeof(char));
+		leekcs=content_string=calloc(1,sizeof(char));
 	}
 
 	(*tag)=malloc(sizeof(HTML_TAG));
@@ -100,6 +101,21 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	strcpy((*tag)->tag_open, tag_open);
 	strcpy((*tag)->tag_content_string, content_string);
 	strcpy((*tag)->tag_close, tag_close);
+	
+	if(leeko==NULL)
+	{
+		nfree(leeko);
+	}
+
+	if(leekc==NULL)
+	{
+		nfree(leekc);
+	}
+
+	if(leekcs==NULL)
+	{
+		nfree(leekcs);
+	}
 
 	return (*tag);
 }
