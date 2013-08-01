@@ -30,9 +30,10 @@ int send_file(char **buffer, char *file_path){
 /** \brief Get the MIME Type
  *  \returns A mime_types value */
 int get_mime(char *file_path){
-	char *ptr = strrchr(file_path, '.')+1;
+	char *ptr = strrchr(file_path, '.');
 	if(ptr == NULL)
 		return 0;
+	ptr++;
 	
 	if(strcasecmp(ptr, "txt") == 0)
 		return 1;
