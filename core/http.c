@@ -6,6 +6,17 @@
 int send_file(char **buffer, char *file_path){
 	FILE *file;
 	unsigned int file_size;
+	struct stat statbuf;
+
+	if(stat(file_path, &statbuf) == -1) {
+		fprintf(stderr, "Could not open requested file\n");
+		return -1;
+	}
+	
+	if(!S_ISREG(statbuf.st_mode)){
+		fprintf(stderr, "Could not open requested file\n");
+		return -1;
+	}
 	
 	if((file = fopen(file_path, "r")) == NULL){
 		fprintf(stderr, "Could not open requested file\n");
