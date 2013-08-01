@@ -7,6 +7,6 @@ mkdir ${TARGET_DIR}/build
 cd ${TARGET_DIR}/build
 
 ../configure
-make 
+make -j9
 bash
 rm -rf ${TARGET_DIR}/build
