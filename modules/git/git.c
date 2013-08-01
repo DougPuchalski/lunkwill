@@ -76,7 +76,7 @@ int git_get_request(void *request, struct html_ui* user_iface)
 	}
 
 	git_revwalk_new(&walker, repo);
-	git_revwalk_sorting(walker, GIT_SORT_NONE);
+	git_revwalk_sorting(walker, GIT_SORT_TOPOLOGICAL);
 	git_revwalk_push(walker, &oid);
 
 
