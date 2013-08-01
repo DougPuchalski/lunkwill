@@ -33,7 +33,7 @@
 
 
 #define BUF_SIZE 2048
-#define HTTP_404 "HTTP/1.0 404 Not Found\r\nContent-Type:text/html\r\n\r\n"
+#define HTTP_404 "HTTP/1.0 404 Not Found\r\nContent-Type:text/html\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n"
 
 
 /** \brief "html_ui" is required for module output */
