@@ -17,8 +17,27 @@ request parse_request(char *get_request)
 
 	// Send index.html
 	if(get_request[5] == ' ')
-		goto EMPTY;
+	{
+		req.special_file = INDEX_HTML;
+		return req;
+	}
 
+	/// \brief Send logo or favicon, see server.h for list
+	if(strncmp(get_request+5, "logo.png ", 9) == 0)
+	{
+		req.special_file = LOGO_PNG;
+		return req;
+	}
+	
+	if(strncmp(get_request+5, "favicon.ico ", 11) == 0)
+	{
+		req.special_file = FAVICON_ICO;
+		return req;
+	}
+	
+
+	// Set special_file to 0 by default
+	req.special_file = NON_SPECIAL;
 
 	// Check session id
 	char *ptr = strstr(get_request+5, "/");
@@ -65,16 +84,9 @@ request parse_request(char *get_request)
 
 	return req;
 
-
-	
-	// Returns empty req struct
-	EMPTY:
-		memset(&req, 0x30, sizeof(req));
-		return req;	
-	
 	// Returns NULL
 	HTTP404:
-		memset(&req, 0x30, sizeof(req));
+		req.special_file = ERROR_404;
 		return req;
 }
 
