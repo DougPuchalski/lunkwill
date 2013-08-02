@@ -7,12 +7,9 @@
  * 			 - NULL if the request is not valid
  * 			 - A pointer to an empty request struct which has to be freed by the caller if index.html is requested 
  */  
-request *parse_request(char *get_request)
+request parse_request(char *get_request)
 {
-	request *req = malloc(sizeof(request));
-	if(req == NULL)
-		return NULL;
-
+	request req;
 	
 	// Invalid request
 	if(strncmp(get_request, "GET /", 5) != 0)
@@ -31,7 +28,7 @@ request *parse_request(char *get_request)
 		goto HTTP404;
 
 	// Read session id
-	strncpy(req->session_id, get_request+5, 20);
+	strncpy(req.session_id, get_request+5, 20);
 
 	
 	// Check project id
@@ -42,7 +39,7 @@ request *parse_request(char *get_request)
 		goto HTTP404;
 
 	// Read project id
-	strncpy(req->project_id, get_request+26, 4);
+	strncpy(req.project_id, get_request+26, 4);
 
 	
 	// Check module id
@@ -52,7 +49,7 @@ request *parse_request(char *get_request)
 	if(ptr - (get_request+31) != 2)
 		goto HTTP404;
 
-	strncpy(req->module_id, get_request+31, 2);
+	strncpy(req.module_id, get_request+31, 2);
 
 	// Find end of module_request
 	ptr = strstr(get_request+34, " ");
@@ -62,9 +59,9 @@ request *parse_request(char *get_request)
 
 
 	if(ptr - (get_request+34) < BUFSIZ-1)
-		strncpy(req->module_request, get_request+34, ptr - (get_request+34));
+		strncpy(req.module_request, get_request+34, ptr - (get_request+34));
 	else
-		strncpy(req->module_request, get_request+34, BUFSIZ-1);
+		strncpy(req.module_request, get_request+34, BUFSIZ-1);
 
 	return req;
 
@@ -72,13 +69,13 @@ request *parse_request(char *get_request)
 	
 	// Returns empty req struct
 	EMPTY:
-		memset(req, 0x30, sizeof(req));
+		memset(&req, 0x30, sizeof(req));
 		return req;	
 	
 	// Returns NULL
 	HTTP404:
-		free(req);
-		return NULL;
+		memset(&req, 0x30, sizeof(req));
+		return req;
 }
 
 
@@ -86,20 +83,20 @@ request *parse_request(char *get_request)
 int start_worker(int fd_ro, int fd_wr)
 {
 	struct _fifo *jobs=NULL;
-	struct _fifo *threads=NULL;
-	struct pipe_rxtx *buffer;
-	
+	struct _fifo *threads=NULL;	
 	
 	while(1)
 	{
-		buffer=calloc(1,sizeof(struct pipe_rxtx));
+		struct pipe_rxtx *buffer=calloc(1,sizeof(struct pipe_rxtx));
 
 		if(read(fd_ro, buffer, sizeof(struct pipe_rxtx))<=0)
 		{
 			nfree(buffer);
 			return 1;
 		}
+
 		fifo_push(&jobs,buffer);
+		
 		printf("Socket:%d Size:%d Data:%s\n", buffer->fd, buffer->size, buffer->data);
 	}
 	return 0;
@@ -176,22 +173,10 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 				}
 				else if(i==fd_ro)
 				{
-					int j=0;
-					
-					for(j = 0; j <= fdmax; j++)
-					{
-						if(FD_ISSET(j, &master))
-						{
-//							if(j != listener && j != i)
-//							{
-//								if(send(j, buf, nbytes, 0) == -1) perror("send() error lol!");
-//								close(i);
-//								FD_CLR(i, &master);
-//							}
-						}
-					}
-
-					
+					struct pipe_rxtx todo;
+					if(read(fd_ro, &todo, sizeof(struct pipe_rxtx))==-1) return -1;
+					send(todo.fd, todo.data, todo.size, 0);
+					close(todo.fd);
 				}
 				else
 				{

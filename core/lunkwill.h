@@ -80,10 +80,8 @@ extern int fifo_push(struct _fifo **fifo, void *data);
 extern void *fifo_pop(struct _fifo **fifo);
 
 //SIGNAL HANDLER
-extern sighndlr_list *sighandler;
 extern void init_sighndlr();
 extern void sighndlr_add(void *(*func)(void *), void *param);
-extern void sighndlr_remove(void *(*func)(void *), void *param);
 extern void sighndlr_safe_exit(int param);
 
 //LISTENER

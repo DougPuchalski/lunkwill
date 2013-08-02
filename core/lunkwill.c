@@ -1,6 +1,6 @@
 #include "lunkwill.h"
 
-sighndlr_list *sighandler;
+struct _fifo *sighandler=NULL;
 
 /** \brief Starting libconfig to parse config*/
 int load_config(config_t *config, char *config_file_name)
@@ -82,8 +82,10 @@ int main(int argc, char** argv)
 		if(load_config(&config, config_path)!=0)
 		{
 			err="Failed to load configuration";
+			nfree(config_path);
 			goto _fail;
 		}
+		nfree(config_path);
 	}
 	else
 	{
@@ -134,9 +136,9 @@ int main(int argc, char** argv)
             close(CHILD_WRITE);
 			
 			//Read config
-			int conf, port;
-			int listen_queue;
-			int timeout;
+			int conf, port=0;
+			int listen_queue=0;
+			int timeout=0;
 			config_setting_t *config_prop;
 			
 

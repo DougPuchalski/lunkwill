@@ -1,67 +1,37 @@
 #include "lunkwill.h"
 
+extern struct _fifo *sighandler;
+
 /** \brief Adds a new functionn to the queue.
  * The function will be executed on SIGINT or SIGTERM */
 void sighndlr_add(void *(*func)(void *), void *param)
 {
 	sighndlr_list *sig_list;
-
-	sig_list=(sighandler)->next;
-	while(sig_list!=NULL){
-		sig_list=sig_list->next;
-	}
-
 	sig_list=calloc(sizeof(sighndlr_list),1);	
 	sig_list->func=func;
 	sig_list->param=param;
+
+	fifo_push(&sighandler, sig_list);
 }
-
-/** \brief Removes a new functionn from the queue. */
-void sighndlr_remove(void *(*func)(void *), void *param)
-{
-	sighndlr_list *sig_list, *sig_prev;
-
-	sig_prev=sighandler;
-	sig_list=(sighandler)->next;
-	while(sig_list!=NULL){
-		if(sig_list->func==func && sig_list->param==param){
-			sig_prev->next=sig_list->next;
-			nfree(sig_list);
-		}
-		sig_prev=sig_list;
-		sig_list=sig_list->next;
-	}
-}
-
 
 /** \brief Works throu queue. */
 void sighndlr_safe_exit(int param)
 {
-	sighndlr_list *sig_list, *n;
-	sig_list=sighandler;
+	sighndlr_list *sig_list;
 	printf("Please wait ");
-	while(1){
+	while((sig_list=fifo_pop(&sighandler))!=NULL){
 		printf(".");
-		if(sig_list!=NULL){
-			if(sig_list->func!=NULL){
-				sig_list->func(sig_list->param);
-			}
+		if(sig_list->func!=NULL){
+			sig_list->func(sig_list->param);
 		}
-		else
-		{
-			printf("\n");
-			exit(0);
-		}
-		n=sig_list;
-		sig_list=sig_list->next;
-		nfree(n);
+		nfree(sig_list->param);
+		nfree(sig_list);
 	}
 }
 
 /** \brief Set up signalhandlers */
 void init_sighndlr()
 {
-	sighandler=calloc(sizeof(sighndlr_list),1);
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGCHLD, SIG_IGN);
 	signal(SIGINT, sighndlr_safe_exit);
