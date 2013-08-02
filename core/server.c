@@ -54,7 +54,7 @@ request *parse_request(char *get_request)
 		goto HTTP404;
 
 	strncpy(req->module_id, get_request+31, 2);
-	strncpy(req->module_request, get_request+33, BUFSIZ-1);
+	strncpy(req->module_request, get_request+34, BUFSIZ-1);
 
 	return req;
 	
