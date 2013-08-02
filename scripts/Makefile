@@ -9,7 +9,6 @@ all: $(OBJS)
 	@echo CC $(TARGET)
 	@$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 	@cp -r !SRC!/www ./www
-	@touch default.conf
 
 $(OBJS): $(SRCS)
 	@echo CC -c $(patsubst %.o,!SRC!/%.c,$@) -o $@

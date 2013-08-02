@@ -1,6 +1,10 @@
 #define __MAIN__
 #include "lunkwill.h"
 
+#define  DEFAULT_CONFIG "PORT = 3000\n\
+PEND_CONNECTIONS = 50\n"
+
+
 int main(int argc, char** argv)
 {
 	int opt;
@@ -39,11 +43,32 @@ int main(int argc, char** argv)
 	else
 	{
 		printf("INITIALIZING LUNKWILL\n");
-		printf("USING DEFAULT CONFIG\n");
 		if(load_config("default.conf")!=0)
 		{
-			err="Failed to load configuration";
-			goto _fail;
+			// Write default configuration
+			FILE *default_config;
+			if( (default_config = fopen("default.conf", "w")) == NULL)
+			{
+				err="Could not write and load default configuration";
+				goto _fail;
+			}
+			else
+			{
+				printf("WRITING DEFAULT CONFIG\n");
+				fwrite(DEFAULT_CONFIG, strlen(DEFAULT_CONFIG), 1, default_config);
+				fclose(default_config);
+			}
+			
+			// Try again
+			if(load_config("default.conf") != 0)
+			{
+				err="Not sure wtf happended here: Couldn't load just written config. Permissions?";
+				goto _fail;
+			}
+		}
+		else
+		{
+			printf("USING DEFAULT CONFIG\n");	
 		}
 	}
 
