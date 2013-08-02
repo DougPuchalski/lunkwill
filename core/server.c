@@ -15,7 +15,7 @@ void *client_trhead(void * arg)
 
 	if(recv(client_sock, recv_buf, BUF_SIZE, 0)<0)
 	{
-		pthread_exit(NULL);
+		exit(NULL);
 	}
 	else
 	{
@@ -138,13 +138,13 @@ void *client_trhead(void * arg)
 		nfree(send_buf);
 		nfree(user_iface);
 		close(client_sock);
-		pthread_exit(NULL);
+		exit(NULL);
 	
 	HTTP404:
 		nfree(user_iface);
 		send(client_sock, HTTP_404, strlen(HTTP_404), 0);
 		close(client_sock);
-		pthread_exit(NULL);
+		exit(NULL);
 }
 
 /** \brief Server which spawns threads for all clients */
@@ -155,9 +155,9 @@ int start_server()
 	int con=0,port=0;
 	int conf;
  
-	pthread_attr_t attr;
-	pthread_t threads;
-	pthread_attr_init(&attr);
+//	pthread_attr_t attr;
+//	pthread_t threads;
+//	pthread_attr_init(&attr);
 
 	if (config_lookup_int(&session.config, "PORT", &conf))
 	{
@@ -198,11 +198,30 @@ int start_server()
 		client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &addr_len);
 		if (client_sock != 0)
 		{
-			pthread_create (
-				&threads, 
-				&attr,    
-				client_trhead,
-				&client_sock);
+//			pthread_create (
+//				&threads, 
+//				&attr,    
+//				client_trhead,
+//				&client_sock);
+			pid_t pid;
+
+			fflush(stdout);
+
+			pid=fork();
+			if(pid<0)
+			{
+				exit(1);
+			}
+			if(pid!=0)
+			{
+				close(client_sock);
+			}
+			else
+			{
+				close(server_sock);
+				client_trhead(&client_sock);
+				exit(0);
+			}
 		}
 	}
 	close(server_sock);
