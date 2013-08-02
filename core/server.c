@@ -2,64 +2,71 @@
 
 
 /** \brief Parses a GET request 
- *  \param The request string to parse
- *  \returns A request struct which has to be freed by the caller
+ *  \param The GET request string to parse
+ *  \returns - A pointer to a request request struct which has to be freed by the caller
+ * 			 - NULL if the request is not valid
+ * 			 - A pointer to an empty request struct which has to be freed by the caller if index.html is requested 
  */  
 request *parse_request(char *get_request)
 {
 	request *req = malloc(sizeof(request));
 	if(req == NULL)
 		return NULL;
+
 	
-	// 	Check for valid request
-	if(strstr(get_request, "GET /") == get_request)
-	{
-		// Check for login page 
-		if(strstr(get_request+5, " ") == get_request+5)
-		{
-			// Send login.html
-		}
-		else
-		{
-			// Check session id
-			char *ptr = strstr(get_request+5, "/");
-			if((ptr - (get_request+5)) != 20)
-			{
-				// Invalid session id
-			}
-			else
-			{
-				// Read session id
-				strncpy(req.session_id, get_request+5, 20);
-				
-				// Check project id
-				ptr = strstr(get_request+26, "/");
-				if((ptr - (get_request+26)) != 4)
-				{
-					// Invalid project id
-				}
-				else
-				{
-					// Read project id
-					strncpy(req.project_id, get_request+26, 4);
-					
-					// Check module id
-					ptr = strstr(get_request+31, "/");
-					if(ptr - (get_request+31) != 2){
-						// Invalid module id
-					} else {
-						strncpy(req.module_id, get_request+31, 2);
-						strncpy(req.module_request, get_request+33, BUFSIZ-1);
-					}
-					
-				}
-			}
-		}
-	}
-	else
-	{
-		// Invalid Request
-	}
+	// Invalid request
+	if(strstr(get_request, "GET /") != get_request)
+		goto HTTP404;
+
+
+	// Send index.html
+	if(strstr(get_request+5, " ") == get_request+5)
+		goto EMPTY;
+
+
+	// Check session id
+	char *ptr = strstr(get_request+5, "/");
+	
+	// Invalid session id
+	if((ptr - (get_request+5)) != 20)
+		goto HTTP404;
+
+	// Read session id
+	strncpy(req->session_id, get_request+5, 20);
+
+	
+	// Check project id
+	ptr = strstr(get_request+26, "/");
+	
+	// Invalid project id
+	if((ptr - (get_request+26)) != 4)
+		goto HTTP404;
+
+	// Read project id
+	strncpy(req->project_id, get_request+26, 4);
+
+	
+	// Check module id
+	ptr = strstr(get_request+31, "/");
+	
+	// Invalid module id
+	if(ptr - (get_request+31) != 2)
+		goto HTTP404;
+
+	strncpy(req->module_id, get_request+31, 2);
+	strncpy(req->module_request, get_request+33, BUFSIZ-1);
+
+	return req;
+	
+	// Returns empty req struct
+	EMPTY:
+		memset(req, 0x30, sizeof(req));
+		return req;	
+	
+	// Returns NULL
+	HTTP404:
+		free(req);
+		return NULL;
 }
 
 
