@@ -54,9 +54,16 @@ request *parse_request(char *get_request)
 		goto HTTP404;
 
 	strncpy(req->module_id, get_request+31, 2);
-	strncpy(req->module_request, get_request+34, BUFSIZ-1);
+
+	// Find end of module_request
+	ptr = strstr(get_request+34, " ");
+	if(ptr - (get_request+34) < BUFSIZ-1)
+		strncpy(req->module_request, get_request+34, ptr - (get_request+34));
+	else
+		strncpy(req->module_request, get_request+34, BUFSIZ-1);
 
 	return req;
+
 	
 	// Returns empty req struct
 	EMPTY:
