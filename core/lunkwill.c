@@ -1,27 +1,72 @@
-#define __MAIN__
 #include "lunkwill.h"
 
-#define  DEFAULT_CONFIG "PORT = 3000\n\
-PEND_CONNECTIONS = 50\n"
+sighndlr_list sighandler;
+
+/** \brief Starting libconfig to parse config*/
+int load_config(config_t *config, char *config_file_name)
+{
+    config_init(config);
+
+    if (!config_read_file(config, config_file_name))
+    {
+        config_destroy(config);
+        return 1;
+    }
+    return 0;
+}
+
+
+/** \brief Starting libconfig to parse config*/
+int create_config(config_t *config, char *config_file_name)
+{
+	config_setting_t *config_prop, *prop_port, *prop_listen, *prop_timeout;
+
+    config_init(config);
+    
+    if((config_prop=config_setting_add(config_root_setting(config), "SOCKET",CONFIG_TYPE_GROUP))==NULL)goto fail_exit;	
+	if((prop_port=config_setting_add(config_prop, "PORT", CONFIG_TYPE_INT))==NULL) goto fail_exit;
+	if((prop_listen=config_setting_add(config_prop, "LISTEN_QUEUE", CONFIG_TYPE_INT))==NULL) goto fail_exit;
+	if((prop_timeout=config_setting_add(config_prop, "RCV_TIMEOUT", CONFIG_TYPE_INT))==NULL) goto fail_exit;
+    if(!config_setting_set_int(prop_port, 3000))goto fail_exit;
+    if(!config_setting_set_int(prop_listen, 20))goto fail_exit;
+    if(!config_setting_set_int(prop_timeout, 1))goto fail_exit;
+    
+    //Include default options from modules
+    if((config_prop=config_setting_add(config_root_setting(config), "MODULES",CONFIG_TYPE_GROUP))==NULL)goto fail_exit;	
+    //module_default_config(config_root_setting(config_prop));
+    
+    config_write_file(config, config_file_name); 
+    
+    return 0;
+    
+    fail_exit:
+		config_destroy(config);
+		return 1;
+}
 
 
 int main(int argc, char** argv)
-{
+{	
+	char *config_path=NULL;
+	char *err=NULL;
+    int pipe1[2];
+    #define CHILD_READ pipe1[0]
+    #define PARENT_WRITE pipe1[1]
+    int pipe2[2];
+    #define PARENT_READ pipe2[0]
+    #define CHILD_WRITE pipe2[1]
 	int opt;
-	char *config=NULL;
-	char *err;
+    config_t config;
+    pid_t *pid=malloc(sizeof(pid_t));
 	
-	memset(&session, 0, sizeof(session));
-
-	init_sighndlr();
-
+	//Parse args
 	while((opt=getopt(argc,argv,"c:"))!=-1)
 	{
 		switch(opt)
 		{
 			case 'c':
-				config=malloc(strlen(optarg)+10);
-				strcpy(config, optarg);
+				config_path=malloc(strlen(optarg)+10);
+				strcpy(config_path, optarg);
 			break;
 			default:
 				err=argv[0];
@@ -30,11 +75,12 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if(config!=NULL)
+	//Load configuration
+	if(config_path!=NULL)
 	{
 		printf("INITIALIZING LUNKWILL");
-		printf("USING CONFIG: %s\n", config);
-		if(load_config(config)!=0)
+		printf("USING CONFIG: %s\n", config_path);
+		if(load_config(&config, config_path)!=0)
 		{
 			err="Failed to load configuration";
 			goto _fail;
@@ -43,42 +89,77 @@ int main(int argc, char** argv)
 	else
 	{
 		printf("INITIALIZING LUNKWILL\n");
-		if(load_config("default.conf")!=0)
+		if(load_config(&config,"lunkwill.cfg")!=0)
 		{
-			// Write default configuration
-			FILE *default_config;
-			if( (default_config = fopen("default.conf", "w")) == NULL)
+			printf("CREATING DEFAULT CONFIG\n");
+			if(create_config(&config, "lunkwill.cfg")!=0)
 			{
-				err="Could not write and load default configuration";
+				err="Failed to create default configuration";
 				goto _fail;
 			}
-			else
-			{
-				printf("WRITING DEFAULT CONFIG\n");
-				fwrite(DEFAULT_CONFIG, strlen(DEFAULT_CONFIG), 1, default_config);
-				fclose(default_config);
-			}
+		}
+		printf("USING DEFAULT CONFIG\n");
+	}
+
+
+	fflush(stdout);
+	
+	if (pipe(pipe1) == 0 && pipe(pipe2) == 0)
+	{
+		*pid = fork();
+		if (*pid == (pid_t)-1)
+		{
+			err="Unable to fork worker";
+			goto _fail;
+		}
+		else if (*pid == (pid_t)0)
+		{
+		//Child process
+			close(PARENT_READ);
+			close(PARENT_WRITE);
 			
-			// Try again
-			if(load_config("default.conf") != 0)
-			{
-				err="Not sure wtf happended here: Couldn't load just written config. Permissions?";
-				goto _fail;
-			}
+
+			//Read config
+			//modules_init(&config);
+
+			config_destroy(&config);
+			
+			//start_worker(CHILD_READ, CHILD_WRITE);
+
 		}
 		else
 		{
-			printf("USING DEFAULT CONFIG\n");	
-		}
-	}
+		//Parent process
+            close(CHILD_READ);
+            close(CHILD_WRITE);
+			
+			//Read config
+			int conf, port;
+			int listen_queue;
+			int timeout;
+			config_setting_t *config_prop;
+			
 
-	init_modules();
+			if ((config_prop=config_lookup(&config, "SOCKET"))==NULL)
+			{
+				config_prop=config_root_setting(&config)
+;			}
 
-	if(start_server()!=0)
-	{
-		err="The server returned an error";
-		goto _fail;
-	}
+			if (config_setting_lookup_int(config_prop, "PORT", &conf))	port=conf;
+			if(port<=0||port>0xFFFF) port=3000;
+
+			if (config_setting_lookup_int(config_prop, "PEND_CONNECTIONS", &conf)) listen_queue=conf;
+			if(listen_queue<=0||listen_queue>0xFF) listen_queue=20;
+
+			if (config_setting_lookup_int(config_prop, "RCV_TIMEOUT", &conf)) timeout=conf;
+			if(listen_queue<=0||listen_queue>0xFF) timeout=1;
+
+			config_destroy(&config);
+			
+			start_server(port, listen_queue, timeout, PARENT_READ, PARENT_WRITE);
+        }
+    }
+
 
 	return 0;
 
@@ -91,4 +172,3 @@ int main(int argc, char** argv)
 		return 2;
 
 }
-

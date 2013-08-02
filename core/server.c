@@ -15,7 +15,7 @@ void *client_trhead(void * arg)
 
 	if(recv(client_sock, recv_buf, BUF_SIZE, 0)<0)
 	{
-		exit(NULL);
+		raise(SIGTERM);
 	}
 	else
 	{
@@ -148,79 +148,107 @@ void *client_trhead(void * arg)
 }
 
 /** \brief Server which spawns threads for all clients */
-int start_server()
+int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 {
-	unsigned int server_sock, client_sock, addr_len;
 	struct sockaddr_in server_addr, client_addr;
-	int con=0,port=0;
-	int conf;
+	unsigned int server_sock, client_sock, addr_len;
+	int fdmax,i;
  
-//	pthread_attr_t attr;
-//	pthread_t threads;
-//	pthread_attr_init(&attr);
-
-	if (config_lookup_int(&session.config, "PORT", &conf))
-	{
-		port=conf;
-	}
-	if(port<=0||port>0xFFFF){
-		port=3000;
-	}
+	fd_set master;
+	fd_set read_fds;
 	
-	if (config_lookup_int(&session.config, "PEND_CONNECTIONS", &conf))
-	{
-		con=conf;
-	}
-	if(con<=0||con>0xFF){
-		con=50;
-	}
+	int optval = 1;
+	struct timeval tv;
 
+	tv.tv_sec = timeout;
+	tv.tv_usec = 0;
+
+
+	//Set socket options
 	server_sock = socket(AF_INET, SOCK_STREAM, 0);
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	memset(&(server_addr.sin_zero), '\0', 8);
 
-	int optval = 1;
+	setsockopt(server_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
 	setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
+
+
 	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
 		fprintf(stderr, "Error binding to port\n");
 		return 1;
 	}
 
-	if((listen(server_sock, con)) < 0){
+
+	if((listen(server_sock, listen_queue)) < 0){
 		fprintf(stderr, "Error listening on port\n");
 		return 1;
 	}
+	
+	//
+	FD_ZERO(&master);
+	FD_ZERO(&read_fds);
+	FD_SET(server_sock, &master);
+	FD_SET(fd_ro, &master);
+	fdmax = (server_sock>fd_wr)?server_sock:fd_wr;
 
 	while(1)
 	{
-		addr_len = sizeof(client_addr);
-		client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &addr_len);
-		if (client_sock != 0)
+		read_fds = master;
+		if(select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
 		{
-//			pthread_create (
-//				&threads, 
-//				&attr,    
-//				client_trhead,
-//				&client_sock);
-			pid_t pid;
+			fprintf(stderr, "Error select failed\n");
+			return -1;
+		}
+		
+		for(i = 0; i <= fdmax; i++)
+		{
+			if(FD_ISSET(i, &read_fds))
+			{ 
+				if(i == server_sock)
+				{
+					addr_len = sizeof(client_addr);
+					if((client_sock = accept(server_sock, (struct sockaddr *)&client_addr, (socklen_t*)&addr_len)) != -1)
+					{
+						FD_SET(client_sock, &master);
+						if(client_sock > fdmax) fdmax = client_sock;
+						printf("New connection from %s\n", inet_ntoa(client_addr.sin_addr));
+					}
+				}
+				else if(i==fd_ro)
+				{
+					int j=0;
+					
+					for(j = 0; j <= fdmax; j++)
+					{
+						if(FD_ISSET(j, &master))
+						{
+//							if(j != listener && j != i)
+//							{
+//								if(send(j, buf, nbytes, 0) == -1) perror("send() error lol!");
+//								close(i);
+//								FD_CLR(i, &master);
+//							}
+						}
+					}
 
-			fflush(stdout);
-
-			pid=fork();
-			if(pid<0)
-			{
-				exit(1);
-			}
-			if(pid!=0)
-			{
-				close(client_sock);
-			}
-			else
-			{
-				close(server_sock);
-				client_trhead(&client_sock);
-				exit(0);
+					
+				}
+				else
+				{
+					struct pipe_rxtx todo;
+					if((todo.size = recv(i, todo.data, sizeof(BUF_SIZE), 0)) <= 0)
+					{
+						close(i);
+						FD_CLR(i, &master);
+					}
+					else
+					{
+						todo.fd=i;
+						if(send(fd_wr, &todo, sizeof(struct pipe_rxtx), 0)==-1) return -1;
+					}
+				}
 			}
 		}
 	}

@@ -1,12 +1,5 @@
 #include "lunkwill.h"
 
-typedef struct{
-	void *(*func)(void *);
-	void *param;
-	void *next;
-} sighndlr_list;
-
-
 /** \brief Adds a new functionn to the queue.
  * The function will be executed on SIGINT or SIGTERM */
 void sighndlr_add(void *(*func)(void *), void *param)
@@ -45,7 +38,7 @@ void sighndlr_remove(void *(*func)(void *), void *param)
 void sighndlr_safe_exit(int param)
 {
 	sighndlr_list *sig_list, *n;
-	sig_list=session.sighndlr;
+	sig_list=sighndlr;
 	printf("Please wait ");
 	while(1){
 		printf(".");
@@ -68,8 +61,9 @@ void sighndlr_safe_exit(int param)
 /** \brief Set up signalhandlers */
 void init_sighndlr()
 {
-	session.sighndlr=calloc(sizeof(sighndlr_list),1);
+	sighndlr=calloc(sizeof(sighndlr_list),1);
 	signal(SIGPIPE, SIG_IGN);
+	signal(SIGCHLD, SIG_IGN);
 	signal(SIGINT, sighndlr_safe_exit);
 	signal(SIGTERM, sighndlr_safe_exit);
 }
