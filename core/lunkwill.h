@@ -53,32 +53,52 @@ enum mime_types{
 	MIME_PNG
 };
 
-/** \brief Global struct for signalhandling */
+/** \brief Struct for signalhandling */
 typedef struct{
 	void *(*func)(void *);
 	void *param;
 	void *next;
 } sighndlr_list;
 
-/** \brief Global struct for signalhandling */
+/** \brief Struct for pipe rx tx */
 struct pipe_rxtx{
 	int fd;
 	int size;
 	char data[BUF_SIZE];	
 };
 
+/** \brief Struct for linked list */
+struct _fifo {
+        void *data;
+        struct _fifo *next;
+        struct _fifo *last;
+};
 
-extern sighndlr_list sighandler;
+
+//FIRST IN > FIRST OUT LIST
+extern int fifo_push(struct _fifo **fifo, void *data);
+extern void *fifo_pop(struct _fifo **fifo);
+
+//SIGNAL HANDLER
+extern sighndlr_list *sighandler;
 extern void init_sighndlr();
 extern void sighndlr_add(void *(*func)(void *), void *param);
 extern void sighndlr_remove(void *(*func)(void *), void *param);
+extern void sighndlr_safe_exit(int param);
 
+//LISTENER
 int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr);
 
+//WORKER
+int start_worker(int fd_ro, int fd_wr);
+
+//HTTP HEADER
 extern int send_file(char **buffer, char *file_path);
 extern int get_mime(char *file_path);
 extern int send_string(char **buffer, char *string);
 
+
+//HTML BUILDER
 struct html_ui *new_html();
 extern char *html_flush(void **html, int follow);
 extern void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close );

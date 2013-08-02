@@ -77,154 +77,30 @@ request *parse_request(char *get_request)
 }
 
 
-/** \brief Threads which handles client request */
-void *client_trhead(void * arg)
+/** \brief Thread spawner */
+int start_worker(int fd_ro, int fd_wr)
 {
-	unsigned int client_sock;
-	char recv_buf[BUF_SIZE];
-	char *file_name=NULL;
-	char *send_buf=NULL;
-	void *leek;
-	int msg_len;
-	struct html_ui *user_iface=new_html();
- 
-	client_sock = *(unsigned int *)arg;
-
-	if(recv(client_sock, recv_buf, BUF_SIZE, 0)<0)
-	{
-		raise(SIGTERM);
-	}
-	else
-	{
-		//Search HTTP GET method
-		file_name=strstr(recv_buf, "GET /");
-		if(file_name==NULL)
-		{
-			goto HTTP404;
-		}
-		else
-		{
-			file_name=&file_name[5];
-		}
-
-		//Initialize list of modules
-		if(session.module[0]!=NULL)
-		{
-			if(session.module[0](file_name,user_iface)!=0) goto HTTP404;
-		}
-		else goto HTTP404;
-		
-		if(file_name[1]!='/' && file_name[0]!=' ' && file_name[0]!='%') goto HTTP404;
-		
-		/* Open module
-		 * Modules are identified with a single char [0-9a-zA-Y]
-		 * Char 'Z' allows to use the server as a normal http server
-		 * */ 
-		if(file_name[0]>='0'&&file_name[0]<='9')
-		{
-			if(session.module[file_name[0]-'0'+1]!=NULL)
-			{
-				if(session.module[file_name[0]-'0'+1](file_name, user_iface)!=0) goto HTTP404;
-			}
-			else goto HTTP404;			
-		}
-		else if(file_name[0]>='a'&&file_name[0]<='z')
-		{
-			if(session.module[file_name[0]-'a'+11]!=NULL)
-			{
-				if(session.module[file_name[0]-'a'+11](file_name, user_iface)!=0) goto HTTP404;
-			}
-			else goto HTTP404;			
-		}
-		else if(file_name[0]>='A'&&file_name[0]<='Y')
-		{
-			if(session.module[file_name[0]-'A'+37]!=NULL)
-			{
-				if(session.module[file_name[0]-'A'+37](file_name, user_iface)!=0) goto HTTP404;
-			}
-			else goto HTTP404;			
-		}
-		else if(file_name[0]=='Z'||file_name[0]==' ') 
-		{
-			//Open the file for sending.
-			//Request "GET / " is interpreted like "GET /Z/index.html"
-
-			char path[BUF_SIZE<<5];
-			char *tmp;
-
-			if (file_name[0]==' ')
-			{
-				strcpy(file_name+1,"index.html");
-			}
-			else
-			{
-				int i;
-				for(i=0;i<BUF_SIZE;i++)
-				{
-					if(file_name[i]==' ')
-					{
-						file_name[i]=0;
-						break;
-					}
-				}
-			}
-			
-			if (config_lookup_string(&session.config, "WWW_ROOT", (const char**)&tmp))
-			{
-				sprintf(path,"%s/%s", tmp, &file_name[1]);
-			}
-			else
-			{
-				sprintf(path,"%s/%s", "www", &file_name[1]);
-			}
-			
-			if((msg_len=send_file(&send_buf, path))>0)
-			{
-				nfree(user_iface);
-				goto SEND;
-			}
-			else
-			{
-				nfree(send_buf);
-				goto HTTP404;
-			}
-		}
-		else
-		{
-			
-			html_add_tag( \
-				&user_iface->main, \
-				"<h1>", "lunkwill", "</h1><br>");
-
-			html_add_tag( \
-				&user_iface->main, \
-				"", "lunkwill is a lightweight bug tracking and project management tool.", "");
-		}
-	}
-
-	if(send_string(&send_buf, (leek=html_flush(&user_iface->base, 0)))<0)
-	{
-		nfree(leek);
-		goto HTTP404;
-	}
-	nfree(leek);
-	msg_len=strlen(send_buf);
-
-	SEND:
-		send(client_sock, send_buf, msg_len, 0);
-		nfree(send_buf);
-		nfree(user_iface);
-		close(client_sock);
-		exit(NULL);
+	struct _fifo *jobs=NULL;
+	struct _fifo *threads=NULL;
+	struct pipe_rxtx *buffer;
 	
-	HTTP404:
-		nfree(user_iface);
-		send(client_sock, HTTP_404, strlen(HTTP_404), 0);
-		close(client_sock);
-		exit(NULL);
+	
+	while(1)
+	{
+		buffer=calloc(1,sizeof(struct pipe_rxtx));
+
+		if(read(fd_ro, buffer, sizeof(struct pipe_rxtx))<=0)
+		{
+			nfree(buffer);
+			return 1;
+		}
+		fifo_push(&jobs,buffer);
+		printf("Socket:%d Size:%d Data:%s\n", buffer->fd, buffer->size, buffer->data);
+	}
+	return 0;
 }
 
-/** \brief Server which spawns threads for all clients */
+/** \brief Server which accept clients and pass them to the worker fork */
 int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 {
 	struct sockaddr_in server_addr, client_addr;
@@ -315,7 +191,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 				else
 				{
 					struct pipe_rxtx todo;
-					if((todo.size = recv(i, todo.data, sizeof(BUF_SIZE), 0)) <= 0)
+					if((todo.size = recv(i, todo.data, BUF_SIZE, 0)) <= 0)
 					{
 						close(i);
 						FD_CLR(i, &master);
@@ -323,7 +199,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 					else
 					{
 						todo.fd=i;
-						if(send(fd_wr, &todo, sizeof(struct pipe_rxtx), 0)==-1) return -1;
+						if(write(fd_wr, &todo, sizeof(struct pipe_rxtx))==-1) return -1;
 					}
 				}
 			}

@@ -1,6 +1,6 @@
 #include "lunkwill.h"
 
-sighndlr_list sighandler;
+sighndlr_list *sighandler;
 
 /** \brief Starting libconfig to parse config*/
 int load_config(config_t *config, char *config_file_name)
@@ -43,7 +43,6 @@ int create_config(config_t *config, char *config_file_name)
 		config_destroy(config);
 		return 1;
 }
-
 
 int main(int argc, char** argv)
 {	
@@ -102,6 +101,7 @@ int main(int argc, char** argv)
 	}
 
 
+	init_sighndlr();
 	fflush(stdout);
 	
 	if (pipe(pipe1) == 0 && pipe(pipe2) == 0)
@@ -124,7 +124,7 @@ int main(int argc, char** argv)
 
 			config_destroy(&config);
 			
-			//start_worker(CHILD_READ, CHILD_WRITE);
+			start_worker(CHILD_READ, CHILD_WRITE);
 
 		}
 		else
@@ -142,8 +142,8 @@ int main(int argc, char** argv)
 
 			if ((config_prop=config_lookup(&config, "SOCKET"))==NULL)
 			{
-				config_prop=config_root_setting(&config)
-;			}
+				config_prop=config_root_setting(&config);
+			}
 
 			if (config_setting_lookup_int(config_prop, "PORT", &conf))	port=conf;
 			if(port<=0||port>0xFFFF) port=3000;
@@ -159,8 +159,9 @@ int main(int argc, char** argv)
 			start_server(port, listen_queue, timeout, PARENT_READ, PARENT_WRITE);
         }
     }
-
-
+	
+	sighndlr_safe_exit(0);
+	
 	return 0;
 
 	argv_fail:
