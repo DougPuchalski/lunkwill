@@ -15,9 +15,6 @@ request *parse_request(char *get_request)
 
 	
 	// Invalid request
-	if(strstr(get_request, "GET /") != get_request)
-		goto HTTP404;
-	
 	if(strncmp(get_request, "GET /", 5) != 0)
 		goto HTTP404;
 
