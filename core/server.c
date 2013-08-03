@@ -1,5 +1,9 @@
 #include "server.h"
 
+pthread_mutex_t lock_send=PTHREAD_MUTEX_INITIALIZER;
+int send_fd=0;
+pthread_mutex_t lock_count=PTHREAD_MUTEX_INITIALIZER;
+int thread_count=0;
 
 /** \brief Parses a GET request 
  *  \param The GET request string to parse
@@ -91,12 +95,93 @@ request parse_request(char *get_request)
 }
 
 
+void *workerthread(void *job)
+{
+	struct _fifo *jobs=*((struct _fifo **)job);
+
+	dbgprintf("New pthread startet%s\n","");
+
+	while(1)
+	{
+		struct pipe_rxtx *buffer=NULL;
+
+		pthread_mutex_lock( &lock_count );
+			buffer=fifo_pop(&jobs);
+		pthread_mutex_unlock( &lock_count );
+
+		if(buffer==NULL)
+		{
+			dbgprintf("No more work todo%s\n","");
+			*((struct _fifo **)job)=NULL;
+			goto IQUITTODAY;
+		}
+		request parsed_request=parse_request(buffer->data);
+		nfree(buffer->data);
+
+		switch(parsed_request.special_file)
+		{
+			case NON_SPECIAL:
+				//~ login_request(&parsed_request);
+				break;
+			case INDEX_HTML:
+				dbgprintf("Send %s\n", "index.html");
+				buffer->size=send_file(&buffer->data, "www/index.html");
+				goto PIPE;
+				break;
+			case LOGO_PNG:
+				dbgprintf("Send %s\n", "logo.png");
+				break;
+			case FAVICON_ICO:
+				dbgprintf("Send %s\n", "favicon.ico");
+				break;
+			default:
+				dbgprintf("Send unknown:%d\n", parsed_request.special_file);
+				break;
+		}
+				
+		
+		dbgprintf("Send %s\n", "HTTP 404");
+		buffer->size=strlen(HTTP_404);
+		buffer->data=malloc(buffer->size);
+		strncpy(buffer->data, HTTP_404, buffer->size);
+		
+		PIPE:		
+			pthread_mutex_lock( &lock_send );
+				dbgprintf("Send %d bytes through pipe %d\n", buffer->size, send_fd);
+				if(write(send_fd, buffer, sizeof(struct pipe_rxtx))==-1)
+				{
+					nfree(buffer->data);
+					nfree(buffer);
+					dbgprintf("Pipe %d is broken\n", send_fd);
+					goto IQUITTODAY;
+				}
+				if(write(send_fd, buffer->data, buffer->size)==-1)
+				{
+					nfree(buffer->data);
+					nfree(buffer);
+					dbgprintf("Pipe %d is broken\n", send_fd);
+					goto IQUITTODAY;
+				}
+			pthread_mutex_unlock( &lock_send );
+		nfree(buffer);
+
+	}
+
+	IQUITTODAY:
+	pthread_mutex_lock( &lock_count );
+		thread_count--;
+	pthread_mutex_unlock( &lock_count );
+	pthread_exit(NULL);
+}
+
+
 /** \brief Thread spawner */
-int start_worker(int fd_ro, int fd_wr)
+int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 {
 	struct _fifo *jobs=NULL;
-	struct _fifo *threads=NULL;	
-	
+	pthread_t thread;
+	send_fd=fd_wr;
+		
 	while(1)
 	{
 		struct pipe_rxtx *buffer=calloc(1,sizeof(struct pipe_rxtx));
@@ -106,10 +191,25 @@ int start_worker(int fd_ro, int fd_wr)
 			nfree(buffer);
 			return 1;
 		}
+		buffer->data=calloc(1,buffer->size+2);
+		if(read(fd_ro, buffer->data, buffer->size)<=0)
+		{
+			nfree(buffer->data);
+			nfree(buffer);
+			return 1;
+		}
 
-		fifo_push(&jobs,buffer);
+		dbgprintf("Socket:%d Size:%d\n", buffer->fd, buffer->size);		
 		
-		printf("Socket:%d Size:%d Data:%s\n", buffer->fd, buffer->size, buffer->data);
+		pthread_mutex_lock( &lock_count );
+			fifo_push(&jobs,buffer);
+
+			if(thread_count<max_num_threads)
+			{
+				thread_count++;
+				pthread_create( &thread, NULL, workerthread, &jobs);
+			}
+		pthread_mutex_unlock( &lock_count );
 	}
 	return 0;
 }
@@ -143,29 +243,28 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 
 
 	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
-		fprintf(stderr, "Error binding to port\n");
+		dbgprintf("Error binding to port %d\n", port);
 		return 1;
 	}
 
 
 	if((listen(server_sock, listen_queue)) < 0){
-		fprintf(stderr, "Error listening on port\n");
+		dbgprintf("Error listening on port %d\n",port);
 		return 1;
 	}
 	
-	//
 	FD_ZERO(&master);
 	FD_ZERO(&read_fds);
 	FD_SET(server_sock, &master);
 	FD_SET(fd_ro, &master);
 	fdmax = (server_sock>fd_wr)?server_sock:fd_wr;
-
+	
 	while(1)
 	{
 		read_fds = master;
 		if(select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
 		{
-			fprintf(stderr, "Error select failed\n");
+			dbgprintf("Error select failed with errno: %d\n", errno);
 			return -1;
 		}
 		
@@ -180,29 +279,64 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 					{
 						FD_SET(client_sock, &master);
 						if(client_sock > fdmax) fdmax = client_sock;
-						printf("New connection from %s\n", inet_ntoa(client_addr.sin_addr));
+						dbgprintf("New connection from %s\n", inet_ntoa(client_addr.sin_addr));
 					}
 				}
 				else if(i==fd_ro)
 				{
-					struct pipe_rxtx todo;
-					if(read(fd_ro, &todo, sizeof(struct pipe_rxtx))==-1) return -1;
-					send(todo.fd, todo.data, todo.size, 0);
-					close(todo.fd);
+					struct pipe_rxtx buffer;
+					if(read(fd_ro, &buffer, sizeof(struct pipe_rxtx))<=0)
+					{
+						return 1;
+					}
+
+					dbgprintf("Read %d bytes from pipe\n", buffer.size);
+
+					buffer.data=malloc(buffer.size+2);
+					if(read(fd_ro, buffer.data, buffer.size)<=0)
+					{
+						nfree(buffer.data);
+						dbgprintf("Pipe %d is broken\n", fd_ro);
+						return 1;
+					}
+					
+					dbgprintf("Forward pipe data to socket %d\n", buffer.fd);
+
+					if((send(buffer.fd, buffer.data, buffer.size, 0)) <= 0)
+					{
+						close(buffer.fd);
+					}
+
+					close(buffer.fd);
+					nfree(buffer.data);
 				}
 				else
 				{
 					struct pipe_rxtx todo;
+					todo.data=calloc(1, BUF_SIZE);
 					if((todo.size = recv(i, todo.data, BUF_SIZE, 0)) <= 0)
 					{
+						dbgprintf("Client %d closed connection\n",i);
 						close(i);
-						FD_CLR(i, &master);
 					}
 					else
 					{
 						todo.fd=i;
-						if(write(fd_wr, &todo, sizeof(struct pipe_rxtx))==-1) return -1;
+						if(write(fd_wr, &todo, sizeof(struct pipe_rxtx))==-1)
+						{
+							nfree(todo.data);
+							dbgprintf("Pipe %d is broken\n", fd_wr);
+							return -1;
+						}
+						if(write(fd_wr, todo.data, todo.size)==-1)
+						{
+							dbgprintf("Pipe %d is broken\n", fd_wr);
+							nfree(todo.data);
+							return -1;
+						}
 					}
+					FD_CLR(i, &master);
+					nfree(todo.data);
 				}
 			}
 		}

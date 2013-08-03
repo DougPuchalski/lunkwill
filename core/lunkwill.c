@@ -30,6 +30,10 @@ int create_config(config_t *config, char *config_file_name)
     if(!config_setting_set_int(prop_port, 3000))goto fail_exit;
     if(!config_setting_set_int(prop_listen, 20))goto fail_exit;
     if(!config_setting_set_int(prop_timeout, 1))goto fail_exit;
+
+    if((config_prop=config_setting_add(config_root_setting(config), "WORKER",CONFIG_TYPE_GROUP))==NULL)goto fail_exit;	
+	if((config_prop=config_setting_add(config_prop, "MAX_NUM_THREADS", CONFIG_TYPE_INT))==NULL) goto fail_exit;
+    if(!config_setting_set_int(config_prop, 15))goto fail_exit;
     
     //Include default options from modules
     if((config_prop=config_setting_add(config_root_setting(config), "MODULES",CONFIG_TYPE_GROUP))==NULL)goto fail_exit;	
@@ -56,7 +60,7 @@ int main(int argc, char** argv)
     #define CHILD_WRITE pipe2[1]
 	int opt;
     config_t config;
-    pid_t *pid=malloc(sizeof(pid_t));
+    pid_t pid;
 	
 	//Parse args
 	while((opt=getopt(argc,argv,"c:"))!=-1)
@@ -108,13 +112,13 @@ int main(int argc, char** argv)
 	
 	if (pipe(pipe1) == 0 && pipe(pipe2) == 0)
 	{
-		*pid = fork();
-		if (*pid == (pid_t)-1)
+		pid = fork();
+		if (pid == (pid_t)-1)
 		{
 			err="Unable to fork worker";
 			goto _fail;
 		}
-		else if (*pid == (pid_t)0)
+		else if (pid == (pid_t)0)
 		{
 		//Child process
 			close(PARENT_READ);
@@ -123,10 +127,20 @@ int main(int argc, char** argv)
 
 			//Read config
 			//modules_init(&config);
+			int max_num_threads=0, conf;
+			config_setting_t *config_prop;
+			
 
+			if ((config_prop=config_lookup(&config, "WORKER"))==NULL)
+			{
+				config_prop=config_root_setting(&config);
+			}
+
+			if (config_setting_lookup_int(config_prop, "MAX_NUM_THREADS", &conf)) max_num_threads=conf;
+			if(max_num_threads<=0||max_num_threads>0xFFFF) max_num_threads=15;
 			config_destroy(&config);
 			
-			start_worker(CHILD_READ, CHILD_WRITE);
+			start_worker(max_num_threads, CHILD_READ, CHILD_WRITE);
 
 		}
 		else
@@ -171,7 +185,7 @@ int main(int argc, char** argv)
 		return 1;
 	
 	_fail:
-		fprintf(stderr, "%s\n",err);
+		dbgprintf("%s\n",err);
 		return 2;
 
 }

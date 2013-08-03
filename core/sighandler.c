@@ -27,6 +27,8 @@ void sighndlr_safe_exit(int param)
 		nfree(sig_list->param);
 		nfree(sig_list);
 	}
+	printf("\n");
+	exit(0);
 }
 
 /** \brief Set up signalhandlers */

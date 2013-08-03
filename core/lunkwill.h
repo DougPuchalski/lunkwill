@@ -25,9 +25,11 @@
 
 #define nfree(a) free(a);a=NULL;
 #ifndef NO_DBG
-	#define dbgprintf(a) realdbgprintf ("%s:%s:\t%s\n", __FILE__, __LINE__, a)
+	#define dbgprintf(a,...) fprintf (stderr, "\033[%d;%dm\nPID:%d THRD:%d %s:%d: " a, \
+				getpid()%8+30, 47-getpid()%8, getpid(), (int)(pthread_self()&0xFF), \
+				__FILE__, __LINE__, __VA_ARGS__)
 #else
-	#define dbgprintf(a)
+	#define dbgprintf(a, ...)
 #endif
 
 
@@ -64,7 +66,7 @@ typedef struct{
 struct pipe_rxtx{
 	int fd;
 	int size;
-	char data[BUF_SIZE];	
+	char *data;	
 };
 
 /** \brief Struct for linked list */
@@ -88,7 +90,7 @@ extern void sighndlr_safe_exit(int param);
 int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr);
 
 //WORKER
-int start_worker(int fd_ro, int fd_wr);
+int start_worker(int max_num_threads, int fd_ro, int fd_wr);
 
 //HTTP HEADER
 extern int send_file(char **buffer, char *file_path);
