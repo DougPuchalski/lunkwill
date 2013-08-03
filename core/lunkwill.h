@@ -1,12 +1,6 @@
 #ifndef __LUNKWILL_H__
 #define __LUNKWILL_H__
 
-#ifndef __MAIN__
-#define EXTERN extern
-#else
-#define EXTERN
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +24,11 @@
 #include "../modules/modules.h"
 
 #define nfree(a) free(a);a=NULL;
+#ifndef NO_DBG
+	#define dbgprintf(a) realdbgprintf ("%s:%s:\t%s\n", __FILE__, __LINE__, a)
+#else
+	#define dbgprintf(a)
+#endif
 
 
 #define BUF_SIZE 2048
@@ -44,13 +43,6 @@ struct html_ui{
 	void *main;
 };
 
-/** \brief Global struct for module- and signal- handling */
-EXTERN struct{
-	int (*module[63])(void *, struct html_ui*);
-    config_t config;
-	void *sighndlr;
-} session;
-
 /** \brief Supported MIME types */
 enum mime_types{
 	MIME_UNKNOWN=0,
@@ -61,19 +53,52 @@ enum mime_types{
 	MIME_PNG
 };
 
+/** \brief Struct for signalhandling */
+typedef struct{
+	void *(*func)(void *);
+	void *param;
+	void *next;
+} sighndlr_list;
 
-extern int start_server();
+/** \brief Struct for pipe rx tx */
+struct pipe_rxtx{
+	int fd;
+	int size;
+	char data[BUF_SIZE];	
+};
 
+/** \brief Struct for linked list */
+struct _fifo {
+        void *data;
+        struct _fifo *next;
+        struct _fifo *last;
+};
+
+
+//FIRST IN > FIRST OUT LIST
+extern int fifo_push(struct _fifo **fifo, void *data);
+extern void *fifo_pop(struct _fifo **fifo);
+
+//SIGNAL HANDLER
+extern sighndlr_list *sighandler;
 extern void init_sighndlr();
 extern void sighndlr_add(void *(*func)(void *), void *param);
 extern void sighndlr_remove(void *(*func)(void *), void *param);
+extern void sighndlr_safe_exit(int param);
 
-extern int load_config(char *config_file_name);
+//LISTENER
+int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr);
 
+//WORKER
+int start_worker(int fd_ro, int fd_wr);
+
+//HTTP HEADER
 extern int send_file(char **buffer, char *file_path);
 extern int get_mime(char *file_path);
 extern int send_string(char **buffer, char *string);
 
+
+//HTML BUILDER
 struct html_ui *new_html();
 extern char *html_flush(void **html, int follow);
 extern void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close );
