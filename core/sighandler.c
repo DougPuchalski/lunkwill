@@ -1,19 +1,12 @@
 #include "lunkwill.h"
 
-typedef struct{
-	void *(*func)(void *);
-	void *param;
-	void *next;
-} sighndlr_list;
-
-
 /** \brief Adds a new functionn to the queue.
  * The function will be executed on SIGINT or SIGTERM */
 void sighndlr_add(void *(*func)(void *), void *param)
 {
 	sighndlr_list *sig_list;
 
-	sig_list=((sighndlr_list*)session.sighndlr)->next;
+	sig_list=(sighandler)->next;
 	while(sig_list!=NULL){
 		sig_list=sig_list->next;
 	}
@@ -28,8 +21,8 @@ void sighndlr_remove(void *(*func)(void *), void *param)
 {
 	sighndlr_list *sig_list, *sig_prev;
 
-	sig_prev=session.sighndlr;
-	sig_list=((sighndlr_list*)session.sighndlr)->next;
+	sig_prev=sighandler;
+	sig_list=(sighandler)->next;
 	while(sig_list!=NULL){
 		if(sig_list->func==func && sig_list->param==param){
 			sig_prev->next=sig_list->next;
@@ -45,7 +38,7 @@ void sighndlr_remove(void *(*func)(void *), void *param)
 void sighndlr_safe_exit(int param)
 {
 	sighndlr_list *sig_list, *n;
-	sig_list=session.sighndlr;
+	sig_list=sighandler;
 	printf("Please wait ");
 	while(1){
 		printf(".");
@@ -68,8 +61,9 @@ void sighndlr_safe_exit(int param)
 /** \brief Set up signalhandlers */
 void init_sighndlr()
 {
-	session.sighndlr=calloc(sizeof(sighndlr_list),1);
+	sighandler=calloc(sizeof(sighndlr_list),1);
 	signal(SIGPIPE, SIG_IGN);
+	signal(SIGCHLD, SIG_IGN);
 	signal(SIGINT, sighndlr_safe_exit);
 	signal(SIGTERM, sighndlr_safe_exit);
 }

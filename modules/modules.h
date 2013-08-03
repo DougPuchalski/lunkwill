@@ -13,7 +13,7 @@
 
 extern int init_modules();
 
-EXTERN struct{
+struct{
 	int id;
 	char *name;
 	char *description;
