@@ -54,6 +54,8 @@ int get_mime(char *file_path){
 		return 4;
 	if(strcasecmp(ptr, "png") == 0)
 		return 5;
+	if(strcasecmp(ptr, "ico") == 0)
+		return 6;
 		
 	return 0;
 }

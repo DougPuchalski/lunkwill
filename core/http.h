@@ -8,7 +8,8 @@ const static char *content_types[] = {
 	"text/html",
 	"text/javascript",
 	"text/css",
-	"image/png"
+	"image/png",
+	"image/x-icon"
 };
 
 #endif

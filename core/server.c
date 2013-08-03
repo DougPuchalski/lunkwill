@@ -13,7 +13,6 @@ struct _fifo *jobs=NULL;
  *  \param The GET request string to parse
  *  \returns - A pointer to a request request struct which has to be freed by the caller
  * 			 - NULL if the request is not valid
- * 			 - A pointer to an empty request struct which has to be freed by the caller if index.html is requested 
  */  
 request parse_request(char *get_request)
 {
@@ -131,9 +130,13 @@ void *workerthread()
 				break;
 			case LOGO_PNG:
 				dbgprintf("Send %s\n", "logo.png");
+				buffer->size=send_file(&buffer->data, "www/logo.png");
+				goto PIPE;
 				break;
 			case FAVICON_ICO:
 				dbgprintf("Send %s\n", "favicon.ico");
+				buffer->size=send_file(&buffer->data, "www/favicon.ico");
+				goto PIPE;
 				break;
 			default:
 				dbgprintf("Send unknown:%d\n", parsed_request.special_file);
