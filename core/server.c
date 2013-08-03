@@ -17,10 +17,12 @@ request *parse_request(char *get_request)
 	// Invalid request
 	if(strstr(get_request, "GET /") != get_request)
 		goto HTTP404;
-
+	
+	if(strncmp(get_request, "GET /", 5) != 0)
+		goto HTTP404;
 
 	// Send index.html
-	if(strstr(get_request+5, " ") == get_request+5)
+	if(get_request[5] == " ")
 		goto EMPTY;
 
 
@@ -57,12 +59,18 @@ request *parse_request(char *get_request)
 
 	// Find end of module_request
 	ptr = strstr(get_request+34, " ");
+	if(ptr == NULL)
+		goto HTTP404;
+
+
+
 	if(ptr - (get_request+34) < BUFSIZ-1)
 		strncpy(req->module_request, get_request+34, ptr - (get_request+34));
 	else
 		strncpy(req->module_request, get_request+34, BUFSIZ-1);
 
 	return req;
+
 
 	
 	// Returns empty req struct
