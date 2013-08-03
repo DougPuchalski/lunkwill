@@ -2,8 +2,12 @@
 
 pthread_mutex_t lock_send=PTHREAD_MUTEX_INITIALIZER;
 int send_fd=0;
+
 pthread_mutex_t lock_count=PTHREAD_MUTEX_INITIALIZER;
 int thread_count=0;
+
+struct _fifo *jobs=NULL;
+
 
 /** \brief Parses a GET request 
  *  \param The GET request string to parse
@@ -95,10 +99,8 @@ request parse_request(char *get_request)
 }
 
 
-void *workerthread(void *job)
+void *workerthread()
 {
-	struct _fifo *jobs=*((struct _fifo **)job);
-
 	dbgprintf("New pthread startet%s\n","");
 
 	while(1)
@@ -112,7 +114,6 @@ void *workerthread(void *job)
 		if(buffer==NULL)
 		{
 			dbgprintf("No more work todo%s\n","");
-			*((struct _fifo **)job)=NULL;
 			goto IQUITTODAY;
 		}
 		request parsed_request=parse_request(buffer->data);
@@ -153,6 +154,7 @@ void *workerthread(void *job)
 					nfree(buffer->data);
 					nfree(buffer);
 					dbgprintf("Pipe %d is broken\n", send_fd);
+					pthread_mutex_unlock( &lock_send );
 					goto IQUITTODAY;
 				}
 				if(write(send_fd, buffer->data, buffer->size)==-1)
@@ -160,6 +162,7 @@ void *workerthread(void *job)
 					nfree(buffer->data);
 					nfree(buffer);
 					dbgprintf("Pipe %d is broken\n", send_fd);
+					pthread_mutex_unlock( &lock_send );
 					goto IQUITTODAY;
 				}
 			pthread_mutex_unlock( &lock_send );
@@ -178,7 +181,6 @@ void *workerthread(void *job)
 /** \brief Thread spawner */
 int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 {
-	struct _fifo *jobs=NULL;
 	pthread_t thread;
 	send_fd=fd_wr;
 		
@@ -206,8 +208,14 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 
 			if(thread_count<max_num_threads)
 			{
+				int i;
 				thread_count++;
-				pthread_create( &thread, NULL, workerthread, &jobs);
+				dbgprintf("New Thread -> Total active:%d\n", thread_count);		
+				if((i=pthread_create( &thread, NULL, workerthread, NULL))!=0)
+				{
+					dbgprintf("Failed to create Thread:%d %s\n", i, strerror(errno));		
+					thread_count--;					
+				}
 			}
 		pthread_mutex_unlock( &lock_count );
 	}
