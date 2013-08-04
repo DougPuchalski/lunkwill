@@ -166,6 +166,8 @@ void *workerthread()
 					goto IQUITTODAY;
 				}
 			pthread_mutex_unlock( &lock_send );
+		
+		nfree(buffer->data);
 		nfree(buffer);
 
 	}
@@ -193,6 +195,7 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 			nfree(buffer);
 			return 1;
 		}
+		
 		buffer->data=calloc(1,buffer->size+2);
 		if(read(fd_ro, buffer->data, buffer->size)<=0)
 		{
@@ -215,6 +218,10 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 				{
 					dbgprintf("Failed to create Thread:%d %s\n", i, strerror(errno));		
 					thread_count--;					
+				}
+				else
+				{
+					pthread_detach(thread);
 				}
 			}
 		pthread_mutex_unlock( &lock_count );
