@@ -1,6 +1,6 @@
-CC=gcc
-CFLAGS=-Wall -g -pthread -lconfig -lsqlite3 -lgit2
-SRC_DIRS := ${shell find !SRC! -type d -print|grep -iv "module*"}
+CC?=gcc
+CFLAGS+= -Wall -g -pthread -lconfig -lsqlite3 -lgit2
+SRC_DIRS = ${shell find !SRC! -type d -print|grep -iv "module*"}
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,%.o,$(SRCS))
 TARGET=lunkwill
