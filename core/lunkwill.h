@@ -21,6 +21,7 @@
 #include <libconfig.h>
 #include <sqlite3.h> 
 
+#include "server.h"
 #include "../modules/modules.h"
 
 #define nfree(a) free(a);a=NULL;

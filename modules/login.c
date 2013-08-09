@@ -1,12 +1,20 @@
 #include "modules.h"
 
 
+int callback(void *a, int b, char **c, char **d)
+{
+	fprintf(stderr, "login: callback!\n");
+	
+	return 0;
+}
+
+
 int login_request(request *request)
 {
 	sqlite3 *sqlite_db;
 	char *sqlite_answer;
 	char *sqlite_query;
-	int commit = sqlite3_open(sqlite_answer, &sqlite_db);
+	int commit = sqlite3_open("user.db", &sqlite_db);
 	
 	if(commit)
 	{
@@ -14,30 +22,34 @@ int login_request(request *request)
 		return 1;
 	}
 	
-	a=malloc(BUFSIZ) = {0};
+	char *a = malloc(BUFSIZ);
+	char *errmsg = malloc(BUFSIZ);
+	char **err_msg = &errmsg;
+	memset(a, 0, BUFSIZ);
 
-	sql="SELECT * from user;";
-	commit = sqlite3_exec(sqite_db, sqlite_query, callback, (void*)a, &zErrMsg);
+	sqlite_query = "SELECT * from user;";
+	commit = sqlite3_exec(sqlite_db, sqlite_query, callback, (void*)a, err_msg);
 	if(commit != SQLITE_OK ){
-		sqlite3_free(zErrMsg);
+		sqlite3_free(err_msg);
 		if(commit == 1){
-			sql_query = "CREATE TABLE IF NOT EXISTS user(ID INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, projects TEXT, admin INTEGER);";
-			commit = sqlite3_exec(sqlite_db, sql_query, callback, (void*)a, &zErrMsg);			
+			sqlite_query = "CREATE TABLE IF NOT EXISTS user(ID INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, projects TEXT, admin INTEGER);";
+			commit = sqlite3_exec(sqlite_db, sqlite_query, callback, (void*)a, err_msg);			
 			if(commit != SQLITE_OK)
 			{
-				sqlite3_free(zErrMsg);
+				sqlite3_free(err_msg);
 			}
 			else
 			{
-				sql_query = "INSERT INTO TABLE VALUES(NULL, \"admin\", \"demo\", 1);";
-				commit = sqlite3_exec(sqlite_db, sql_query, callback, (void*)a, &zErrMsg);			
-				if(commit != SQLITE_OK) sqlite3_free(zErrMsg);
+				sqlite_query = "INSERT INTO TABLE VALUES(NULL, \"admin\", \"demo\", 1);";
+				commit = sqlite3_exec(sqlite_db, sqlite_query, callback, (void*)a, err_msg);
+				if(commit != SQLITE_OK)
+					sqlite3_free(err_msg);
 			}
 		}
 	}
 	
 
-	sqlite3_close(db);
+	sqlite3_close(sqlite_db);
 
 	
 	return 0;
