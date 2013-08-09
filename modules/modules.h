@@ -4,7 +4,6 @@
 
 #include "../core/lunkwill.h"
 
-#include "git/git.h"
 
 extern int init_modules();
 
