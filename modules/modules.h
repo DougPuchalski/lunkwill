@@ -4,11 +4,6 @@
 
 #include "../core/lunkwill.h"
 
-#include "dummy/dummy.h"
-#include "tickets/module.h"
-#include "projects/projects.h"
-#include "source/module.h"
-#include "wiki/module.h"
 #include "git/git.h"
 
 extern int init_modules();
