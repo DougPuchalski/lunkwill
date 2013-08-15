@@ -6,11 +6,17 @@
 
 
 extern int init_modules();
+extern int login_init_module(int id);
+extern int login_request(void *module_data, request *client_request);
 
-struct{
+struct module_info{
 	int id;
 	char *name;
 	char *description;
-} modules[63];
+	int ((*func)(void *module_data, request *client_request));
+	void *data;
+};
+
+extern struct module_info modules[256];
 
 #endif

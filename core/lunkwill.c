@@ -1,18 +1,20 @@
 #include "lunkwill.h"
 
 struct _fifo *sighandler=NULL;
+struct module_info modules[256];
+FILE *stddebug;
 
 /** \brief Starting libconfig to parse config*/
 int load_config(config_t *config, char *config_file_name)
 {
-    config_init(config);
+	config_init(config);
 
-    if (!config_read_file(config, config_file_name))
-    {
-        config_destroy(config);
-        return 1;
-    }
-    return 0;
+	if (!config_read_file(config, config_file_name))
+	{
+		config_destroy(config);
+		return 1;
+	}
+	return 0;
 }
 
 
@@ -49,7 +51,7 @@ int create_config(config_t *config, char *config_file_name)
 }
 
 int main(int argc, char** argv)
-{	
+{
 	char *config_path=NULL;
 	char *err=NULL;
     int pipe1[2];
@@ -61,6 +63,14 @@ int main(int argc, char** argv)
 	int opt;
     config_t config;
     pid_t pid;
+
+#ifndef NO_DBG
+	if(fcntl(3, F_GETFL) == -1 || errno == EBADF)
+	{
+		dup2(2,3);
+	}
+	stddebug=fdopen(3, "w");
+#endif
 	
 	//Parse args
 	while((opt=getopt(argc,argv,"c:"))!=-1)
@@ -105,8 +115,7 @@ int main(int argc, char** argv)
 		}
 		printf("USING DEFAULT CONFIG\n");
 	}
-
-
+	
 	init_sighndlr();
 	fflush(stdout);
 	
@@ -126,7 +135,10 @@ int main(int argc, char** argv)
 			
 
 			//Read config
-			//modules_init(&config);
+			//modules_init;
+			if(login_init_module(__COUNTER__)!=0) return 1;
+
+
 			int max_num_threads=0, conf;
 			config_setting_t *config_prop;
 			

@@ -8,5 +8,5 @@ cd ${TARGET_DIR}/build
 
 ../configure
 make -j9
-bash
+bash -c "valgrind --leak-check=full --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill || ./lunkwill"
 rm -rf ${TARGET_DIR}/build

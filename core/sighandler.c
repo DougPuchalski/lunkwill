@@ -14,6 +14,11 @@ void sighndlr_add(void *(*func)(void *), void *param)
 	fifo_push(&sighandler, sig_list);
 }
 
+void atexit_safe_exit()
+{
+	sighndlr_safe_exit(0);
+}
+
 /** \brief Works throu queue. */
 void sighndlr_safe_exit(int param)
 {
@@ -28,6 +33,15 @@ void sighndlr_safe_exit(int param)
 		nfree(sig_list);
 	}
 	printf("\n");
+
+	#ifndef NO_DBG
+		if(stddebug!=NULL)
+		{
+			fclose(stddebug);
+			stddebug=NULL;
+		}
+	#endif
+
 	exit(0);
 }
 
@@ -38,4 +52,5 @@ void init_sighndlr()
 	signal(SIGCHLD, SIG_IGN);
 	signal(SIGINT, sighndlr_safe_exit);
 	signal(SIGTERM, sighndlr_safe_exit);
+	atexit(atexit_safe_exit);
 }

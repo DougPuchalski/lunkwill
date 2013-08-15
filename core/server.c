@@ -1,4 +1,4 @@
-#include "server.h"
+#include "lunkwill.h"
 
 pthread_mutex_t lock_send=PTHREAD_MUTEX_INITIALIZER;
 int send_fd=0;
@@ -7,6 +7,49 @@ pthread_mutex_t lock_count=PTHREAD_MUTEX_INITIALIZER;
 int thread_count=0;
 
 struct _fifo *jobs=NULL;
+
+int strnmatch(char *a, char *b, int n)
+{
+	int i=0,j=0;
+
+	while(!i&&j<n)
+	{
+		i=1;
+
+		int x;
+		for(x=0;x<strlen(b)&&i;x++)
+		{
+			i=!!(a[j]^b[x]);
+		}
+		j++;
+	}
+	return i;
+}
+
+int join_to_int(char *data, char *encoding, int bits, int n)
+{
+	int i=0,x;
+	for(x=0;x<n;x++)
+	{
+		int y=0;
+
+		while(1) 
+		{
+			if(encoding[y]==0)return -1;
+
+			if(data[x]==encoding[y])
+			{
+				break;
+			}
+			y++;
+		}
+
+		i&=~(((int)(0xFF))<<(bits*x));
+		i|=((int)(y))<<(bits*x);
+	}
+	i&=~(((int)(0))<<(bits*n));
+	return i;
+}
 
 
 /** \brief Parses a GET request 
@@ -19,81 +62,119 @@ request parse_request(char *get_request)
 	request req;
 	
 	// Invalid request
-	if(strncmp(get_request, "GET /", 5) != 0)
-		goto HTTP404;
-
-	// Send index.html
-	if(get_request[5] == ' ')
+	if(strbegin(get_request, "GET /") != 0)
 	{
+		dbgprintf("Invalid Request %s\n", get_request);
+		goto HTTP451;
+	}
+	
+	get_request+=5;
+	
+	// Send index.html
+	if(strbegin(get_request," ") == 0)
+	{
+		dbgprintf("Request for %s\n", "index");
 		req.special_file = INDEX_HTML;
 		return req;
 	}
 
-	/// \brief Send logo or favicon, see server.h for list
-	if(strncmp(get_request+5, "logo.png ", 9) == 0)
+	//Shared link
+	if(get_request[0]=='?')
 	{
+		dbgprintf("Request for %s\n", "Shared Link");
+		req.special_file = LINK_RESOLVER;
+		return req;
+	}
+
+	/// \brief Send logo or favicon, see server.h for list
+	if(strbegin(get_request, "logo.png ") == 0)
+	{
+		dbgprintf("Request for %s\n", "logo");
 		req.special_file = LOGO_PNG;
 		return req;
 	}
 	
-	if(strncmp(get_request+5, "favicon.ico ", 11) == 0)
+	if(strbegin(get_request, "favicon.ico ") == 0)
 	{
+		dbgprintf("Request for %s\n", "favicon");
 		req.special_file = FAVICON_ICO;
 		return req;
 	}
 	
-
 	// Set special_file to 0 by default
 	req.special_file = NON_SPECIAL;
 
-	// Check session id
-	char *ptr = strstr(get_request+5, "/");
+	if(strnmatch((get_request), url_chars, 20)!=0)
+	{
+		dbgprintf("No Match%s","\n");
+		goto HTTP451;
+	}
 	
-	// Invalid session id
-	if((ptr - (get_request+5)) != 20)
-		goto HTTP404;
+	dbgprintf("Matched login%s","\n");
 
 	// Read session id
-	strncpy(req.session_id, get_request+5, 20);
+	strncpy(req.session_id, get_request, 20);
 
+	req.user=join_to_int(get_request, url_chars, 6, 5);
+	get_request+=5;
+	req.group=join_to_int(get_request, url_chars, 6, 5);
+	get_request+=5;
+	req.session1=join_to_int(get_request, url_chars, 6, 5);
+	get_request+=5;
+	req.session2=join_to_int(get_request, url_chars, 6, 5);
+	get_request+=6;
+
+	dbgprintf("UserId: %d\n", req.user);
+	dbgprintf("Group: %d\n", req.group);
+	dbgprintf("Session1: %d\n", req.session1);
+	dbgprintf("Session2: %d\n", req.session2);
 	
+		
 	// Check project id
-	ptr = strstr(get_request+26, "/");
-	
-	// Invalid project id
-	if((ptr - (get_request+26)) != 4)
-		goto HTTP404;
+	if(strnmatch((get_request), url_chars, 4)!=0)
+	{
+		dbgprintf("No Project ID%s","\n");
+		req.project=0;
+		req.module=0;
+		return req;
+	}
 
 	// Read project id
-	strncpy(req.project_id, get_request+26, 4);
+	strncpy(req.project_id, get_request, 4);
+	req.project=join_to_int(get_request, url_chars, 6, 4);
+	get_request+=5;
 
 	
 	// Check module id
-	ptr = strstr(get_request+31, "/");
-	
-	// Invalid module id
-	if(ptr - (get_request+31) != 2)
-		goto HTTP404;
+	if(strnmatch((get_request), url_chars, 2)!=0)
+	{
+		dbgprintf("No Module ID%s","\n");
+		req.module=0;
+		return req;
+	}
 
-	strncpy(req.module_id, get_request+31, 2);
+	strncpy(req.module_id, get_request, 2);
+	req.module=join_to_int(get_request, url_chars, 6, 4);
+	get_request+=3;
 
 	// Find end of module_request
-	ptr = strstr(get_request+34, " ");
-	if(ptr == NULL)
-		goto HTTP404;
+	char *ptr = strstr(get_request, " ");
+	if(ptr == NULL)	goto HTTP451;
 
-
-
-	if(ptr - (get_request+34) < BUFSIZ-1)
-		strncpy(req.module_request, get_request+34, ptr - (get_request+34));
+	if(ptr - (get_request) < BUFSIZ-1)
+	{
+		strncpy(req.module_request, get_request, ptr - (get_request));
+	}
 	else
-		strncpy(req.module_request, get_request+34, BUFSIZ-1);
+	{
+		goto HTTP451;
+	}
 
 	return req;
 
 	// Returns NULL
-	HTTP404:
-		req.special_file = ERROR_404;
+	HTTP451:
+		req.special_file = ERROR_451;
 		return req;
 }
 
@@ -112,7 +193,7 @@ void *workerthread()
 
 		if(buffer==NULL)
 		{
-			dbgprintf("No more work todo%s\n","");
+			dbgprintf("No more work to do%s\n","");
 			goto IQUITTODAY;
 		}
 		request parsed_request=parse_request(buffer->data);
@@ -121,7 +202,21 @@ void *workerthread()
 		switch(parsed_request.special_file)
 		{
 			case NON_SPECIAL:
-				//~ login_request(&parsed_request);
+				switch(modules[0].func(modules[0].data,&parsed_request))
+				{
+					case 0: //uid ok
+						buffer->size=send_string(&buffer->data,"200 OK");
+					break;
+					case 1: //ask for login
+						buffer->size=send_string(&buffer->data,"Please Login");
+						break;
+					case 2: //server error
+						goto ERROR_500;
+					default:
+						goto ERROR_451;
+					break;
+				}
+				goto PIPE;
 				break;
 			case INDEX_HTML:
 				dbgprintf("Send %s\n", "index.html");
@@ -142,13 +237,21 @@ void *workerthread()
 				dbgprintf("Send unknown:%d\n", parsed_request.special_file);
 				break;
 		}
-				
+
+		ERROR_451:
+			dbgprintf("Send %s\n", "HTTP 451");
+			buffer->size=strlen(HTTP_451);
+			buffer->data=malloc(buffer->size);
+			strncpy(buffer->data, HTTP_451, buffer->size);
+			goto PIPE;
 		
-		dbgprintf("Send %s\n", "HTTP 404");
-		buffer->size=strlen(HTTP_404);
-		buffer->data=malloc(buffer->size);
-		strncpy(buffer->data, HTTP_404, buffer->size);
-		
+		ERROR_500:
+			dbgprintf("Send %s\n", "HTTP 500");
+			buffer->size=strlen(HTTP_500);
+			buffer->data=malloc(buffer->size);
+			strncpy(buffer->data, HTTP_500, buffer->size);
+			goto PIPE;
+
 		PIPE:		
 			pthread_mutex_lock( &lock_send );
 				dbgprintf("Send %d bytes through pipe %d\n", buffer->size, send_fd);

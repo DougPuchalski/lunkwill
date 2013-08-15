@@ -14,7 +14,7 @@
 			font-size: 46px;
 			color: #FFF;
 			font-weight:bold;
-			height:100;
+			height:100px;
 			background:#aa2211
 		}
 		
@@ -34,10 +34,10 @@
 		
 		.base{
 			position:absolute;
-			top:80;
-			bottom:50;
-			left:0;
-			right:0;
+			top:80px;
+			bottom:50px;
+			left:0px;
+			right:0px;
 			margin:auto;
 			width:100%;
 			height: 80%;
@@ -54,17 +54,32 @@
 </head>
 
 <body>
-<div class="title" onclick="javascript:get_url('/ /')">
+<div class="title" onclick="javascript:get_url('/')">
 	<span><img src="logo.png" alt="lunkwill"></span>
 </div>
 <div class=base id=base>
 </div>
 <script type='text/javascript'>
 
+var get_login= function()
+{
+	return "AAAAAAAAAAAAAAAAAAAA";
+};
+
+var get_project= function()
+{
+	return "AAAA";
+};
+
+var get_module= function()
+{
+	return "AA";
+};
+
 var get_url=function(url)
 { 
 	var autocomplete = new XMLHttpRequest();
-	autocomplete.open("GET", url, false);
+	autocomplete.open("GET", "/"+get_login()+"/"+get_project()+"/"+get_module()+"/"+url, false);
 	autocomplete.send();
 	
 	if(autocomplete.readyState == 4){
@@ -72,10 +87,15 @@ var get_url=function(url)
 		}
 	}
 	
-	document.getElementById("base").innerHTML= autocomplete.responseText;
+	document.getElementById("base").innerHTML=autocomplete.responseText;
+	var s=document.getElementById("base").getElementsByTagName('script')
+	for(var i=0; i<s.length;i++)
+	{
+		eval(s[i].text);
+	}
 };
 
-get_url("/ /");
+get_url("/");
 
 </script>
 

@@ -24,19 +24,36 @@
 #include "server.h"
 #include "../modules/modules.h"
 
-#define nfree(a) free(a);a=NULL;
+#define nfree(a) if(a!=NULL){free(a); a=NULL;}
+
+#define strbegin(a,b) strncmp(a,b,strlen(b))
+
 #ifndef NO_DBG
-	#define dbgprintf(a,...) fprintf (stderr, "\033[%d;%dm\nPID:%d THRD:%d %s:%d: " a, \
+	extern FILE *stddebug;
+	#define dbgprintf(a,...) fprintf (stddebug, "\033[%d;%dm\nPID:%d THRD:%d %s:%d: " a, \
 				getpid()%8+30, 47-getpid()%8, getpid(), (int)(pthread_self()&0xFF), \
-				__FILE__, __LINE__, __VA_ARGS__)
+				__FILE__, __LINE__, __VA_ARGS__); fflush(stddebug);
 #else
 	#define dbgprintf(a, ...)
 #endif
 
 
 #define BUF_SIZE 2048
-#define HTTP_404 "HTTP/1.0 404 Not Found\r\nContent-Type:text/html\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n"
 
+#define HTTP_451 "HTTP/1.0 451 Unavailable For Legal Reasons\r\nContent-Type:text/html\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n" \
+"<html><canvas id=c></canvas><script type='text/javascript'>"\
+"with(document.getElementById('c')){height=Math.max(document.body.clientHeight-20,window.innerHeight-20);width=Math.max(document.body.clientWidth-20,window.innerWidth-20); h=9; c=getContext('2d'); c.globalAlpha=.5; a=setInterval(\"c.font='bold 25px sans-serif',c.fillText('We do not forgive. We do not forget. Expect us.',h,h),c.rotate(h++)\",15);setTimeout(function(){clearInterval(a);},10000);}" \
+"</script><body bgcolor=#FF1111></body></html>"
+
+#define HTTP_500 "HTTP/1.0 500 Internal Server Error \r\nContent-Type:text/html\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n" \
+"<html><body>"\
+"<h1>Server Error</h1><br>"\
+"<h2>This problem will <a href='http://en.wikipedia.org/wiki/Infinite_monkey_theorem'>almost surely</a> be fixed!</h2>"\
+"</body></html>"
+
+#define url_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+				"abcdefghijklmnopqrstuvwxyz" \
+				"1234567890.,"
 
 /** \brief "html_ui" is required for module output */
 struct html_ui{

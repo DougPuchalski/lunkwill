@@ -5,7 +5,7 @@
 char *html_flush(void **html, int follow)
 {
 		char *ret=NULL;
-		char *children, *following;
+		char *children=NULL, *following=NULL;
 		int length;
 
 
