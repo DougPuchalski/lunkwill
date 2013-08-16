@@ -102,20 +102,9 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	strcpy((*tag)->tag_content_string, content_string);
 	strcpy((*tag)->tag_close, tag_close);
 	
-	if(leeko==NULL)
-	{
-		nfree(leeko);
-	}
-
-	if(leekc==NULL)
-	{
-		nfree(leekc);
-	}
-
-	if(leekcs==NULL)
-	{
-		nfree(leekcs);
-	}
+	nfree(leeko);
+	nfree(leekc);
+	nfree(leekcs);
 
 	return (*tag);
 }

@@ -16,10 +16,12 @@ typedef struct html_tag HTML_TAG;
 #define HEADER_OPEN "<div id='HEAD' class='header'>"
 #define HEADER_CLOSE "</div><br>"
 
-#define SIDEBAR_OPEN "<div style='float:left;width:200px' id='SIDEBAR' class='sidebar'><br><br>"
+#define SIDEBAR_OPEN "<div style='display:inline-block;width:200px;vertical-align:top;" \
+	"white-space:normal;' id='SIDEBAR' class='sidebar'><br><br>"
 #define SIDEBAR_CLOSE "</div>"
 
-#define MAIN_OPEN "<div style='float:left' id='MAIN' class='main'>"
+#define MAIN_OPEN "<div style='display:inline-block;white-space: normal;vertical-align:top;'"\
+	"id='MAIN' class='main'>"
 #define MAIN_CLOSE "</div>"
 
 #endif

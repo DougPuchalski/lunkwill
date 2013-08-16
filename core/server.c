@@ -6,6 +6,8 @@ int send_fd=0;
 pthread_mutex_t lock_count=PTHREAD_MUTEX_INITIALIZER;
 int thread_count=0;
 
+int exit_server;
+
 struct _fifo *jobs=NULL;
 
 int strnmatch(char *a, char *b, int n)
@@ -207,8 +209,18 @@ void *workerthread()
 					case 0: //uid ok
 						buffer->size=send_string(&buffer->data,"200 OK");
 					break;
-					case 1: //ask for login
-						buffer->size=send_string(&buffer->data,"Please Login");
+					case 1:; //ask for login
+						struct html_ui *h;
+						void *x;
+						h=new_html();
+						void *form=html_add_tag(&h->main, \
+						"<form submit='javascript:set_login(),get_url(\"\")'>","","</form>");
+						html_add_tag(&form, "<strong>E-Mail:</strong><br><input type=email>","","</input><p>");
+						html_add_tag(&form, "<strong>Password:</strong><br><input type=password>","","</input><p>");
+						html_add_tag(&form, "<input type=submit value=Login>",NULL,"</input>");
+						buffer->size=send_string(&buffer->data,x=html_flush(&h->base,1));
+						nfree(h);
+						nfree(x);
 						break;
 					case 2: //server error
 						goto ERROR_500;
@@ -292,14 +304,14 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 	pthread_t thread;
 	send_fd=fd_wr;
 		
-	while(1)
+	while(!exit_server)
 	{
 		struct pipe_rxtx *buffer=calloc(1,sizeof(struct pipe_rxtx));
 
 		if(read(fd_ro, buffer, sizeof(struct pipe_rxtx))<=0)
 		{
 			nfree(buffer);
-			return 1;
+			break;
 		}
 		
 		buffer->data=calloc(1,buffer->size+2);
@@ -307,7 +319,7 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 		{
 			nfree(buffer->data);
 			nfree(buffer);
-			return 1;
+			break;
 		}
 
 		dbgprintf("Socket:%d Size:%d\n", buffer->fd, buffer->size);		
@@ -332,6 +344,16 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 			}
 		pthread_mutex_unlock( &lock_count );
 	}
+	
+	int i=1;
+	do
+	{
+		usleep(2000);
+		pthread_mutex_lock( &lock_count );
+			i=thread_count;
+		pthread_mutex_unlock( &lock_count );		
+	}while(i!=0);
+	
 	return 0;
 }
 
@@ -377,6 +399,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 	FD_ZERO(&master);
 	FD_ZERO(&read_fds);
 	FD_SET(server_sock, &master);
+	FD_SET(0, &master);
 	FD_SET(fd_ro, &master);
 	fdmax = (server_sock>fd_wr)?server_sock:fd_wr;
 	
@@ -430,6 +453,21 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 
 					close(buffer.fd);
 					nfree(buffer.data);
+				}
+				else if(i==0)
+				{
+					char buf[11];
+					if(fread(buf,1,10,stdin)!=0)
+					{
+						fflush(stdin);
+						buf[10]=0;
+						dbgprintf("%s\n",buf);
+						if(strbegin(buf, "quit")==0)
+						{
+							dbgprintf("%s\n",buf);
+							exit(0);
+						}
+					}
 				}
 				else
 				{

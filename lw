@@ -7,6 +7,22 @@ mkdir ${TARGET_DIR}/build
 cd ${TARGET_DIR}/build
 
 ../configure
-make -j9
-bash -c "valgrind --leak-check=full --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill || ./lunkwill"
+make -j9 || exit;
+
+case $@ in
+
+	"dbg")
+		bash -c "gdb ./lunkwill"
+	;;
+	"mem")
+		bash -c "valgrind --leak-check=full --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill"
+	;;
+	"run")
+		bash -c "./lunkwill"
+	;;
+	*)
+		echo $@
+		bash
+esac
+
 rm -rf ${TARGET_DIR}/build

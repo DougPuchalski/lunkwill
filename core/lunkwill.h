@@ -94,6 +94,7 @@ struct _fifo {
         struct _fifo *last;
 };
 
+extern int exit_server;
 
 //FIRST IN > FIRST OUT LIST
 extern int fifo_push(struct _fifo **fifo, void *data);

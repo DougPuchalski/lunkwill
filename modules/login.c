@@ -64,6 +64,11 @@ int login_request(void *module_data, request *client_request)
 	char *errmsg=NULL;
 	char a[BUFSIZ];
 	struct login_data *l=module_data;
+	
+	if(client_request->user==0)
+	{
+		return 1;
+	}
 
 	pthread_mutex_lock( &l->db_lock );
 

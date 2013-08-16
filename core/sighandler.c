@@ -16,12 +16,6 @@ void sighndlr_add(void *(*func)(void *), void *param)
 
 void atexit_safe_exit()
 {
-	sighndlr_safe_exit(0);
-}
-
-/** \brief Works throu queue. */
-void sighndlr_safe_exit(int param)
-{
 	sighndlr_list *sig_list;
 	printf("Please wait ");
 	while((sig_list=fifo_pop(&sighandler))!=NULL){
@@ -41,8 +35,12 @@ void sighndlr_safe_exit(int param)
 			stddebug=NULL;
 		}
 	#endif
+}
 
-	exit(0);
+/** \brief Works throu queue. */
+void sighndlr_safe_exit(int param)
+{
+	exit_server=1;
 }
 
 /** \brief Set up signalhandlers */
