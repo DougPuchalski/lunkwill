@@ -55,7 +55,7 @@
 </head>
 
 <body>
-<div class="title" onclick="javascript:get_url('/')">
+<div class="title" onclick="javascript:get_url('')">
 	<span><img src="logo.png" alt="lunkwill"></span>
 </div>
 <div class=base id=base>
@@ -64,20 +64,29 @@
 
 var get_login= function()
 {
-	return "AAAAAAAAAAAAAAAAAAAA";
+	if((a=readCookie("login"))=="")
+		return "AAAAAAAAAAAAAAAAAAAA";
+	
+	return a;
 };
 
 var get_project= function()
 {
-	return "AAAA";
+	if((a=readCookie("project"))=="")
+		return "AAAA";
+	
+	return a;
 };
 
 var get_module= function()
 {
+	if((a=readCookie("module"))=="")
 	return "AA";
+	
+	return a;
 };
 
-var get_url=function(url)
+get_url=function(url)
 { 
 	var autocomplete = new XMLHttpRequest();
 	autocomplete.open("GET", "/"+get_login()+"/"+get_project()+"/"+get_module()+"/"+url, false);
@@ -96,7 +105,33 @@ var get_url=function(url)
 	}
 };
 
-get_url("/");
+
+function createCookie(name,value,days) {
+	if (days) {
+		var date = new Date();
+		date.setTime(date.getTime()+(days*24*60*60*1000));
+		var expires = "; expires="+date.toGMTString();
+	}
+	else var expires = "";
+	document.cookie = name+"="+value+expires+"; path=/";
+}
+
+function readCookie(name) {
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return "";
+}
+
+function eraseCookie(name) {
+	createCookie(name,"",-1);
+}
+
+get_url("");
 
 </script>
 

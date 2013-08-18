@@ -31,7 +31,7 @@
 #ifndef NO_DBG
 	extern FILE *stddebug;
 	#define dbgprintf(a,...) fprintf (stddebug, "\033[%d;%dm\nPID:%d THRD:%d %s:%d: " a, \
-				getpid()%8+30, 47-getpid()%8, getpid(), (int)(pthread_self()&0xFF), \
+				getpid()%4+30, 43-getpid()%4, getpid(), (int)(pthread_self()), \
 				__FILE__, __LINE__, __VA_ARGS__); fflush(stddebug);
 #else
 	#define dbgprintf(a, ...)
@@ -43,6 +43,7 @@
 #define HTTP_451 "HTTP/1.0 451 Unavailable For Legal Reasons\r\nContent-Type:text/html\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n" \
 "<html><canvas id=c></canvas><script type='text/javascript'>"\
 "with(document.getElementById('c')){height=Math.max(document.body.clientHeight-20,window.innerHeight-20);width=Math.max(document.body.clientWidth-20,window.innerWidth-20); h=9; c=getContext('2d'); c.globalAlpha=.5; a=setInterval(\"c.font='bold 25px sans-serif',c.fillText('We do not forgive. We do not forget. Expect us.',h,h),c.rotate(h++)\",15);setTimeout(function(){clearInterval(a);},10000);}" \
+"eraseCookie('login')"\
 "</script><body bgcolor=#FF1111></body></html>"
 
 #define HTTP_500 "HTTP/1.0 500 Internal Server Error \r\nContent-Type:text/html\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n" \

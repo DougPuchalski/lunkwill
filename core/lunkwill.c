@@ -132,7 +132,7 @@ int main(int argc, char** argv)
 		//Child process
 			close(PARENT_READ);
 			close(PARENT_WRITE);
-			
+			fclose(stdin);
 
 			//Read config
 			//modules_init;

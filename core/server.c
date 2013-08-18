@@ -62,6 +62,7 @@ int join_to_int(char *data, char *encoding, int bits, int n)
 request parse_request(char *get_request)
 {
 	request req;
+	req.module_request[0]=0;
 	
 	// Invalid request
 	if(strbegin(get_request, "GET /") != 0)
@@ -156,8 +157,9 @@ request parse_request(char *get_request)
 	}
 
 	strncpy(req.module_id, get_request, 2);
-	req.module=join_to_int(get_request, url_chars, 6, 4);
-	get_request+=3;
+	req.module=join_to_int(get_request, url_chars, 6, 2);
+	get_request+=2;
+	if(get_request[0]!=' ')get_request++;
 
 	// Find end of module_request
 	char *ptr = strstr(get_request, " ");
@@ -178,6 +180,25 @@ request parse_request(char *get_request)
 	HTTP451:
 		req.special_file = ERROR_451;
 		return req;
+}
+
+
+int send_login(char **buffer)
+{
+	struct html_ui *h;
+	void *x;
+	int s=0;
+
+	h=new_html();
+	void *form=html_add_tag(&h->main, \
+	"<form action='javascript:get_url(\"LOGIN\"),get_url(\"\")'>","","</form>");
+	html_add_tag(&form, "<strong>E-Mail:</strong><br><input type=email>","","</input><p>");
+	html_add_tag(&form, "<strong>Password:</strong><br><input type=password>","","</input><p>");
+	html_add_tag(&form, "<input type=submit value=Login>",NULL,"</input>");
+	s=send_string(buffer,x=html_flush(&h->base,1));
+	nfree(h);
+	nfree(x);
+	return s;
 }
 
 
@@ -207,20 +228,11 @@ void *workerthread()
 				switch(modules[0].func(modules[0].data,&parsed_request))
 				{
 					case 0: //uid ok
-						buffer->size=send_string(&buffer->data,"200 OK");
+						buffer->size=send_string(&buffer->data, \
+							"<script>createCookie('login','AA',7)</script>");
 					break;
 					case 1:; //ask for login
-						struct html_ui *h;
-						void *x;
-						h=new_html();
-						void *form=html_add_tag(&h->main, \
-						"<form submit='javascript:set_login(),get_url(\"\")'>","","</form>");
-						html_add_tag(&form, "<strong>E-Mail:</strong><br><input type=email>","","</input><p>");
-						html_add_tag(&form, "<strong>Password:</strong><br><input type=password>","","</input><p>");
-						html_add_tag(&form, "<input type=submit value=Login>",NULL,"</input>");
-						buffer->size=send_string(&buffer->data,x=html_flush(&h->base,1));
-						nfree(h);
-						nfree(x);
+						buffer->size=send_login(&buffer->data);
 						break;
 					case 2: //server error
 						goto ERROR_500;
@@ -396,6 +408,9 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 		return 1;
 	}
 	
+
+	setvbuf(stdin,NULL,_IONBF,0);
+
 	FD_ZERO(&master);
 	FD_ZERO(&read_fds);
 	FD_SET(server_sock, &master);
@@ -403,7 +418,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 	FD_SET(fd_ro, &master);
 	fdmax = (server_sock>fd_wr)?server_sock:fd_wr;
 	
-	while(1)
+	while(!exit_server)
 	{
 		read_fds = master;
 		if(select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
@@ -456,17 +471,14 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 				}
 				else if(i==0)
 				{
-					char buf[11];
-					if(fread(buf,1,10,stdin)!=0)
+					char buf[11]={0};
+					if(fgets(buf,10,stdin)==NULL)return 1;
+
+					dbgprintf("%s\n",buf);
+					if(strbegin(buf, "quit")==0)
 					{
-						fflush(stdin);
-						buf[10]=0;
 						dbgprintf("%s\n",buf);
-						if(strbegin(buf, "quit")==0)
-						{
-							dbgprintf("%s\n",buf);
-							exit(0);
-						}
+						return 0;
 					}
 				}
 				else

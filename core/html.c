@@ -63,7 +63,7 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	HTML_TAG **tag;
 	void *leeko=NULL,*leekc=NULL, *leekcs=NULL;
 
-	if((*((HTML_TAG **)parent)==NULL))
+	if((*((HTML_TAG **)parent))==NULL)
 	{
 		tag=(HTML_TAG **)parent;
 	}

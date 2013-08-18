@@ -1,5 +1,6 @@
 CC?=gcc
-CFLAGS+= -Wall -g -pthread -lconfig -lsqlite3 -lgit2 -O2
+CFLAGS+= -Wall -g -pthread -O2
+LDFLAGS+= -lconfig -lsqlite3 -lgit2
 SRC_DIRS = ${shell find !SRC! -type d -print}
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,%.o,$(SRCS))
@@ -7,7 +8,7 @@ TARGET=lunkwill
 
 all: $(OBJS)
 	@echo CC $(TARGET)
-	@$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+	@$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJS)
 	@cp -r !SRC!/www ./www
 
 $(OBJS): $(SRCS)

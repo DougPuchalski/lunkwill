@@ -7,18 +7,24 @@ mkdir ${TARGET_DIR}/build
 cd ${TARGET_DIR}/build
 
 ../configure
-make -j9 || exit;
 
 case $@ in
 
 	"dbg")
+		make -j9;
 		bash -c "gdb ./lunkwill"
 	;;
 	"mem")
+		make -j9;
 		bash -c "valgrind --leak-check=full --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill"
 	;;
 	"run")
+		make -j9;
 		bash -c "./lunkwill"
+	;;
+	"clang")
+		CC=clang make -j9
+		bash
 	;;
 	*)
 		echo $@

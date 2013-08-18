@@ -67,26 +67,32 @@ int login_request(void *module_data, request *client_request)
 	
 	if(client_request->user==0)
 	{
+		if(client_request->group==0 && client_request->session1==0 && \
+			client_request->session2==0 && client_request->module_request[0]!=0)
+		{
+			dbgprintf("[LOGIN] %s\n", client_request->module_request);
+			pthread_mutex_lock( &l->db_lock );
+
+				sqlite_query = "INSERT INTO users VALUES(NULL, \"admin\", \"demo\", \"\", 1);";
+				if(sqlite3_exec(l->sqlite_db, sqlite_query, callback, (void*)a, &errmsg) != SQLITE_OK)
+				{
+					dbgprintf("[FAIL] INSERT %s\n",errmsg);
+					goto ERROR_SERVER;
+				}
+
+				sqlite_query = "SELECT * from users;";
+				if(sqlite3_exec(l->sqlite_db, sqlite_query, callback, (void*)a, &errmsg) != SQLITE_OK)
+				{
+					dbgprintf("[FAIL] SELECT %s\n", errmsg);
+					goto ERROR_SERVER;
+				}
+
+
+			pthread_mutex_unlock( &l->db_lock );
+			return 0;
+		}
 		return 1;
 	}
-
-	pthread_mutex_lock( &l->db_lock );
-
-		sqlite_query = "SELECT * from users;";
-		if(sqlite3_exec(l->sqlite_db, sqlite_query, callback, (void*)a, &errmsg) != SQLITE_OK)
-		{
-			dbgprintf("[FAIL] SELECT %s\n", errmsg);
-			goto ERROR_SERVER;
-		}
-
-		sqlite_query = "INSERT INTO users VALUES(NULL, \"admin\", \"demo\", \"\", 1);";
-		if(sqlite3_exec(l->sqlite_db, sqlite_query, callback, (void*)a, &errmsg) != SQLITE_OK)
-		{
-			dbgprintf("[FAIL] INSERT %s\n",errmsg);
-			goto ERROR_SERVER;
-		}
-
-	pthread_mutex_unlock( &l->db_lock );
 	
 	return 1;
 	
