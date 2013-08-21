@@ -22,7 +22,7 @@ typedef struct{
 	int project;
 	char module_id[3];
 	int module;
-	char module_request[BUFSIZ];
+	char module_request[BUF_SIZE];
 } request; 
 
 extern int strnmatch(char *a, char *b, int n);

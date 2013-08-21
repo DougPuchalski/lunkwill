@@ -54,6 +54,24 @@ int join_to_int(char *data, char *encoding, int bits, int n)
 }
 
 
+char *split_to_xstring(int data, char *encoding, int bits, int n)
+{
+	int x,filter=0;
+	char *ret;
+	ret=calloc(1,n+1);
+	
+	for(x=0;x<bits;x<<=1,x|=1);
+
+	for(x=0;x<n;x++)
+	{
+		ret[x]=encoding[filter];
+		filter<<=bits;
+	}
+
+	return ret;
+}
+
+
 /** \brief Parses a GET request 
  *  \param The GET request string to parse
  *  \returns - A pointer to a request request struct which has to be freed by the caller
@@ -126,11 +144,6 @@ request parse_request(char *get_request)
 	get_request+=5;
 	req.session2=join_to_int(get_request, url_chars, 6, 5);
 	get_request+=6;
-
-	dbgprintf("UserId: %d\n", req.user);
-	dbgprintf("Group: %d\n", req.group);
-	dbgprintf("Session1: %d\n", req.session1);
-	dbgprintf("Session2: %d\n", req.session2);
 	
 		
 	// Check project id
@@ -165,7 +178,7 @@ request parse_request(char *get_request)
 	char *ptr = strstr(get_request, " ");
 	if(ptr == NULL)	goto HTTP451;
 
-	if(ptr - (get_request) < BUFSIZ-1)
+	if(ptr - (get_request) < BUF_SIZE-1)
 	{
 		strncpy(req.module_request, get_request, ptr - (get_request));
 	}
@@ -191,9 +204,11 @@ int send_login(char **buffer)
 
 	h=new_html();
 	void *form=html_add_tag(&h->main, \
-	"<form action='javascript:get_url(\"LOGIN\"),get_url(\"\")'>","","</form>");
-	html_add_tag(&form, "<strong>E-Mail:</strong><br><input type=email>","","</input><p>");
-	html_add_tag(&form, "<strong>Password:</strong><br><input type=password>","","</input><p>");
+	"<form action='javascript:get_url("\
+	"(document.getElementById(\"email\").value+document.getElementById(\"password\").value)"\
+	"),get_url(\"\")'>","","</form>");
+	html_add_tag(&form, "<strong>E-Mail:</strong><br><input id=email type=email>","","</input><p>");
+	html_add_tag(&form, "<strong>Password:</strong><br><input id=password type=password>","","</input><p>");
 	html_add_tag(&form, "<input type=submit value=Login>",NULL,"</input>");
 	s=send_string(buffer,x=html_flush(&h->base,1));
 	nfree(h);
@@ -205,6 +220,7 @@ int send_login(char **buffer)
 void *workerthread()
 {
 	dbgprintf("New pthread startet%s\n","");
+	char buf[BUF_SIZE];
 
 	while(1)
 	{
@@ -229,13 +245,20 @@ void *workerthread()
 				{
 					case 0: //uid ok
 						buffer->size=send_string(&buffer->data, \
-							"<script>createCookie('login','AA',7)</script>");
+							"You're loged in<br>"\
+							"<input type=submit onclick='"\
+							"javascript:eraseCookie(\"login\"),get_url(\"\")' Value='Logout' />");
 					break;
-					case 1:; //ask for login
+					case 1: //ask for login
 						buffer->size=send_login(&buffer->data);
 						break;
 					case 2: //server error
 						goto ERROR_500;
+					case 3: //new session
+						sprintf(buf, "<script>createCookie('login','%s',7)</script>",\
+							parsed_request.module_request);
+						buffer->size=send_string(&buffer->data, buf);
+					break;
 					default:
 						goto ERROR_451;
 					break;

@@ -21,8 +21,6 @@
 #include <libconfig.h>
 #include <sqlite3.h> 
 
-#include "server.h"
-#include "../modules/modules.h"
 
 #define nfree(a) if(a!=NULL){free(a); a=NULL;}
 
@@ -38,7 +36,7 @@
 #endif
 
 
-#define BUF_SIZE 2048
+#define BUF_SIZE 4096
 
 #define HTTP_451 "HTTP/1.0 451 Unavailable For Legal Reasons\r\nContent-Type:text/html\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n" \
 "<html><canvas id=c></canvas><script type='text/javascript'>"\
@@ -96,6 +94,10 @@ struct _fifo {
 };
 
 extern int exit_server;
+
+#include "server.h"
+#include "../modules/modules.h"
+
 
 //FIRST IN > FIRST OUT LIST
 extern int fifo_push(struct _fifo **fifo, void *data);
