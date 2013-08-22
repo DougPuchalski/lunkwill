@@ -16,7 +16,7 @@ case $@ in
 	;;
 	"mem")
 		make -j9;
-		bash -c "valgrind --leak-check=full --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill"
+		bash -c "valgrind --leak-check=full --track-origins=yes --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill"
 	;;
 	"run")
 		make -j9;

@@ -23,6 +23,7 @@ typedef struct{
 	char module_id[3];
 	int module;
 	char module_request[BUF_SIZE];
+	struct html_ui *answer;
 } request; 
 
 extern int strnmatch(char *a, char *b, int n);

@@ -72,6 +72,8 @@ int main(int argc, char** argv)
 	stddebug=fdopen(3, "w");
 #endif
 	
+	memset(modules, 0, 256*sizeof(struct module_info));
+	
 	//Parse args
 	while((opt=getopt(argc,argv,"c:"))!=-1)
 	{
@@ -137,6 +139,7 @@ int main(int argc, char** argv)
 			//Read config
 			//modules_init;
 			if(login_init_module(__COUNTER__)!=0) return 1;
+			if(projects_init_module(__COUNTER__)!=0) return 1;
 
 
 			int max_num_threads=0, conf;

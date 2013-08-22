@@ -80,6 +80,7 @@ char *split_to_xstring(int data, char *encoding, int bits, int n)
 request parse_request(char *get_request)
 {
 	request req;
+	memset(&req, 0, sizeof(request));
 	req.module_request[0]=0;
 	
 	// Invalid request
@@ -216,6 +217,17 @@ int send_login(char **buffer)
 	return s;
 }
 
+int send_user_data(char **buffer, struct html_ui *h)
+{
+	void *form=html_add_tag(&h->main, \
+	"<form action='javascript:get_url(" \
+	"(document.getElementById(\"email\").value+document.getElementById(\"password\").value)" \
+	"),get_url(\"\")'>","","</form>");
+	html_add_tag(&form, "<strong>E-Mail:</strong><br><input id=email type=email>","","</input><p>");
+	html_add_tag(&form, "<strong>Password:</strong><br><input id=password type=password>","","</input><p>");
+	html_add_tag(&form, "<input type=submit value=Login>",NULL,"</input>");
+	return 0;
+}
 
 void *workerthread()
 {
@@ -244,10 +256,29 @@ void *workerthread()
 				switch(modules[0].func(modules[0].data,&parsed_request))
 				{
 					case 0: //uid ok
-						buffer->size=send_string(&buffer->data, \
-							"You're loged in<br>"\
-							"<input type=submit onclick='"\
-							"javascript:eraseCookie(\"login\"),get_url(\"\")' Value='Logout' />");
+					{
+						parsed_request.answer=new_html();
+						void *x;
+						
+						html_add_tag(&parsed_request.answer->header, \
+						"<a href='javascript:"\
+						"eraseCookie(\"login\"),get_url(\"\")' " \
+						"style='background:#aa2211;color:#FFF;"\
+						"position:absolute;right:0px;'" \
+						">","<div style='margin:1px 10px;'>Logout</div>","</a>");
+						
+						if(modules[parsed_request.module].func!=NULL)
+						{
+							modules[parsed_request.module].func( \
+								modules[parsed_request.module].data, \
+								&parsed_request);
+						}
+
+						buffer->size=send_string(&buffer->data,\
+							x=html_flush(&parsed_request.answer->base,1));
+						nfree(parsed_request.answer);
+						nfree(x);
+					}
 					break;
 					case 1: //ask for login
 						buffer->size=send_login(&buffer->data);
@@ -255,7 +286,10 @@ void *workerthread()
 					case 2: //server error
 						goto ERROR_500;
 					case 3: //new session
-						sprintf(buf, "<script>createCookie('login','%s',7)</script>",\
+						sprintf(buf, "<script>"\
+							"createCookie('login','%s',7);"\
+							"createCookie('module','BA',7);"\
+							"</script>",\
 							parsed_request.module_request);
 						buffer->size=send_string(&buffer->data, buf);
 					break;
