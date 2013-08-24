@@ -31,6 +31,7 @@ void atexit_safe_exit()
 	#ifndef NO_DBG
 		if(stddebug!=NULL)
 		{
+			printf("\x1b[0;0m");
 			fclose(stddebug);
 			stddebug=NULL;
 		}
