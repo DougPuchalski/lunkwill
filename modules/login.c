@@ -3,6 +3,7 @@
 struct login_data
 {
 	int i;
+	char *site;
 };
 
 /** \brief Exits login module */
@@ -23,9 +24,9 @@ int login_init_module(int id)
 	struct login_data* md=modules[id].data=malloc(sizeof(struct login_data));
 
 	//init db here
+	md->site="Account";
 
 	sighndlr_add(login_close_module, md);
-	
 
 	return 0;
 }
@@ -68,9 +69,16 @@ int login_request(void *module_data, request *client_request)
 		}
 		return 1;
 	}
-	return login_verify(client_request->user, \
-		client_request->group, client_request->session1, \
-		client_request->session2);
+	
+	if(client_request->answer==NULL)
+	{
+		return login_verify(client_request->user, \
+			client_request->group, client_request->session1, \
+			client_request->session2);
+	}
+	
+	html_add_tag(&client_request->answer->main,NULL,((struct login_data*)module_data)->site,NULL);
+	return 0;
 	
 	ERROR_SERVER:
 		return 2;

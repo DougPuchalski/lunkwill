@@ -60,12 +60,11 @@ char *split_to_xstring(int data, char *encoding, int bits, int n)
 	char *ret;
 	ret=calloc(1,n+1);
 	
-	for(x=0;x<bits;x<<=1,x|=1);
+	for(x=0;x<bits;filter<<=1,filter|=1,x++);
 
 	for(x=0;x<n;x++)
 	{
-		ret[x]=encoding[filter];
-		filter<<=bits;
+		ret[x]=encoding[(data>>(x*bits))&filter];
 	}
 
 	return ret;
@@ -258,14 +257,35 @@ void *workerthread()
 					case 0: //uid ok
 					{
 						parsed_request.answer=new_html();
-						void *x;
+						void *x,*html=parsed_request.answer->header;
+						int i;
 						
+						for(i=0;i<256;i++)
+						{
+							if(modules[i].name!=NULL)
+							{
+								html_add_tag(&html, \
+									"<a href='javascript:"\
+									"createCookie(\"module\",\"", \
+									x=split_to_xstring(i,url_chars,6,2) \
+									,"\",\"7\"),get_url(\"\")' " \
+									"style='background:#aa2211;color:#FFF;margin-left:5px;'"\
+									"><div style='margin:1px 10px;display: inline-block'>");
+									
+								nfree(x);
+
+								html_add_tag(&html, \
+									modules[i].name, \
+									NULL, "</div></a>" );
+							}
+						}
+
 						html_add_tag(&parsed_request.answer->header, \
-						"<a href='javascript:"\
-						"eraseCookie(\"login\"),get_url(\"\")' " \
-						"style='background:#aa2211;color:#FFF;"\
-						"position:absolute;right:0px;'" \
-						">","<div style='margin:1px 10px;'>Logout</div>","</a>");
+							"<a href='javascript:"\
+							"eraseCookie(\"login\"),get_url(\"\")' " \
+							"style='background:#aa2211;color:#FFF;"\
+							"position:absolute;right:0px;'" \
+							">","<div style='margin:1px 10px;'>Logout</div>","</a>");
 						
 						if(modules[parsed_request.module].func!=NULL)
 						{

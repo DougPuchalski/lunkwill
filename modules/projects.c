@@ -32,8 +32,15 @@ int projects_init_module(int id)
 
 int projects_request(void *module_data, request *client_request)
 {
-	html_add_tag(&client_request->answer->main, "<h1>","Projects","</h1>");
+	void *html;
+
+	html_add_tag(&client_request->answer->sidebar, "<h3 style='margin-left:10px'>","Projects","</h3>");
+	html=html_add_tag(&client_request->answer->sidebar, "<table style='margin-left:10px'", NULL,"</table>");
+	
+	//Project list
+
 	return 0;
+
 	goto ERROR_SERVER;
 	ERROR_SERVER:
 		return 2;
