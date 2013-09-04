@@ -1,12 +1,7 @@
-#include "modules.h"
+#include "projects.h"
 
-struct projects_data
+void *projects_close_module(void *arg)
 {
-	int i;
-};
-
-/** \brief Exits login module */
-void *projects_close_module(void *arg){
 	//close db here
 
 	dbgprintf("Closing project db\n%s","");
@@ -34,8 +29,8 @@ int projects_request(void *module_data, request *client_request)
 {
 	void *html;
 
-	html_add_tag(&client_request->answer->sidebar, "<h3 style='margin-left:10px'>","Projects","</h3>");
-	html=html_add_tag(&client_request->answer->sidebar, "<table style='margin-left:10px'", NULL,"</table>");
+	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<h3 style='margin-left:10px'>","Projects","</h3>");
+	html=html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<table style='margin-left:10px'", NULL,"</table>");
 	
 	//Project list
 

@@ -22,6 +22,11 @@ case $@ in
 		make -j9;
 		bash -c "./lunkwill"
 	;;
+	"doc")
+		cd ${TARGET_DIR}
+		doxygen scripts/doxyfile;
+	;;
+
 	"clang")
 		CC=clang make -j9
 		bash

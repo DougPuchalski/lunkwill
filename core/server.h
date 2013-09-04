@@ -1,31 +1,23 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
-enum SPECIAL_FILE{
-	NON_SPECIAL=0,
-	INDEX_HTML,
-	LOGO_PNG,
-	FAVICON_ICO,
-	LINK_RESOLVER,
-	ERROR_451=0XFF,
-};
+#include "fifo.h" //For _fifo
 
-/** \brief This struct contains the parsed request */
-typedef struct{
-	enum SPECIAL_FILE special_file;
-	char session_id[21];
-	int user;
-	int group;
-	int session1;
-	int session2;
-	char project_id[5];
-	int project;
-	char module_id[3];
-	int module;
-	char module_request[BUF_SIZE];
-	struct html_ui *answer;
-} request; 
+extern pthread_mutex_t lock_send;
+extern int send_fd;
+
+extern pthread_mutex_t lock_count;
+extern int thread_count;
+
+extern struct _fifo *jobs;
+
 
 extern int strnmatch(char *a, char *b, int n);
+
+/** \brief Server which accept clients and pass them to the worker fork */
+extern int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr);
+
+/** \brief Thread spawner */
+extern int start_worker(int max_num_threads, int fd_ro, int fd_wr);
 
 #endif

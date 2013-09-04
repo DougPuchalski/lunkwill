@@ -1,7 +1,6 @@
-#include "html.h"
 #include "lunkwill.h"
+#include "html.h"
 
-/** \brief Turns "HTML_TAG" into an string and free's all elements */
 char *html_flush(void **html, int follow)
 {
 		char *ret=NULL;
@@ -58,7 +57,6 @@ char *html_flush(void **html, int follow)
 		return ret;
 }
 
-/** \brief Adds a "HTML_TAG" into an existing tag */
 void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close ){
 	HTML_TAG **tag;
 	void *leeko=NULL,*leekc=NULL, *leekcs=NULL;
@@ -109,7 +107,6 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	return (*tag);
 }
 
-/** \brief Initializes a new html_ui */
 struct html_ui * new_html()
 {
 	struct html_ui *user_iface;

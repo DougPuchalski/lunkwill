@@ -1,13 +1,7 @@
-#include "modules.h"
+#include "login.h"
 
-struct login_data
+void *login_close_module(void *arg)
 {
-	int i;
-	char *site;
-};
-
-/** \brief Exits login module */
-void *login_close_module(void *arg){
 	//close db here
 
 	dbgprintf("Closing login db\n%s","");
@@ -77,7 +71,7 @@ int login_request(void *module_data, request *client_request)
 			client_request->session2);
 	}
 	
-	html_add_tag(&client_request->answer->main,NULL,((struct login_data*)module_data)->site,NULL);
+	html_add_tag(&((struct html_ui*)client_request->answer)->main,NULL,((struct login_data*)module_data)->site,NULL);
 	return 0;
 	
 	ERROR_SERVER:

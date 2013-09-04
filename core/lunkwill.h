@@ -21,7 +21,6 @@
 #include <libconfig.h>
 #include <sqlite3.h> 
 
-
 #define nfree(a) if(a!=NULL){free(a); a=NULL;}
 
 #define strbegin(a,b) strncmp(a,b,strlen(b))
@@ -35,49 +34,7 @@
 	#define dbgprintf(a, ...)
 #endif
 
-
 #define BUF_SIZE 4096
-
-#define HTTP_451 "HTTP/1.0 451 Unavailable For Legal Reasons\r\nContent-Type:text/html\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n" \
-"<html><canvas id=c></canvas><script type='text/javascript'>"\
-"with(document.getElementById('c')){height=Math.max(document.body.clientHeight-20,window.innerHeight-20);width=Math.max(document.body.clientWidth-20,window.innerWidth-20); h=9; c=getContext('2d'); c.globalAlpha=.5; a=setInterval(\"c.font='bold 25px sans-serif',c.fillText('We do not forgive. We do not forget. Expect us.',h,h),c.rotate(h++)\",15);setTimeout(function(){clearInterval(a);},10000);}" \
-"eraseCookie('login')"\
-"</script><body bgcolor=#FF1111></body></html>"
-
-#define HTTP_500 "HTTP/1.0 500 Internal Server Error \r\nContent-Type:text/html\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n" \
-"<html><body>"\
-"<h1>Server Error</h1><br>"\
-"<h2>This problem will <a href='http://en.wikipedia.org/wiki/Infinite_monkey_theorem'>almost surely</a> be fixed!</h2>"\
-"</body></html>"
-
-#define url_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
-				"abcdefghijklmnopqrstuvwxyz" \
-				"1234567890.,"
-
-/** \brief "html_ui" is required for module output */
-struct html_ui{
-	void *base;
-	void *header;
-	void *sidebar;
-	void *main;
-};
-
-/** \brief Supported MIME types */
-enum mime_types{
-	MIME_UNKNOWN=0,
-	MIME_PLAINTEXT,
-	MIME_HTML,
-	MIME_JAVASCRIPT,
-	MIME_CSS,
-	MIME_PNG
-};
-
-/** \brief Struct for signalhandling */
-typedef struct{
-	void *(*func)(void *);
-	void *param;
-	void *next;
-} sighndlr_list;
 
 /** \brief Struct for pipe rx tx */
 struct pipe_rxtx{
@@ -86,44 +43,21 @@ struct pipe_rxtx{
 	char *data;	
 };
 
-/** \brief Struct for linked list */
-struct _fifo {
-        void *data;
-        struct _fifo *next;
-        struct _fifo *last;
-};
 
-extern int exit_server;
-
-#include "server.h"
-#include "../modules/modules.h"
-
-
-//FIRST IN > FIRST OUT LIST
-extern int fifo_push(struct _fifo **fifo, void *data);
-extern void *fifo_pop(struct _fifo **fifo);
-
-//SIGNAL HANDLER
-extern void init_sighndlr();
-extern void sighndlr_add(void *(*func)(void *), void *param);
-extern void sighndlr_safe_exit(int param);
-
-//LISTENER
-int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr);
-
-//WORKER
-int start_worker(int max_num_threads, int fd_ro, int fd_wr);
-
-//HTTP HEADER
-extern int send_file(char **buffer, char *file_path);
-extern int get_mime(char *file_path);
-extern int send_string(char **buffer, char *string);
-
-
-//HTML BUILDER
-struct html_ui *new_html();
-extern char *html_flush(void **html, int follow);
-extern void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close );
-
+/** \brief This struct contains the parsed request */
+typedef struct{
+	int special_file;
+	char session_id[21];
+	int user;
+	int group;
+	int session1;
+	int session2;
+	char project_id[5];
+	int project;
+	char module_id[3];
+	int module;
+	char module_request[BUF_SIZE];
+	void *answer;
+} request; 
 
 #endif

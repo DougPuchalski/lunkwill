@@ -1,9 +1,6 @@
 #include "lunkwill.h"
+#include "sighandler.h"
 
-extern struct _fifo *sighandler;
-
-/** \brief Adds a new functionn to the queue.
- * The function will be executed on SIGINT or SIGTERM */
 void sighndlr_add(void *(*func)(void *), void *param)
 {
 	sighndlr_list *sig_list;
@@ -38,13 +35,11 @@ void atexit_safe_exit()
 	#endif
 }
 
-/** \brief Works throu queue. */
 void sighndlr_safe_exit(int param)
 {
 	exit_server=1;
 }
 
-/** \brief Set up signalhandlers */
 void init_sighndlr()
 {
 	signal(SIGPIPE, SIG_IGN);
