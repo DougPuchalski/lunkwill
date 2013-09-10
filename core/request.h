@@ -3,6 +3,7 @@
 
 #include "lunkwill.h" //For request
 
+/** \brief Used in requests to know, which type of file is requested, and what type the answer consists of */
 enum SPECIAL_FILE
 {
 	NON_SPECIAL=0,
