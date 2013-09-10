@@ -23,7 +23,7 @@ case $@ in
 		bash -c "./lunkwill"
 	;;
 	"doc")
-		cd ${TARGET_DIR}
+		cd ..
 		doxygen scripts/doxyfile;
 	;;
 
