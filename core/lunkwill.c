@@ -151,6 +151,7 @@ int main(int argc, char** argv)
 
 			config_destroy(&config);
 			
+			printf("SERVER STARTED. ENTER 'quit' TO SHUTDOWN THE SERVER.\n");
 			start_server(port, listen_queue, timeout, PARENT_READ, PARENT_WRITE);
         }
     }
