@@ -7,6 +7,7 @@ struct _fifo *sighandler=NULL;
 struct module_info modules[256];
 FILE *stddebug;
 
+
 int main(int argc, char** argv)
 {
 	char *config_path=NULL;
@@ -73,6 +74,12 @@ int main(int argc, char** argv)
 			}
 		}
 		printf("USING DEFAULT CONFIG\n");
+	}
+
+	if(!init_db())
+	{
+		err="Failed to load database";
+		goto _fail;
 	}
 	
 	init_sighndlr();

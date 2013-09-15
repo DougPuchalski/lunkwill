@@ -2,9 +2,7 @@
 
 void *projects_close_module(void *arg)
 {
-	//close db here
-
-	dbgprintf("Closing project db\n%s","");
+	//~ dbgprintf("Project database closed\n%s","");
     return NULL;
 }
 
@@ -17,11 +15,7 @@ int projects_init_module(int id)
 	modules[id].description="Project listing and management";
 	struct login_data* md=modules[id].data=malloc(sizeof(struct projects_data));
 
-	//init db here
-
 	sighndlr_add(projects_close_module, md);
-	
-
 	return 0;
 }
 

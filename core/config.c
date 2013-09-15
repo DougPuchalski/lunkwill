@@ -14,7 +14,7 @@ int load_config(config_t *config, char *config_file_name)
 
 int create_config(config_t *config, char *config_file_name)
 {
-	config_setting_t *config_prop, *prop_port, *prop_listen, *prop_timeout;
+	config_setting_t *config_prop, *prop_port, *prop_listen, *prop_timeout, *prop_database;
 
     config_init(config);
     
@@ -25,10 +25,16 @@ int create_config(config_t *config, char *config_file_name)
     if(!config_setting_set_int(prop_port, 3000))goto fail_exit;
     if(!config_setting_set_int(prop_listen, 20))goto fail_exit;
     if(!config_setting_set_int(prop_timeout, 1))goto fail_exit;
-
+    
+    
     if((config_prop=config_setting_add(config_root_setting(config), "WORKER",CONFIG_TYPE_GROUP))==NULL)goto fail_exit;	
 	if((config_prop=config_setting_add(config_prop, "MAX_NUM_THREADS", CONFIG_TYPE_INT))==NULL) goto fail_exit;
     if(!config_setting_set_int(config_prop, 15))goto fail_exit;
+
+	/// \todo Read database name from config
+	//~ if((prop_database=config_setting_add(config_prop, "DATABASE", CONFIG_TYPE_STRING))==NULL) goto fail_exit;
+    //~ if(!config_setting_set_string(prop_database, "lunkwill.db"))goto fail_exit;
+
     
     //Include default options from modules
     if((config_prop=config_setting_add(config_root_setting(config), "MODULES",CONFIG_TYPE_GROUP))==NULL)goto fail_exit;	

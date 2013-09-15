@@ -2,9 +2,7 @@
 
 void *login_close_module(void *arg)
 {
-	//close db here
-
-	dbgprintf("Closing login db\n%s","");
+	//~ dbgprintf("Login database closed\n%s","");
     return NULL;
 }
 

@@ -60,4 +60,8 @@ typedef struct{
 	void *answer;
 } request; 
 
+/** \brief Main database handle */
+sqlite3 *db_handle;
+int db_status;
+
 #endif
