@@ -22,7 +22,8 @@ int init_db(void)
 						"name TEXT NOT NULL,"\
 						"email TEXT NOT NULL,"\
 						"password TEXT NOT NULL,"\
-						"lastlogin INT NOT NULL);"\
+						"lastlogin INT NOT NULL,"\
+						"currentsession TEXT NOT NULL);"\
 						
 						"CREATE TABLE IF NOT EXISTS permissions("\
 						"ID INT PRIMARY KEY NOT NULL,"\
