@@ -31,6 +31,12 @@ case $@ in
 		CC=clang make -j9
 		bash
 	;;
+	
+	"gcc")
+		make -j9;
+		bash
+	;;
+	
 	*)
 		echo $@
 		bash
