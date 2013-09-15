@@ -20,6 +20,7 @@ case $@ in
 	;;
 	"run")
 		make -j9;
+		clear;
 		bash -c "./lunkwill"
 	;;
 	"doc")

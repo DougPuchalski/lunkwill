@@ -25,6 +25,7 @@
 
 #define strbegin(a,b) strncmp(a,b,strlen(b))
 
+#define NO_DBG
 #ifndef NO_DBG
 	extern FILE *stddebug;
 	#define dbgprintf(a,...) fprintf (stddebug, "\033[%d;%dm\nPID:%d THRD:%d %s:%d: " a, \
