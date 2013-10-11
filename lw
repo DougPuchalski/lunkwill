@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 TARGET_DIR=$(dirname $0)
 
 rm -rf ${TARGET_DIR}/build
@@ -12,7 +14,7 @@ case $@ in
 
 	"dbg")
 		make -j9;
-		bash -c "gdb ./lunkwill"
+		bash -c "gdb ./lunkwill -ex 'set follow-fork-mode child'"
 	;;
 	"mem")
 		make -j9;
@@ -29,7 +31,7 @@ case $@ in
 	;;
 
 	"clang")
-		CC=clang make -j9
+		CC=clang make #-j9
 		bash
 	;;
 	
