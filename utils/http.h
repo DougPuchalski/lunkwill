@@ -15,7 +15,7 @@
 "<h2>This problem will <a href='http://en.wikipedia.org/wiki/Infinite_monkey_theorem'>almost surely</a> be fixed!</h2>"\
 "</body></html>"
 
-#define url_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+#define URL_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
 				"abcdefghijklmnopqrstuvwxyz" \
 				"1234567890.,"
 

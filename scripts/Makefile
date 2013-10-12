@@ -12,30 +12,28 @@ PLUGIN_OBJS=$(patsubst !SRC!/%.c,%.o,$(PLUGINS))
 
 TARGET=lunkwill
 
-all: $(OBJS) plugins
-	@echo CC $(TARGET)
+all: $(OBJS) $(PLUGIN_NAMES)
+	@echo -e [ BIN ]\\t\"$(TARGET)\"
 	@$(CC) $(CFLAGS) $(LDFLAGS) -rdynamic -o $(TARGET) $(OBJS)
+	@echo -e [ DAT ]\\t\"www\"
 	@cp -r !SRC!/www ./www
 
 $(OBJS): $(SRCS)
-	@echo CC -c $(patsubst %.o,!SRC!/%.c,$@) -o $@
+	@echo -e [ OBJ ]\\t\"$@\"
 	@mkdir $(dir $@) -p
 	@$(CC) -c $(CFLAGS) $(patsubst %.o,!SRC!/%.c,$@) -o $@
 	
 $(PLUGIN_OBJS): $(PLUGINS)
-	@echo CC -c $(patsubst %.o,!SRC!/%.c,$@) -o $@
+	@echo -e [ OBJ ]\\t\"$@\"
 	@mkdir $(dir $@) -p
 	@$(CC) -fPIC -c $(CFLAGS) $(patsubst %.o,!SRC!/%.c,$@) -o $@
-	
+
 $(PLUGIN_NAMES): $(PLUGIN_OBJS)
-	@echo CC $@.so
+	@echo -e [ LIB ]\\t\"$@\"
 	@$(CC) -shared -Wl,-soname,$@.so $(CFLAGS) $(LDFLAGS) -o $@.so $(foreach v,$(PLUGIN_OBJS),$(if $(findstring $@,/$(v)/),$(v),))
-	
-plugins: $(PLUGIN_NAMES)
-	@echo
 
 clean:
-	@echo Cleaning build directory ...
+	@echo -e Cleaning build directory ...
 	@mv Makefile .Makefile
 	@mv $(TARGET) .$(TARGET) >/dev/null 2>/dev/null || :
 	@rm -rf *

@@ -10,8 +10,8 @@ typedef struct{
 	void *next;
 } sighndlr_list;
 
-extern int exit_server;
-extern struct _fifo *sighandler;
+extern int Exit_Server;
+extern struct _fifo *Sighandler;
 
 /** \brief Set up signalhandlers */
 extern void init_sighndlr();
@@ -20,7 +20,7 @@ extern void init_sighndlr();
  * The function will be executed on SIGINT or SIGTERM */
 extern void sighndlr_add(void *(*func)(void *), void *param);
 
-/** \brief Sets exit_server. */
+/** \brief Sets Exit_Server. */
 extern void sighndlr_safe_exit(int param);
 
 /** \brief Works throu queue. */

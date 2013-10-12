@@ -7,14 +7,14 @@ void sighndlr_add(void *(*func)(void *), void *param)
 	sig_list->func=func;
 	sig_list->param=param;
 
-	fifo_push(&sighandler, sig_list);
+	fifo_push(&Sighandler, sig_list);
 }
 
 void atexit_safe_exit()
 {
 	sighndlr_list *sig_list;
 	printf("Please wait ");
-	while((sig_list=fifo_pop(&sighandler))!=NULL){
+	while((sig_list=fifo_pop(&Sighandler))!=NULL){
 		printf(".");
 		if(sig_list->func!=NULL){
 			sig_list->func(sig_list->param);
@@ -35,7 +35,7 @@ void atexit_safe_exit()
 
 void sighndlr_safe_exit(int param)
 {
-	exit_server=1;
+	Exit_Server=1;
 }
 
 void init_sighndlr()

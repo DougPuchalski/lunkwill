@@ -1,12 +1,15 @@
 #include "lunkwill.h"
 
-struct _fifo *sighandler=NULL;
-struct module_info modules[256];
+struct _fifo *Sighandler=NULL;
+struct module_info Modules[256];
 
 #ifndef NO_DBG
 	FILE *stddebug;
 #endif
 
+/**
+ * \brief Close dynamically loaded modules
+ */
 void *dl_unload(void *a)
 {
 	char *error;
@@ -18,18 +21,15 @@ void *dl_unload(void *a)
 	return NULL;
 }
 
+/**
+ * \brief Where it all begins
+ */
 int main(int argc, char** argv)
 {
 	char *config_path=NULL;
 	char *err=NULL;
     int pipe1[2];
     int pipe2[2];
-
-    #define CHILD_READ pipe1[0]
-    #define PARENT_WRITE pipe1[1]
-    #define CHILD_WRITE pipe2[1]
-    #define PARENT_READ pipe2[0]
-
 	int opt;
     config_t config;
     pid_t pid;
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	stddebug=fdopen(3, "w");
 #endif
 	
-	memset(modules, 0, 256*sizeof(struct module_info));
+	memset(Modules, 0, 256*sizeof(struct module_info));
 	
 	//Parse args
 	while((opt=getopt(argc,argv,"c:"))!=-1)
@@ -102,8 +102,8 @@ int main(int argc, char** argv)
 		else if (pid == (pid_t)0)
 		{
 		//Child process
-			close(PARENT_READ);
-			close(PARENT_WRITE);
+			close(pipe2[0]);
+			close(pipe1[1]);
 			fclose(stdin);
 			
 			if(!init_db())
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
 			}
 
 			//Read config
-			//modules_init;
+			//Modules_init;
 			if(login_init_module(0)!=0) return 1;
 
 			int max_num_threads=0, conf;
@@ -128,7 +128,7 @@ int main(int argc, char** argv)
 			if (config_setting_lookup_int(config_prop, "MAX_NUM_THREADS", &conf)) max_num_threads=conf;
 			if(max_num_threads<=0||max_num_threads>0xFFFF) max_num_threads=15;
 			
-			if ((config_prop=config_lookup(&config, "MODULES"))==NULL)
+			if ((config_prop=config_lookup(&config, "Modules"))==NULL)
 			{
 				config_prop=config_root_setting(&config);
 			}
@@ -157,20 +157,20 @@ int main(int argc, char** argv)
 					fprintf(stderr, "%s\n", error);
 					exit(1);
 				}
-				(*fn)(x+1,&modules[x+1]);
+				(*fn)(x+1,&Modules[x+1]);
 				sighndlr_add(dl_unload, lib_handle);
 			}
 
 			config_destroy(&config);
 			
-			start_worker(max_num_threads, CHILD_READ, CHILD_WRITE);
+			start_worker(max_num_threads, pipe1[0], pipe2[1]);
 
 		}
 		else
 		{
 		//Parent process
-            close(CHILD_READ);
-            close(CHILD_WRITE);
+            close(pipe1[0]);
+            close(pipe2[1]);
 			
 			//Read config
 			int conf, port=0;
@@ -196,7 +196,7 @@ int main(int argc, char** argv)
 			config_destroy(&config);
 			
 			printf("SERVER STARTED. ENTER 'quit' TO SHUTDOWN THE SERVER.\n");
-			start_server(port, listen_queue, timeout, PARENT_READ, PARENT_WRITE);
+			start_server(port, listen_queue, timeout, pipe2[0], pipe1[1]);
         }
     }
 	
@@ -209,7 +209,7 @@ int main(int argc, char** argv)
 		return 1;
 	
 	_fail:
-		dbgprintf("%s\n",err);
+		DBGPRINTF("%s\n",err);
 		return 2;
 
 }

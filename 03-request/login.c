@@ -9,11 +9,11 @@ void *login_close_module(void *arg)
 int login_init_module(int id)
 {
 	printf("LOGIN MODULE INITIALIZED AT: %d\n", id);
-	modules[id].id=id;
-	modules[id].name="Account";
-	modules[id].func=login_request;
-	modules[id].description="Account settings";
-	struct login_data* md=modules[id].data=malloc(sizeof(struct login_data));
+	Modules[id].id=id;
+	Modules[id].name="Account";
+	Modules[id].func=login_request;
+	Modules[id].description="Account settings";
+	struct login_data* md=Modules[id].data=malloc(sizeof(struct login_data));
 
 	//init db here
 	md->site="Account";
@@ -53,7 +53,7 @@ int login_request(void *module_data, request *client_request)
 		if(client_request->group==0 && client_request->session1==0 && \
 			client_request->session2==0 && client_request->module_request[0]!=0)
 		{
-			dbgprintf("[LOGIN] %s\n", client_request->module_request);
+			DBGPRINTF("[LOGIN] %s\n", client_request->module_request);
 			if((login_new_session((char*)client_request->module_request, client_request->user, \
 				client_request->group, client_request->session1, \
 				client_request->session2))!=0)goto ERROR_SERVER;

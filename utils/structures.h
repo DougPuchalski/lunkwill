@@ -31,6 +31,6 @@ struct module_info{
 };
 
 /** \brief List of all Modules*/
-extern struct module_info modules[256];
+extern struct module_info Modules[256];
 
 #endif

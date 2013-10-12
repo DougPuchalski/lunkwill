@@ -28,11 +28,11 @@
 #define NO_DBG
 #ifndef NO_DBG
 	extern FILE *stddebug;
-	#define dbgprintf(a,...) fprintf (stddebug, "\033[%d;%dm\nPID:%d THRD:%d %s:%d: " a, \
+	#define DBGPRINTF(a,...) fprintf (stddebug, "\033[%d;%dm\nPID:%d THRD:%d %s:%d: " a, \
 				getpid()%4+30, 43-getpid()%4, getpid(), (int)(pthread_self()), \
 				__FILE__, __LINE__, __VA_ARGS__); fflush(stddebug);
 #else
-	#define dbgprintf(a, ...)
+	#define DBGPRINTF(a, ...)
 #endif
 
 #define BUF_SIZE 4096

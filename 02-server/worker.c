@@ -24,20 +24,20 @@ int send_login(char **buffer)
 
 void *workerthread()
 {
-	dbgprintf("New pthread startet%s\n","");
+	DBGPRINTF("New pthread startet%s\n","");
 	char buf[BUF_SIZE];
 
 	while(1)
 	{
 		struct pipe_rxtx *buffer=NULL;
 
-		pthread_mutex_lock( &lock_count );
-			buffer=fifo_pop(&jobs);
-		pthread_mutex_unlock( &lock_count );
+		pthread_mutex_lock( &Lock_Count );
+			buffer=fifo_pop(&Jobs);
+		pthread_mutex_unlock( &Lock_Count );
 
 		if(buffer==NULL)
 		{
-			dbgprintf("No more work to do%s\n","");
+			DBGPRINTF("No more work to do%s\n","");
 			goto IQUITTODAY;
 		}
 		request parsed_request=parse_request(buffer->data);
@@ -46,7 +46,7 @@ void *workerthread()
 		switch(parsed_request.special_file)
 		{
 			case NON_SPECIAL:
-				switch(modules[0].func(modules[0].data,&parsed_request))
+				switch(Modules[0].func(Modules[0].data,&parsed_request))
 				{
 					case 0: //uid ok
 					{
@@ -56,12 +56,12 @@ void *workerthread()
 						
 						for(i=0;i<256;i++)
 						{
-							if(modules[i].name!=NULL)
+							if(Modules[i].name!=NULL)
 							{
 								html_add_tag(&html, \
 									"<a href='javascript:"\
 									"createCookie(\"module\",\"", \
-									x=split_to_xstring(i,url_chars,6,2) \
+									x=split_to_xstring(i,URL_CHARS,6,2) \
 									,"\",\"7\"),get_url(\"\")' " \
 									"style='background:#aa2211;color:#FFF;margin-left:5px;'"\
 									"><div style='margin:1px 10px;display: inline-block'>");
@@ -69,7 +69,7 @@ void *workerthread()
 								nfree(x);
 
 								html_add_tag(&html, \
-									modules[i].name, \
+									Modules[i].name, \
 									NULL, "</div></a>" );
 							}
 						}
@@ -81,10 +81,10 @@ void *workerthread()
 							"position:absolute;right:0px;'" \
 							">","<div style='margin:1px 10px;'>Logout</div>","</a>");
 						
-						if(modules[parsed_request.module].func!=NULL)
+						if(Modules[parsed_request.module].func!=NULL)
 						{
-							modules[parsed_request.module].func( \
-								modules[parsed_request.module].data, \
+							Modules[parsed_request.module].func( \
+								Modules[parsed_request.module].data, \
 								&parsed_request);
 						}
 
@@ -114,59 +114,59 @@ void *workerthread()
 				goto PIPE;
 				break;
 			case INDEX_HTML:
-				dbgprintf("Send %s\n", "index.html");
+				DBGPRINTF("Send %s\n", "index.html");
 				buffer->size=send_file(&buffer->data, "www/index.html");
 				goto PIPE;
 				break;
 			case LOGO_PNG:
-				dbgprintf("Send %s\n", "logo.png");
+				DBGPRINTF("Send %s\n", "logo.png");
 				buffer->size=send_file(&buffer->data, "www/logo.png");
 				goto PIPE;
 				break;
 			case FAVICON_ICO:
-				dbgprintf("Send %s\n", "favicon.ico");
+				DBGPRINTF("Send %s\n", "favicon.ico");
 				buffer->size=send_file(&buffer->data, "www/favicon.ico");
 				goto PIPE;
 				break;
 			default:
-				dbgprintf("Send unknown:%d\n", parsed_request.special_file);
+				DBGPRINTF("Send unknown:%d\n", parsed_request.special_file);
 				break;
 		}
 
 		ERROR_451:
-			dbgprintf("Send %s\n", "HTTP 451");
+			DBGPRINTF("Send %s\n", "HTTP 451");
 			buffer->size=strlen(HTTP_451);
 			buffer->data=malloc(buffer->size);
 			strncpy(buffer->data, HTTP_451, buffer->size);
 			goto PIPE;
 		
 		ERROR_500:
-			dbgprintf("Send %s\n", "HTTP 500");
+			DBGPRINTF("Send %s\n", "HTTP 500");
 			buffer->size=strlen(HTTP_500);
 			buffer->data=malloc(buffer->size);
 			strncpy(buffer->data, HTTP_500, buffer->size);
 			goto PIPE;
 
 		PIPE:		
-			pthread_mutex_lock( &lock_send );
-				dbgprintf("Send %d bytes through pipe %d\n", buffer->size, send_fd);
-				if(write(send_fd, buffer, sizeof(struct pipe_rxtx))==-1)
+			pthread_mutex_lock( &Lock_Send );
+				DBGPRINTF("Send %d bytes through pipe %d\n", buffer->size, Send_FD);
+				if(write(Send_FD, buffer, sizeof(struct pipe_rxtx))==-1)
 				{
 					nfree(buffer->data);
 					nfree(buffer);
-					dbgprintf("Pipe %d is broken\n", send_fd);
-					pthread_mutex_unlock( &lock_send );
+					DBGPRINTF("Pipe %d is broken\n", Send_FD);
+					pthread_mutex_unlock( &Lock_Send );
 					goto IQUITTODAY;
 				}
-				if(write(send_fd, buffer->data, buffer->size)==-1)
+				if(write(Send_FD, buffer->data, buffer->size)==-1)
 				{
 					nfree(buffer->data);
 					nfree(buffer);
-					dbgprintf("Pipe %d is broken\n", send_fd);
-					pthread_mutex_unlock( &lock_send );
+					DBGPRINTF("Pipe %d is broken\n", Send_FD);
+					pthread_mutex_unlock( &Lock_Send );
 					goto IQUITTODAY;
 				}
-			pthread_mutex_unlock( &lock_send );
+			pthread_mutex_unlock( &Lock_Send );
 		
 		nfree(buffer->data);
 		nfree(buffer);
@@ -174,8 +174,8 @@ void *workerthread()
 	}
 
 	IQUITTODAY:
-	pthread_mutex_lock( &lock_count );
-		thread_count--;
-	pthread_mutex_unlock( &lock_count );
+	pthread_mutex_lock( &Lock_Count );
+		Thread_Count--;
+	pthread_mutex_unlock( &Lock_Count );
 	pthread_exit(NULL);
 }

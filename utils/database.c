@@ -1,7 +1,5 @@
 #include "database.h"
 
-sqlite3 *db_handle;
-
 int silly_sqlite_callback(void *notused, int notusedeither, char **notusedeither2, char **notusedeither3)
 {
    return 0;
@@ -10,13 +8,15 @@ int silly_sqlite_callback(void *notused, int notusedeither, char **notusedeither
 
 int init_db(void)
 {
+	sqlite3 *db_handle;
+	
 	/** \todo Read database file from configuration */
 	if(sqlite3_open("lunkwill.db", &db_handle))
 	{
 		return 0;
 	}
 	
-	sighndlr_add(close_db, NULL);
+	sighndlr_add(close_db, db_handle);
 	
 	char *sql_create = 	"CREATE TABLE IF NOT EXISTS users("\
 						"ID INT PRIMARY KEY NOT NULL,"\
@@ -58,7 +58,7 @@ int init_db(void)
 }
 
 
-void *close_db(void *null)
+void *close_db(void *db_handle)
 {
 	sqlite3_close(db_handle);
 	return NULL;
