@@ -21,7 +21,7 @@
 #include <dlfcn.h>
 #include <sqlite3.h> 
 
-#define nfree(a) if(a!=NULL){free(a); a=NULL;}
+#define nfree(willy) if(willy!=NULL){free(willy); willy=NULL;}
 
 #define strbegin(a,b) strncmp(a,b,strlen(b))
 

@@ -53,4 +53,8 @@ extern int get_mime(char *file_path);
  *  \returns The size of the answer to send */
 extern int send_string(char **buffer, char *string);
 
+/** \brief Copy string new allocated string, e.g. for sending error message
+ *  \returns The size of the answer to send */ 
+extern int send_raw(char **buffer, char *string);
+
 #endif

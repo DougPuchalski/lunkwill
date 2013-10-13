@@ -128,7 +128,7 @@ int main(int argc, char** argv)
 			if (config_setting_lookup_int(config_prop, "MAX_NUM_THREADS", &conf)) max_num_threads=conf;
 			if(max_num_threads<=0||max_num_threads>0xFFFF) max_num_threads=15;
 			
-			if ((config_prop=config_lookup(&config, "Modules"))==NULL)
+			if ((config_prop=config_lookup(&config, "MODULES"))==NULL)
 			{
 				config_prop=config_root_setting(&config);
 			}

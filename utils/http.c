@@ -59,3 +59,10 @@ int send_string(char **buffer, char *string)
 	sprintf(*buffer, "HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %u\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n%s", (unsigned int)strlen(string), string);
 	return strlen(*buffer);
 }
+
+int send_raw(char **buffer, char *string)
+{
+	*buffer=malloc(strlen(string)+BUF_SIZE);
+	sprintf(*buffer, "%s", string);
+	return strlen(*buffer);
+}

@@ -3,8 +3,6 @@
 
 #include "../utils/lwutils.h"
 
-extern int send_login(char **buffer);
-
 extern void *workerthread();
 
 #endif

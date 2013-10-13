@@ -2,30 +2,9 @@
 #include "server.h"
 #include "request_parser.h"
 
-int send_login(char **buffer)
-{
-	struct html_ui *h;
-	void *x;
-	int s=0;
-
-	h=new_html();
-	void *form=html_add_tag(&h->main, \
-	"<form action='javascript:get_url("\
-	"(document.getElementById(\"email\").value+document.getElementById(\"password\").value)"\
-	"),get_url(\"\")'>","","</form>");
-	html_add_tag(&form, "<strong>E-Mail:</strong><br><input id=email type=email>","","</input><p>");
-	html_add_tag(&form, "<strong>Password:</strong><br><input id=password type=password>","","</input><p>");
-	html_add_tag(&form, "<input type=submit value=Login>",NULL,"</input>");
-	s=send_string(buffer,x=html_flush(&h->base,1));
-	nfree(h);
-	nfree(x);
-	return s;
-}
-
 void *workerthread()
 {
 	DBGPRINTF("New pthread startet%s\n","");
-	char buf[BUF_SIZE];
 
 	while(1)
 	{
@@ -46,71 +25,18 @@ void *workerthread()
 		switch(parsed_request.special_file)
 		{
 			case NON_SPECIAL:
-				switch(Modules[0].func(Modules[0].data,&parsed_request))
-				{
-					case 0: //uid ok
-					{
-						parsed_request.answer=new_html();
-						void *x,*html=((struct html_ui*)parsed_request.answer)->header;
-						int i;
-						
-						for(i=0;i<256;i++)
-						{
-							if(Modules[i].name!=NULL)
-							{
-								html_add_tag(&html, \
-									"<a href='javascript:"\
-									"createCookie(\"module\",\"", \
-									x=split_to_xstring(i,URL_CHARS,6,2) \
-									,"\",\"7\"),get_url(\"\")' " \
-									"style='background:#aa2211;color:#FFF;margin-left:5px;'"\
-									"><div style='margin:1px 10px;display: inline-block'>");
-									
-								nfree(x);
+				DBGPRINTF("Send %s\n", "html");
+				parsed_request.answer=new_html();
+				void *x;
 
-								html_add_tag(&html, \
-									Modules[i].name, \
-									NULL, "</div></a>" );
-							}
-						}
+				Modules[0].func(Modules[0].data,&parsed_request);
 
-						html_add_tag(&((struct html_ui*)parsed_request.answer)->header, \
-							"<a href='javascript:"\
-							"eraseCookie(\"login\"),get_url(\"\")' " \
-							"style='background:#aa2211;color:#FFF;"\
-							"position:absolute;right:0px;'" \
-							">","<div style='margin:1px 10px;'>Logout</div>","</a>");
-						
-						if(Modules[parsed_request.module].func!=NULL)
-						{
-							Modules[parsed_request.module].func( \
-								Modules[parsed_request.module].data, \
-								&parsed_request);
-						}
+				buffer->size=send_string(&buffer->data,\
+					x=html_flush(&((struct html_ui*)parsed_request.answer)->base,1));
 
-						buffer->size=send_string(&buffer->data,\
-							x=html_flush(&((struct html_ui*)parsed_request.answer)->base,1));
-						nfree(parsed_request.answer);
-						nfree(x);
-					}
-					break;
-					case 1: //ask for login
-						buffer->size=send_login(&buffer->data);
-						break;
-					case 2: //server error
-						goto ERROR_500;
-					case 3: //new session
-						sprintf(buf, "<script>"\
-							"createCookie('login','%s',7);"\
-							"createCookie('module','BA',7);"\
-							"</script>",\
-							parsed_request.module_request);
-						buffer->size=send_string(&buffer->data, buf);
-					break;
-					default:
-						goto ERROR_451;
-					break;
-				}
+				nfree(parsed_request.answer);
+				nfree(x);
+
 				goto PIPE;
 				break;
 			case INDEX_HTML:
@@ -130,22 +56,10 @@ void *workerthread()
 				break;
 			default:
 				DBGPRINTF("Send unknown:%d\n", parsed_request.special_file);
+				buffer->size=send_string(&buffer->data,HTTP_500);
+				goto PIPE;
 				break;
 		}
-
-		ERROR_451:
-			DBGPRINTF("Send %s\n", "HTTP 451");
-			buffer->size=strlen(HTTP_451);
-			buffer->data=malloc(buffer->size);
-			strncpy(buffer->data, HTTP_451, buffer->size);
-			goto PIPE;
-		
-		ERROR_500:
-			DBGPRINTF("Send %s\n", "HTTP 500");
-			buffer->size=strlen(HTTP_500);
-			buffer->data=malloc(buffer->size);
-			strncpy(buffer->data, HTTP_500, buffer->size);
-			goto PIPE;
 
 		PIPE:		
 			pthread_mutex_lock( &Lock_Send );
