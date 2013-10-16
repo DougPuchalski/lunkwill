@@ -29,10 +29,16 @@ void *workerthread()
 				parsed_request.answer=new_html();
 				void *x;
 
-				Modules[0].func(Modules[0].data,&parsed_request);
-
-				buffer->size=send_string(&buffer->data,\
-					x=html_flush(&((struct html_ui*)parsed_request.answer)->base,1));
+				if(Modules[0].func(Modules[0].data,&parsed_request)==0)
+				{
+					buffer->size=send_string(&buffer->data,\
+						x=html_flush(&((struct html_ui*)parsed_request.answer)->base,1));
+				}
+				else
+				{
+					buffer->size=send_raw(&buffer->data,\
+						x=html_flush(&((struct html_ui*)parsed_request.answer)->base,1));
+				}
 
 				nfree(parsed_request.answer);
 				nfree(x);
@@ -56,7 +62,7 @@ void *workerthread()
 				break;
 			default:
 				DBGPRINTF("Send unknown:%d\n", parsed_request.special_file);
-				buffer->size=send_string(&buffer->data,HTTP_500);
+				buffer->size=send_raw(&buffer->data,HTTP_500);
 				goto PIPE;
 				break;
 		}
@@ -64,6 +70,7 @@ void *workerthread()
 		PIPE:		
 			pthread_mutex_lock( &Lock_Send );
 				DBGPRINTF("Send %d bytes through pipe %d\n", buffer->size, Send_FD);
+				
 				if(write(Send_FD, buffer, sizeof(struct pipe_rxtx))==-1)
 				{
 					nfree(buffer->data);

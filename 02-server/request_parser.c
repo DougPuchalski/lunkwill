@@ -67,7 +67,8 @@ request parse_request(char *get_request)
 	get_request+=5;
 	req.session2=join_to_int(get_request, URL_CHARS, 6, 5);
 	get_request+=6;
-	
+
+	DBGPRINTF("%d %d %d %d %s",req.user,req.group,req.session1,req.session2,"\n");	
 		
 	// Check project id
 	if(strnmatch((get_request), URL_CHARS, 4)!=0)
