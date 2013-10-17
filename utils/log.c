@@ -1,13 +1,31 @@
 #include "log.h"
 
-int log_write(char *message, int error_level){
-	char *Error_level[] = {"[ DEBUG ]", "[ WARN  ]", "[  ERR  ]", "[ EMERG ]"};
-	FILE *logfile;
-	
-	if((logfile = fopen("lunkwill.log", "a")) == NULL){
+char *Error_level[]=  \
+	{ "[  DEBUG  ]", \
+	  "[  INFO   ]", \
+	  "[ WARNING ]", \
+	  "[  ERROR  ]", \
+	  "[  FATAL  ]" };
+
+int log_level=0;
+FILE *logfile=NULL;
+
+int init_logger(char *LOGFILE, int log_lev)
+{
+	if((logfile = fopen(LOGFILE, "a")) == NULL){
 		fprintf(stderr, "%s\tCould not open logfile. Error reporting to stderr only\n", Error_level[2]);
 		return 1;
 	}
+	
+	log_level=log_lev;
+	sighndlr_add(close_log, logfile);
+	
+	return 0;
+}
+
+int logprint(char *message, int error_level, int print_stderr)
+{	
+	if(error_level<log_level) return 1;
 
 	struct tm *ti;
 	time_t time_s;
@@ -18,11 +36,25 @@ int log_write(char *message, int error_level){
 
 	strftime(t_buf, 128, "%d. %b %Y %H:%M:%S", ti);
 
-	fprintf(stderr, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
+	if(logfile==NULL)
+	{
+		fprintf(stderr, "%s\t%s\t%s\n", "[ UNINITIALIZED ]", t_buf, message);		
+		return 1;
+	}
+
+	if(print_stderr)
+	{
+		fprintf(stderr, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
+	}
+
 	fprintf(logfile, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
 	
-	fclose(logfile); /** \todo Try to manage log writes in main thread to not always have open and close file */
 	
 	return 0;
 }
 
+void *close_log(void *a)
+{
+	fclose(a);
+	return NULL;
+}

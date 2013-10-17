@@ -3,10 +3,6 @@
 struct _fifo *Sighandler=NULL;
 struct module_info Modules[256];
 
-#ifndef NO_DBG
-	FILE *stddebug;
-#endif
-
 /**
  * \brief Close dynamically loaded modules
  */
@@ -26,22 +22,20 @@ void *dl_unload(void *a)
  */
 int main(int argc, char** argv)
 {
-	char *config_path=NULL;
 	char *err=NULL;
     int pipe1[2];
     int pipe2[2];
-	int opt;
-    config_t config;
     pid_t pid;
-
-#ifndef NO_DBG
-	if(fcntl(3, F_GETFL) == -1 || errno == EBADF)
-	{
-		dup2(2,3);
-	}
-	stddebug=fdopen(3, "w");
-#endif
+	int opt;
 	
+	int log_level=0;
+	char *log_file=NULL;
+	
+	int conf;
+	char *config_path=NULL;
+    config_t config;
+	config_setting_t *config_prop;
+
 	memset(Modules, 0, 256*sizeof(struct module_info));
 	
 	//Parse args
@@ -63,10 +57,10 @@ int main(int argc, char** argv)
 	//Load configuration
 	if(config_path!=NULL)
 	{
-		log_write("Initializing lunkwill", ERRORLEVEL_DEBUG);
+		log_write("Initializing lunkwill", LOG_DBG);
 		/* printf("USING CONFIG: %s\n", config_path); */	/** \todo < Find possibility to write  */
-		log_write("Using config: ", ERRORLEVEL_DEBUG);
-		log_write(config_path, ERRORLEVEL_DEBUG);
+		log_write("Using config: ", LOG_DBG);
+		log_write(config_path, LOG_DBG);
 		
 		
 		if(load_config(&config, config_path)!=0)
@@ -79,23 +73,33 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		log_write("Initializing lunkwill", ERRORLEVEL_DEBUG);
+		log_write("Initializing lunkwill", LOG_DBG);
 		if(load_config(&config,"lunkwill.cfg")!=0)
 		{
-			log_write("Creating default config", ERRORLEVEL_DEBUG);
+			log_write("Creating default config", LOG_DBG);
 			if(create_config(&config, "lunkwill.cfg")!=0)
 			{
 				err="Failed to create default configuration";
 				goto _fail;
 			}
 		}
-		log_write("Using default config", ERRORLEVEL_DEBUG);
+		log_write("Using default config", LOG_DBG);
 	}
+	
+	if ((config_prop=config_lookup(&config, "LOG"))==NULL)
+	{
+		config_prop=config_root_setting(&config);
+	}
+
+	if(config_setting_lookup_int(config_prop, "LOGLEVEL", &conf)) log_level=conf;
+	if(!config_setting_lookup_string(config_prop, "LOGFILE", (const char**)&log_file)) return 1;
+	
+	init_logger(log_file,log_level);
 
 	init_sighndlr();
 	fflush(stdout);
 	
-	if (pipe(pipe1) == 0 && pipe(pipe2) == 0)
+	if (pipe(pipe1) == 0 && pipe(pipe2)==0)
 	{
 		pid = fork();
 		if (pid == (pid_t)-1)
@@ -120,9 +124,7 @@ int main(int argc, char** argv)
 			//Modules_init;
 			if(login_init_module(0)!=0) return 1;
 
-			int max_num_threads=0, conf;
-			config_setting_t *config_prop;
-			
+			int max_num_threads=0;
 
 			if ((config_prop=config_lookup(&config, "WORKER"))==NULL)
 			{
@@ -199,14 +201,13 @@ int main(int argc, char** argv)
 
 			config_destroy(&config);
 			
-			log_write("Server started. Enter 'quit' to shutdown the server", ERRORLEVEL_DEBUG);
+			log_write("Server started. Enter 'quit' to shutdown the server", LOG_INFO);
 			start_server(port, listen_queue, timeout, pipe2[0], pipe1[1]);
         }
     }
 	
 	sighndlr_safe_exit(0);
 	
-	log_write("Server stopped", ERRORLEVEL_WARN);
 	return 0;
 
 	argv_fail:
@@ -214,8 +215,7 @@ int main(int argc, char** argv)
 		return 1;
 	
 	_fail:
-		DBGPRINTF("%s\n", err);
-		log_write(err, ERRORLEVEL_ERR);
+		log_write(err, LOG_ERR);
 		return 2;
 
 }

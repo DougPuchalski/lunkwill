@@ -33,8 +33,6 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 			nfree(buffer);
 			break;
 		}
-
-		DBGPRINTF("Socket:%d Size:%d\n", buffer->fd, buffer->size);		
 		
 		pthread_mutex_lock( &Lock_Count );
 			fifo_push(&Jobs,buffer);
@@ -43,10 +41,8 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 			{
 				int i;
 				Thread_Count++;
-				DBGPRINTF("New Thread -> Total active:%d\n", Thread_Count);		
 				if((i=pthread_create( &thread, NULL, workerthread, NULL))!=0)
 				{
-					DBGPRINTF("Failed to create Thread:%d %s\n", i, strerror(errno));		
 					Thread_Count--;					
 				}
 				else
@@ -97,13 +93,11 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 
 
 	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
-		DBGPRINTF("Error binding to port %d\n", port);
 		return 1;
 	}
 
 
 	if((listen(server_sock, listen_queue)) < 0){
-		DBGPRINTF("Error listening on port %d\n",port);
 		return 1;
 	}
 	
@@ -122,7 +116,6 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 		read_fds = master;
 		if(select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
 		{
-			DBGPRINTF("Error select failed with errno: %d\n", errno);
 			return -1;
 		}
 		
@@ -137,7 +130,6 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 					{
 						FD_SET(client_sock, &master);
 						if(client_sock > fdmax) fdmax = client_sock;
-						DBGPRINTF("New connection from %s\n", inet_ntoa(client_addr.sin_addr));
 					}
 				}
 				else if(i==fd_ro)
@@ -148,17 +140,12 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 						return 1;
 					}
 
-					DBGPRINTF("Read %d bytes from pipe\n", buffer.size);
-
 					buffer.data=malloc(buffer.size+2);
 					if(read(fd_ro, buffer.data, buffer.size)<=0)
 					{
 						nfree(buffer.data);
-						DBGPRINTF("Pipe %d is broken\n", fd_ro);
 						return 1;
 					}
-					
-					DBGPRINTF("Forward pipe data to socket %d\n", buffer.fd);
 
 					if((send(buffer.fd, buffer.data, buffer.size, 0)) <= 0)
 					{
@@ -172,11 +159,8 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 				{
 					char buf[11]={0};
 					if(fgets(buf,10,stdin)==NULL)return 1;
-
-					DBGPRINTF("%s\n",buf);
 					if(strbegin(buf, "quit")==0)
 					{
-						DBGPRINTF("%s\n",buf);
 						return 0;
 					}
 				}
@@ -186,7 +170,6 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 					todo.data=calloc(1, BUF_SIZE);
 					if((todo.size = recv(i, todo.data, BUF_SIZE, 0)) <= 0)
 					{
-						DBGPRINTF("Client %d closed connection\n",i);
 						close(i);
 					}
 					else
@@ -195,12 +178,10 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 						if(write(fd_wr, &todo, sizeof(struct pipe_rxtx))==-1)
 						{
 							nfree(todo.data);
-							DBGPRINTF("Pipe %d is broken\n", fd_wr);
 							return -1;
 						}
 						if(write(fd_wr, todo.data, todo.size)==-1)
 						{
-							DBGPRINTF("Pipe %d is broken\n", fd_wr);
 							nfree(todo.data);
 							return -1;
 						}

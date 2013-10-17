@@ -13,7 +13,6 @@ void sighndlr_add(void *(*func)(void *), void *param)
 void atexit_safe_exit()
 {
 	sighndlr_list *sig_list;
-	log_write("Please wait.... ", ERRORLEVEL_WARN);	/** < \todo Eventually print points again */ 
 	while((sig_list=fifo_pop(&Sighandler))!=NULL){
 		//~ printf(".");
 		if(sig_list->func!=NULL){
@@ -21,15 +20,7 @@ void atexit_safe_exit()
 		}
 		nfree(sig_list);
 	}
-
-	#ifndef NO_DBG
-		if(stddebug!=NULL)
-		{
-			printf("\x1b[0;0m");
-			fclose(stddebug);
-			stddebug=NULL;
-		}
-	#endif
+	log_write("Server stopped", LOG_WARN);
 }
 
 void sighndlr_safe_exit(int param)

@@ -20,7 +20,6 @@ int strnmatch(char *a, char *b, int n)
 
 int join_to_int(char *data, char *encoding, int bits, int n)
 {
-	DBGPRINTF("JOIN TO INT: %s %s %d %d\n", data, encoding, bits, n);
 	int i=0,x;
 	for(x=0;x<n;x++)
 	{
@@ -41,7 +40,7 @@ int join_to_int(char *data, char *encoding, int bits, int n)
 		i|=((int)(y))<<(bits*x);
 	}
 	i&=~(((int)(0))<<(bits*n));
-	DBGPRINTF("***************\nJOINED TO INT: %d\n", i);
+
 	return i;
 }
 

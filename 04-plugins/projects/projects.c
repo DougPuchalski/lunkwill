@@ -17,7 +17,7 @@ int init_module(int id, struct module_info *m)
 {
 	char buf[64];
 	sprintf(buf, "Project module intialized at %d", id);
-	log_write(buf, ERRORLEVEL_DEBUG);
+	log_write(buf, LOG_INFO);
 	
 	m->id=id;
 	m->name="Project";

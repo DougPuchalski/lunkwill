@@ -8,7 +8,6 @@ void *login_close_module(void *arg)
 
 int login_init_module(int id)
 {
-	DBGPRINTF("LOGIN MODULE INITIALIZED AT: %d\n", id);
 	Modules[id].id=id;
 	Modules[id].name="Account";
 	Modules[id].func=login_request;
@@ -31,7 +30,6 @@ int login_verify(int uid, int gid, int ses1, int ses2 )
 int login_new_session(char *input, int uid, int gid, int ses1, int ses2 )
 {
 	//ask db here
-	DBGPRINTF("------------> %d %d %d %d \n",uid,gid,ses1,ses2);
 	if(uid==gid&&ses1==ses2)
 	{
 		strcpy(input, "BAAAAAAAAAAAAAAAAAAA");
@@ -54,12 +52,9 @@ int login_request(void *module_data, request *client_request)
 	
 	if(client_request->user==0)
 	{
-		DBGPRINTF("[NO USER ID] %s\n", client_request->module_request);
-		
 		if(client_request->group==0 && client_request->session1==0 && \
 			client_request->session2==0 && client_request->module_request[0]!=0)
 		{
-			DBGPRINTF("[LOGIN] %s\n", client_request->module_request);
 			if((login_new_session(client_request->module_request, client_request->user, \
 				client_request->group, client_request->session1, \
 				client_request->session2))!=0)goto ERROR_SERVER;
@@ -81,13 +76,10 @@ int login_request(void *module_data, request *client_request)
 		return 0;
 	}
 
-	DBGPRINTF("[USER ID] %d\n", client_request->user);
-
 	if(login_verify(client_request->user, \
 		client_request->group, client_request->session1, \
 		client_request->session2)!=0) goto ERROR_SERVER;
 		
-	DBGPRINTF("[LOGIN OK] %d\n", client_request->user);
 
 	//MODULE LIST
 	int i;
@@ -112,7 +104,6 @@ int login_request(void *module_data, request *client_request)
 	}
 
 	//CALL MODULE
-	DBGPRINTF("[ CALL MODULE ] %d\n", client_request->module);
 	if(Modules[client_request->module].func!=NULL)
 	{
 		if(client_request->module==0)

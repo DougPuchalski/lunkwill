@@ -14,7 +14,7 @@ int load_config(config_t *config, char *config_file_name)
 
 int create_config(config_t *config, char *config_file_name)
 {
-	config_setting_t *config_prop, *prop_port, *prop_listen, *prop_timeout, *prop_database, *prop_modules;
+	config_setting_t *config_prop, *prop_port, *prop_listen, *prop_timeout, *prop_database, *prop_modules, *prop_log;
 
     config_init(config);
     
@@ -36,6 +36,12 @@ int create_config(config_t *config, char *config_file_name)
 	if((prop_database=config_setting_add(config_prop, "DB_FILE", CONFIG_TYPE_STRING))==NULL) goto fail_exit;
     if(!config_setting_set_string(prop_database, "lunkwill.db"))goto fail_exit;
 
+	/// \todo Read database name from config
+    if((config_prop=config_setting_add(config_root_setting(config), "LOG",CONFIG_TYPE_GROUP))==NULL)goto fail_exit;
+	if((prop_log=config_setting_add(config_prop, "LOGLEVEL", CONFIG_TYPE_INT))==NULL) goto fail_exit;
+    if(!config_setting_set_int(prop_log, 2))goto fail_exit;
+	if((prop_log=config_setting_add(config_prop, "LOGFILE", CONFIG_TYPE_STRING))==NULL) goto fail_exit;
+    if(!config_setting_set_string(prop_log, "lunkwill.log"))goto fail_exit;
     
     //Include default options from modules
     if((config_prop=config_setting_add(config_root_setting(config), "MODULES",CONFIG_TYPE_LIST))==NULL)goto fail_exit;	

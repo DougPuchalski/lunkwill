@@ -4,7 +4,6 @@
 
 void *workerthread()
 {
-	DBGPRINTF("New pthread startet%s\n","");
 
 	while(1)
 	{
@@ -16,7 +15,6 @@ void *workerthread()
 
 		if(buffer==NULL)
 		{
-			DBGPRINTF("No more work to do%s\n","");
 			goto IQUITTODAY;
 		}
 		request parsed_request=parse_request(buffer->data);
@@ -25,7 +23,6 @@ void *workerthread()
 		switch(parsed_request.special_file)
 		{
 			case NON_SPECIAL:
-				DBGPRINTF("Send %s\n", "html");
 				parsed_request.answer=new_html();
 				void *x;
 
@@ -46,22 +43,18 @@ void *workerthread()
 				goto PIPE;
 				break;
 			case INDEX_HTML:
-				DBGPRINTF("Send %s\n", "index.html");
 				buffer->size=send_file(&buffer->data, "www/index.html");
 				goto PIPE;
 				break;
 			case LOGO_PNG:
-				DBGPRINTF("Send %s\n", "logo.png");
 				buffer->size=send_file(&buffer->data, "www/logo.png");
 				goto PIPE;
 				break;
 			case FAVICON_ICO:
-				DBGPRINTF("Send %s\n", "favicon.ico");
 				buffer->size=send_file(&buffer->data, "www/favicon.ico");
 				goto PIPE;
 				break;
 			default:
-				DBGPRINTF("Send unknown:%d\n", parsed_request.special_file);
 				buffer->size=send_raw(&buffer->data,HTTP_500);
 				goto PIPE;
 				break;
@@ -69,13 +62,11 @@ void *workerthread()
 
 		PIPE:		
 			pthread_mutex_lock( &Lock_Send );
-				DBGPRINTF("Send %d bytes through pipe %d\n", buffer->size, Send_FD);
 				
 				if(write(Send_FD, buffer, sizeof(struct pipe_rxtx))==-1)
 				{
 					nfree(buffer->data);
 					nfree(buffer);
-					DBGPRINTF("Pipe %d is broken\n", Send_FD);
 					pthread_mutex_unlock( &Lock_Send );
 					goto IQUITTODAY;
 				}
@@ -83,7 +74,6 @@ void *workerthread()
 				{
 					nfree(buffer->data);
 					nfree(buffer);
-					DBGPRINTF("Pipe %d is broken\n", Send_FD);
 					pthread_mutex_unlock( &Lock_Send );
 					goto IQUITTODAY;
 				}
