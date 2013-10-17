@@ -15,7 +15,7 @@ int login_init_module(int id)
 	struct login_data* md=Modules[id].data=malloc(sizeof(struct login_data));
 
 	//init db here
-	md->site="Account";
+	md->site="<h3>Account</h3>";
 
 	sighndlr_add(login_close_module, md);
 

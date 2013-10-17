@@ -7,25 +7,25 @@ char *Error_level[]=  \
 	  "[  ERROR  ]", \
 	  "[  FATAL  ]" };
 
-int log_level=0;
-FILE *logfile=NULL;
+int Log_level=0;
+FILE *Logfile=NULL;
 
 int init_logger(char *LOGFILE, int log_lev)
 {
-	if((logfile = fopen(LOGFILE, "a")) == NULL){
+	if((Logfile = fopen(LOGFILE, "a")) == NULL){
 		fprintf(stderr, "%s\tCould not open logfile. Error reporting to stderr only\n", Error_level[2]);
 		return 1;
 	}
 	
-	log_level=log_lev;
-	sighndlr_add(close_log, logfile);
+	Log_level=log_lev;
+	sighndlr_add(close_log, Logfile);
 	
 	return 0;
 }
 
 int logprint(char *message, int error_level, int print_stderr)
 {	
-	if(error_level<log_level) return 1;
+	if(error_level<Log_level) return 1;
 
 	struct tm *ti;
 	time_t time_s;
@@ -36,7 +36,7 @@ int logprint(char *message, int error_level, int print_stderr)
 
 	strftime(t_buf, 128, "%d. %b %Y %H:%M:%S", ti);
 
-	if(logfile==NULL)
+	if(Logfile==NULL)
 	{
 		fprintf(stderr, "%s\t%s\t%s\n", "[ UNINITIALIZED ]", t_buf, message);		
 		return 1;
@@ -47,7 +47,7 @@ int logprint(char *message, int error_level, int print_stderr)
 		fprintf(stderr, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
 	}
 
-	fprintf(logfile, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
+	fprintf(Logfile, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
 	
 	
 	return 0;

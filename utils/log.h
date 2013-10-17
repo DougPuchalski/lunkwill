@@ -17,7 +17,4 @@ extern int logprint(char *message, int error_level, int print_stderr);
 extern int init_logger(char *LOGFILE, int log_lev);
 extern void *close_log(void *a);
 
-extern char *Error_level[];
-extern int log_level;
-
 #endif
