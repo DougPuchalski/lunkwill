@@ -8,7 +8,9 @@ void *close_module(void *arg)
 
 int init_module(int id, struct module_info *m)
 {
-	printf("DUMMY MODULE INITIALIZED AT: %d\n", id);
+	char buf[64];
+	sprintf(buf, "Dummy module intialized at %d", id);
+	log_write(buf, ERRORLEVEL_DEBUG);
 	m->id=id;
 	m->name="DUMMY";
 	m->func=answer_request;

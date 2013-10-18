@@ -15,7 +15,10 @@ int print_projects(void *data, int num, char **arguments, char **colnames)
 
 int init_module(int id, struct module_info *m)
 {
-	printf("PROJECT MODULE INITIALIZED AT: %d\n", id);
+	char buf[64];
+	sprintf(buf, "Project module intialized at %d", id);
+	log_write(buf, ERRORLEVEL_DEBUG);
+	
 	m->id=id;
 	m->name="Project";
 	m->func=projects_request;

@@ -63,8 +63,12 @@ int main(int argc, char** argv)
 	//Load configuration
 	if(config_path!=NULL)
 	{
-		printf("INITIALIZING LUNKWILL");
-		printf("USING CONFIG: %s\n", config_path);
+		log_write("Initializing lunkwill", ERRORLEVEL_DEBUG);
+		/* printf("USING CONFIG: %s\n", config_path); */	/** \todo < Find possibility to write  */
+		log_write("Using config: ", ERRORLEVEL_DEBUG);
+		log_write(config_path, ERRORLEVEL_DEBUG);
+		
+		
 		if(load_config(&config, config_path)!=0)
 		{
 			err="Failed to load configuration";
@@ -75,17 +79,17 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		printf("INITIALIZING LUNKWILL\n");
+		log_write("Initializing lunkwill", ERRORLEVEL_DEBUG);
 		if(load_config(&config,"lunkwill.cfg")!=0)
 		{
-			printf("CREATING DEFAULT CONFIG\n");
+			log_write("Creating default config", ERRORLEVEL_DEBUG);
 			if(create_config(&config, "lunkwill.cfg")!=0)
 			{
 				err="Failed to create default configuration";
 				goto _fail;
 			}
 		}
-		printf("USING DEFAULT CONFIG\n");
+		log_write("Using default config", ERRORLEVEL_DEBUG);
 	}
 
 	init_sighndlr();
@@ -195,13 +199,14 @@ int main(int argc, char** argv)
 
 			config_destroy(&config);
 			
-			printf("SERVER STARTED. ENTER 'quit' TO SHUTDOWN THE SERVER.\n");
+			log_write("Server started. Enter 'quit' to shutdown the server", ERRORLEVEL_DEBUG);
 			start_server(port, listen_queue, timeout, pipe2[0], pipe1[1]);
         }
     }
 	
 	sighndlr_safe_exit(0);
 	
+	log_write("Server stopped", ERRORLEVEL_WARN);
 	return 0;
 
 	argv_fail:
@@ -209,7 +214,8 @@ int main(int argc, char** argv)
 		return 1;
 	
 	_fail:
-		DBGPRINTF("%s\n",err);
+		DBGPRINTF("%s\n", err);
+		log_write(err, ERRORLEVEL_ERR);
 		return 2;
 
 }

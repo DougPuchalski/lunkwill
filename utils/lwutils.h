@@ -19,7 +19,7 @@
 #include <getopt.h>
 #include <libconfig.h>
 #include <dlfcn.h>
-#include <sqlite3.h> 
+#include <sqlite3.h>
 
 #define nfree(willy) if(willy!=NULL){free(willy); willy=NULL;}
 
@@ -38,6 +38,7 @@
 #define BUF_SIZE 4096
 
 
+#include "log.h"
 #include "fifo.h"
 #include "html.h"
 #include "http.h"

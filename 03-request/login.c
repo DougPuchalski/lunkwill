@@ -8,7 +8,10 @@ void *login_close_module(void *arg)
 
 int login_init_module(int id)
 {
-	printf("LOGIN MODULE INITIALIZED AT: %d\n", id);
+	char buf[64];
+	sprintf(buf, "Login module intialized at %d", id);
+	log_write(buf, ERRORLEVEL_DEBUG);
+	
 	Modules[id].id=id;
 	Modules[id].name="Account";
 	Modules[id].func=login_request;
