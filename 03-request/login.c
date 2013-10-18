@@ -8,10 +8,7 @@ void *login_close_module(void *arg)
 
 int login_init_module(int id)
 {
-	char buf[64];
-	sprintf(buf, "Login module intialized at %d", id);
-	log_write(buf, ERRORLEVEL_DEBUG);
-	
+	DBGPRINTF("LOGIN MODULE INITIALIZED AT: %d\n", id);
 	Modules[id].id=id;
 	Modules[id].name="Account";
 	Modules[id].func=login_request;
@@ -28,17 +25,13 @@ int login_init_module(int id)
 
 int login_verify(int uid, int gid, int ses1, int ses2 )
 {
-	//ask db here
-	if(uid!=gid&&ses1==ses2)
-	{
-		return 0;
-	}
-	return 1;
+	return 0;
 }
 
 int login_new_session(char *input, int uid, int gid, int ses1, int ses2 )
 {
 	//ask db here
+	DBGPRINTF("------------> %d %d %d %d \n",uid,gid,ses1,ses2);
 	if(uid==gid&&ses1==ses2)
 	{
 		strcpy(input, "BAAAAAAAAAAAAAAAAAAA");
@@ -47,13 +40,22 @@ int login_new_session(char *input, int uid, int gid, int ses1, int ses2 )
 	return 1;
 }
 
+int user_profile(void *module_data, request *client_request)
+{
+	html_add_tag(&((struct html_ui*)client_request->answer)->main,NULL,((struct login_data*)module_data)->site,NULL);
+	return 0;
+}
+
 int login_request(void *module_data, request *client_request)
 {
 	struct html_ui *html=client_request->answer;
 	void *x;
+	int retcode=0;
 	
 	if(client_request->user==0)
 	{
+		DBGPRINTF("[NO USER ID] %s\n", client_request->module_request);
+		
 		if(client_request->group==0 && client_request->session1==0 && \
 			client_request->session2==0 && client_request->module_request[0]!=0)
 		{
@@ -78,17 +80,15 @@ int login_request(void *module_data, request *client_request)
 		html_add_tag(&form, "<input type=submit value=Login>",NULL,"</input>");
 		return 0;
 	}
-	
-	if(client_request->answer!=NULL)
-	{
-		html_add_tag(&((struct html_ui*)client_request->answer)->main,NULL,((struct login_data*)module_data)->site,NULL);
-		return 0;
-	}
 
-	if(!login_verify(client_request->user, \
+	DBGPRINTF("[USER ID] %d\n", client_request->user);
+
+	if(login_verify(client_request->user, \
 		client_request->group, client_request->session1, \
-		client_request->session2)) goto ERROR_SERVER;
+		client_request->session2)!=0) goto ERROR_SERVER;
 		
+	DBGPRINTF("[LOGIN OK] %d\n", client_request->user);
+
 	//MODULE LIST
 	int i;
 	for(i=0;i<256;i++)
@@ -111,25 +111,37 @@ int login_request(void *module_data, request *client_request)
 		}
 	}
 
-	//LOGOUT BUTTON
-	html_add_tag(&html->header, \
-		"<a href='javascript:"\
-		"eraseCookie(\"login\"),get_url(\"\")' " \
-		"style='background:#aa2211;color:#FFF;"\
-		"position:absolute;right:0px;'" \
-		">","<div style='margin:1px 10px;'>Logout</div>","</a>");
-
 	//CALL MODULE
+	DBGPRINTF("[ CALL MODULE ] %d\n", client_request->module);
 	if(Modules[client_request->module].func!=NULL)
 	{
-		Modules[client_request->module].func( \
-			Modules[client_request->module].data, \
-			client_request);
+		if(client_request->module==0)
+		{
+			retcode=user_profile(module_data, client_request);
+		}
+		else
+		{
+			retcode=Modules[client_request->module].func( \
+				Modules[client_request->module].data, \
+				client_request);
+		}
 	}
 
-	return 0;
+	//LOGOUT BUTTON
+	if(retcode==0)
+	{
+		html_add_tag(&html->header, \
+			"<a href='javascript:"\
+			"eraseCookie(\"login\"),get_url(\"\")' " \
+			"style='background:#aa2211;color:#FFF;"\
+			"position:absolute;right:5px;'" \
+			">","<div style='margin:1px 10px;'>Logout</div>","</a>");
+	}
+	return retcode;
 	
 	ERROR_SERVER:
-		html_add_tag(&html->main, HTTP_451, "", "");
+		x=html_flush(&html->base,1);
+		nfree(x);
+		if(!retcode)html_add_tag(&html->base, HTTP_451, "", "");
 		return 2;
 }
