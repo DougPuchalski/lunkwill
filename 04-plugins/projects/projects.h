@@ -19,6 +19,6 @@ extern int print_projects(void *data, int num, char **arguments, char **colnames
 extern int projects_init_module(struct module_info *m);
 
 /** \brief Request handler */
-extern int projects_request(void *module_data, request *client_request);
+extern int projects_request(void *md, request *client_request);
 
 #endif

@@ -15,13 +15,13 @@ int init_module(int id, struct module_info *m)
 	m->name="DUMMY";
 	m->func=answer_request;
 	m->description="Just an example.";
-	struct login_data* md=m->data=malloc(sizeof(struct module_data));
+	struct module_data* md=m->data=malloc(sizeof(struct module_data));
 
 	sighndlr_add(close_module, md);
 	return 0;
 }
 
-int answer_request(void *module_data, request *client_request)
+int answer_request(void *md, request *client_request)
 {
 
 	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<h3 style='margin-left:10px'>","DUMMY","</h3>");

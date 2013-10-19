@@ -11,7 +11,7 @@ void *dl_unload(void *a)
 	char *error;
 	if ((dlclose(a))&&((error = dlerror()) != NULL))
 	{
-		fprintf(stderr, "%s\n", error);
+		log_write(error, LOG_ERR);
 		nfree(error);
 	}
 	return NULL;
@@ -153,14 +153,14 @@ int main(int argc, char** argv)
 				lib_handle = dlopen(varName, RTLD_NOW);
 				if (!lib_handle) 
 				{
-					fprintf(stderr, "%s\n", dlerror());
+					log_write(dlerror(), LOG_FATAL);
 					exit(1);
 				}
 				
 				fn = (int(*)(int, struct module_info *))dlsym(lib_handle, "init_module");
 				if ((error = dlerror()) != NULL)  
 				{
-					fprintf(stderr, "%s\n", error);
+					log_write(error, LOG_FATAL);
 					exit(1);
 				}
 				(*fn)(x+1,&Modules[x+1]);
@@ -211,7 +211,7 @@ int main(int argc, char** argv)
 	return 0;
 
 	argv_fail:
-		fprintf(stderr, "Usage: %s [-c CONFIG_FILE]\n",err);
+		log_write("Usage: lunkwill [-c CONFIG_FILE]", LOG_FATAL);
 		return 1;
 	
 	_fail:

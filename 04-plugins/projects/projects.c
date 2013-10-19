@@ -9,7 +9,7 @@ void *projects_close_module(void *arg)
 int print_projects(void *data, int num, char **arguments, char **colnames)
 {
 	//~ html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<b>%s</b><br>", arguments[3]);
-	printf("%s\n", arguments[3]);
+	log_write(arguments[3], LOG_DBG);
 	return 0;
 }
 
@@ -29,7 +29,7 @@ int init_module(int id, struct module_info *m)
 	return 0;
 }
 
-int projects_request(void *module_data, request *client_request)
+int projects_request(void *md, request *client_request)
 {
 
 	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<h3 style='margin-left:10px'>","Projects","</h3>");

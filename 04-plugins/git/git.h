@@ -1,5 +1,9 @@
-#ifndef __DUMMY_H__
-#define __DUMMY_H__
+#ifndef __GIT_MODULE__
+#define __GIT_MODULE__
+
+#ifndef GIT_SUCCESS
+	#define GIT_SUCCESS 0
+#endif
 
 #include "../../utils/lwutils.h"
 
@@ -17,5 +21,6 @@ extern void *close_module(void *arg);
 
 /** \brief Request handler */
 extern int answer_request(void *md, request *client_request);
+
 
 #endif

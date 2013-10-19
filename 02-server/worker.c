@@ -60,7 +60,9 @@ void *workerthread(struct serverwork *sw)
 				break;
 		}
 
-		PIPE:		
+		PIPE:
+		if(buffer->size>0)
+		{
 			pthread_mutex_lock( &sw->lock_send );
 				
 				if(write(sw->send_fd, buffer, sizeof(struct pipe_rxtx))==-1)
@@ -78,7 +80,7 @@ void *workerthread(struct serverwork *sw)
 					goto IQUITTODAY;
 				}
 			pthread_mutex_unlock( &sw->lock_send );
-		
+		}		
 		nfree(buffer->data);
 		nfree(buffer);
 

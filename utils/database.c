@@ -48,7 +48,7 @@ int init_db(void)
 	
 	if(sqlite3_exec(db_handle, sql_create, silly_sqlite_callback, 0, &sql_error) != SQLITE_OK)
 	{
-		fprintf(stderr, "sqlite error: %s\n", sql_error);
+		log_write(sql_error, LOG_ERR);
 		sqlite3_free(sql_error);
 		
 		return 0;

@@ -21,6 +21,8 @@
 #include <libconfig.h>
 #include <dlfcn.h>
 #include <sqlite3.h>
+#include <git2.h>
+
 
 #define nfree(willy) if(willy!=NULL){free(willy); willy=NULL;}
 

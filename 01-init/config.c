@@ -48,6 +48,9 @@ int create_config(config_t *config, char *config_file_name)
 //projects
 	if((prop_modules=config_setting_add(config_prop, "", CONFIG_TYPE_STRING))==NULL) goto fail_exit;
     if(!config_setting_set_string(prop_modules, "./projects.so"))goto fail_exit;
+//git
+	if((prop_modules=config_setting_add(config_prop, "", CONFIG_TYPE_STRING))==NULL) goto fail_exit;
+    if(!config_setting_set_string(prop_modules, "./git.so"))goto fail_exit;
 //dummy
 	if((prop_modules=config_setting_add(config_prop, "", CONFIG_TYPE_STRING))==NULL) goto fail_exit;
     if(!config_setting_set_string(prop_modules, "./dummy.so"))goto fail_exit;
