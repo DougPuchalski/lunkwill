@@ -27,7 +27,25 @@ case $@ in
 	;;
 	"doc")
 		cd ..
-		doxygen scripts/doxyfile;
+		mkdir -p docs
+
+		(cat scripts/doxyfile; \
+		 echo "EXCLUDE = 04-plugins" )| doxygen -
+
+		for i in $(ls ./04-plugins/);
+		do
+			cat scripts/doxyfile | sed -e \
+			"s#OUTPUT_DIRECTORY       = docs/lunkwill#OUTPUT_DIRECTORY       = docs/$i#" \
+			| sed -e \
+				"s#INPUT                  = .#INPUT                  = ./04-plugins/$i#" \
+			| doxygen -
+		done
+
+		rm -f ./docs/index.html
+		for i in $(ls ./docs/);
+		do
+			echo "<a href='./$i/html/index.html'>$i</a><br>">>./docs/index.html
+		done
 	;;
 
 	"clang")

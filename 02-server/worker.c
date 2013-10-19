@@ -2,16 +2,16 @@
 #include "server.h"
 #include "request_parser.h"
 
-void *workerthread()
+void *workerthread(struct serverwork *sw)
 {
 
 	while(1)
 	{
 		struct pipe_rxtx *buffer=NULL;
 
-		pthread_mutex_lock( &Lock_Count );
-			buffer=fifo_pop(&Jobs);
-		pthread_mutex_unlock( &Lock_Count );
+		pthread_mutex_lock( &sw->lock_count );
+			buffer=fifo_pop(&sw->jobs);
+		pthread_mutex_unlock( &sw->lock_count );
 
 		if(buffer==NULL)
 		{
@@ -61,23 +61,23 @@ void *workerthread()
 		}
 
 		PIPE:		
-			pthread_mutex_lock( &Lock_Send );
+			pthread_mutex_lock( &sw->lock_send );
 				
-				if(write(Send_FD, buffer, sizeof(struct pipe_rxtx))==-1)
+				if(write(sw->send_fd, buffer, sizeof(struct pipe_rxtx))==-1)
 				{
 					nfree(buffer->data);
 					nfree(buffer);
-					pthread_mutex_unlock( &Lock_Send );
+					pthread_mutex_unlock( &sw->lock_send );
 					goto IQUITTODAY;
 				}
-				if(write(Send_FD, buffer->data, buffer->size)==-1)
+				if(write(sw->send_fd, buffer->data, buffer->size)==-1)
 				{
 					nfree(buffer->data);
 					nfree(buffer);
-					pthread_mutex_unlock( &Lock_Send );
+					pthread_mutex_unlock( &sw->lock_send );
 					goto IQUITTODAY;
 				}
-			pthread_mutex_unlock( &Lock_Send );
+			pthread_mutex_unlock( &sw->lock_send );
 		
 		nfree(buffer->data);
 		nfree(buffer);
@@ -85,8 +85,8 @@ void *workerthread()
 	}
 
 	IQUITTODAY:
-	pthread_mutex_lock( &Lock_Count );
-		Thread_Count--;
-	pthread_mutex_unlock( &Lock_Count );
+	pthread_mutex_lock( &sw->lock_count );
+		sw->thread_count--;
+	pthread_mutex_unlock( &sw->lock_count );
 	pthread_exit(NULL);
 }

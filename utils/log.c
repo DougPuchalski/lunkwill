@@ -1,31 +1,35 @@
 #include "log.h"
 
-char *Error_level[]=  \
-	{ "[  DEBUG  ]", \
-	  "[  INFO   ]", \
-	  "[ WARNING ]", \
-	  "[  ERROR  ]", \
-	  "[  FATAL  ]" };
 
-int Log_level=0;
-FILE *Logfile=NULL;
-
-int init_logger(char *LOGFILE, int log_lev)
+struct logger init_logger(char *LOGFILE, int log_lev)
 {
-	if((Logfile = fopen(LOGFILE, "a")) == NULL){
-		fprintf(stderr, "%s\tCould not open logfile. Error reporting to stderr only\n", Error_level[2]);
-		return 1;
+	static struct logger log={.level=LOG_LEV_UNDEF, .file=NULL};
+	
+	if(log.file!=NULL||log.level!=LOG_LEV_UNDEF||log_lev==LOG_LEV_UNDEF) return log;
+
+	log.level=log_lev;
+
+	if((log.file = fopen(LOGFILE, "a")) == NULL){
+		log_write("%s\tCould not open logfile. Error reporting to stderr only\n", LOG_WARN);
+		return log;
 	}
 	
-	Log_level=log_lev;
-	sighndlr_add(close_log, Logfile);
+	sighndlr_add(close_log, &log);
 	
-	return 0;
+	return log;
 }
 
-int logprint(char *message, int error_level, int print_stderr)
+int logprint(struct logger log,char *message, int error_level, int print_stderr)
 {	
-	if(error_level<Log_level) return 1;
+	char *Error_level[]=  \
+		{ "[  DEBUG  ]", \
+		"[  INFO   ]", \
+		"[ WARNING ]", \
+		"[  ERROR  ]", \
+		"[  FATAL  ]" };
+
+
+	if(error_level<log.level) return 1;
 
 	struct tm *ti;
 	time_t time_s;
@@ -36,25 +40,25 @@ int logprint(char *message, int error_level, int print_stderr)
 
 	strftime(t_buf, 128, "%d. %b %Y %H:%M:%S", ti);
 
-	if(Logfile==NULL)
-	{
-		fprintf(stderr, "%s\t%s\t%s\n", "[ UNINITIALIZED ]", t_buf, message);		
-		return 1;
-	}
-
 	if(print_stderr)
 	{
 		fprintf(stderr, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
 	}
 
-	fprintf(Logfile, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
-	
-	
+	if(log.file!=NULL)
+	{
+		fprintf(log.file, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
+	}
+		
 	return 0;
 }
 
 void *close_log(void *a)
 {
-	fclose(a);
+	struct logger *log=a;
+
+	fclose(log->file);
+	log->file=NULL;
+
 	return NULL;
 }

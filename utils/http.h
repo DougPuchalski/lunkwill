@@ -20,17 +20,6 @@
 				"1234567890.,"
 
 
-/** \brief Content-Type for supported MIME types */
-const static char *content_types[] __attribute__ ((unused)) = {
-	"application/octet-stream",
-	"text/plain",
-	"text/html",
-	"text/javascript",
-	"text/css",
-	"image/png",
-	"image/x-icon"
-};
-
 /** \brief Supported MIME types */
 enum mime_types{
 	MIME_UNKNOWN=0,

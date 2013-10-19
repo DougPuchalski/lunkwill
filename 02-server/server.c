@@ -1,20 +1,21 @@
 #include "server.h"
 #include "worker.h"
 
-pthread_mutex_t Lock_Send=PTHREAD_MUTEX_INITIALIZER;
-int Send_FD=0;
-
-pthread_mutex_t Lock_Count=PTHREAD_MUTEX_INITIALIZER;
-int Thread_Count=0;
-
 int Exit_Server;
-
-struct _fifo *Jobs=NULL;
 
 int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 {
+	struct serverwork _sw=
+	{
+		.lock_send=PTHREAD_MUTEX_INITIALIZER,
+		.send_fd=fd_wr,
+		.lock_count=PTHREAD_MUTEX_INITIALIZER,
+		.thread_count=0,
+		.jobs=NULL
+	};
+
+	struct serverwork *sw=&_sw;
 	pthread_t thread;
-	Send_FD=fd_wr;
 		
 	while(!Exit_Server)
 	{
@@ -34,32 +35,32 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 			break;
 		}
 		
-		pthread_mutex_lock( &Lock_Count );
-			fifo_push(&Jobs,buffer);
+		pthread_mutex_lock( &sw->lock_count );
+			fifo_push(&sw->jobs,buffer);
 
-			if(Thread_Count<max_num_threads)
+			if(sw->thread_count<max_num_threads)
 			{
 				int i;
-				Thread_Count++;
-				if((i=pthread_create( &thread, NULL, workerthread, NULL))!=0)
+				sw->thread_count++;
+				if((i=pthread_create( &thread, NULL, workerthread, sw))!=0)
 				{
-					Thread_Count--;					
+					sw->thread_count--;					
 				}
 				else
 				{
 					pthread_detach(thread);
 				}
 			}
-		pthread_mutex_unlock( &Lock_Count );
+		pthread_mutex_unlock( &sw->lock_count );
 	}
 	
 	int i=1;
 	do
 	{
 		usleep(2000);
-		pthread_mutex_lock( &Lock_Count );
-			i=Thread_Count;
-		pthread_mutex_unlock( &Lock_Count );		
+		pthread_mutex_lock( &sw->lock_count );
+			i=sw->thread_count;
+		pthread_mutex_unlock( &sw->lock_count );		
 	}while(i!=0);
 	
 	return 0;

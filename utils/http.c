@@ -6,6 +6,18 @@ int send_file(char **buffer, char *file_path)
 	unsigned int file_size;
 	struct stat statbuf;
 
+	/** \brief Content-Type for supported MIME types */
+	const static char *content_types[] =
+	{
+		"application/octet-stream",
+		"text/plain",
+		"text/html",
+		"text/javascript",
+		"text/css",
+		"image/png",
+		"image/x-icon"
+	};
+
 	if(stat(file_path, &statbuf) == -1)
 	{
 		fprintf(stderr, "Could not open requested file\n");

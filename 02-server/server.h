@@ -11,14 +11,17 @@ struct pipe_rxtx{
 };
 
 
-extern pthread_mutex_t Lock_Send;
-extern int Send_FD;
+struct serverwork
+{
+	pthread_mutex_t lock_send;
+	int send_fd;
 
-extern pthread_mutex_t Lock_Count;
-extern int Thread_Count;
+	pthread_mutex_t lock_count;
+	int thread_count;
 
-extern struct _fifo *Jobs;
-
+	struct _fifo *jobs;
+	
+};
 
 extern int strnmatch(char *a, char *b, int n);
 
