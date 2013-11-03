@@ -39,13 +39,28 @@ int main(int argc, char** argv)
 	memset(Modules, 0, 256*sizeof(struct module_info));
 	
 	//Parse args
-	while((opt=getopt(argc,argv,"c:"))!=-1)
+	while((opt=getopt(argc,argv,"c:f"))!=-1)
 	{
 		switch(opt)
 		{
 			case 'c':
 				config_path=malloc(strlen(optarg)+10);
 				strcpy(config_path, optarg);
+			break;
+			case 'f':
+				switch((int)fork())
+				{
+					case -1:
+						err="Unable to fork worker";
+						goto _fail;
+					break;
+					case 0:
+						log_level=99;
+					break;
+					default:
+						return 0;
+					break;
+				}
 			break;
 			default:
 				err=argv[0];
@@ -91,7 +106,7 @@ int main(int argc, char** argv)
 		config_prop=config_root_setting(&config);
 	}
 
-	if(config_setting_lookup_int(config_prop, "LOGLEVEL", &conf)) log_level=conf;
+	if(config_setting_lookup_int(config_prop, "LOGLEVEL", &conf)&&log_level==0) log_level=conf;
 	if(!config_setting_lookup_string(config_prop, "LOGFILE", (const char**)&log_file)) return 1;
 	
 	init_logger(log_file,log_level);
@@ -201,7 +216,7 @@ int main(int argc, char** argv)
 
 			config_destroy(&config);
 			
-			log_write("Server started. Enter 'quit' to shutdown the server", LOG_INFO);
+			log_write("Server started. Enter 'quit' to shutdown the server", LOG_WARN);
 			start_server(port, listen_queue, timeout, pipe2[0], pipe1[1]);
         }
     }
@@ -211,7 +226,7 @@ int main(int argc, char** argv)
 	return 0;
 
 	argv_fail:
-		log_write("Usage: lunkwill [-c CONFIG_FILE]", LOG_FATAL);
+		log_write("Usage: lunkwill [-c CONFIG_FILE] [-f]", LOG_FATAL);
 		return 1;
 	
 	_fail:
