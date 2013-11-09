@@ -14,7 +14,7 @@ TARGET=lunkwill
 
 all: $(OBJS) $(PLUGIN_NAMES)
 	@echo -e [ BIN ]\\t\"$(TARGET)\"
-	@$(CC) $(CFLAGS) $(LDFLAGS) -rdynamic -o $(TARGET) $(OBJS)
+	@$(CC) $(CFLAGS) -rdynamic -o $(TARGET) $(OBJS) $(LDFLAGS)
 	@echo -e [ DAT ]\\t\"www\"
 	@cp -r !SRC!/www ./www
 
@@ -30,7 +30,7 @@ $(PLUGIN_OBJS): $(PLUGINS)
 
 $(PLUGIN_NAMES): $(PLUGIN_OBJS)
 	@echo -e [ LIB ]\\t\"$@\"
-	@$(CC) -shared -Wl,-soname,$@.so $(CFLAGS) $(LDFLAGS) -o $@.so $(foreach v,$(PLUGIN_OBJS),$(if $(findstring $@,/$(v)/),$(v),))
+	@$(CC) -shared -Wl,-soname,$@.so $(CFLAGS)  -o $@.so $(foreach v,$(PLUGIN_OBJS),$(if $(findstring $@,/$(v)/),$(v),)) $(LDFLAGS)
 
 clean:
 	@echo -e Cleaning build directory ...
