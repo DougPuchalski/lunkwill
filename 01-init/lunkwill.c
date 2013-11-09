@@ -18,14 +18,23 @@ void *dl_unload(void *a)
 }
 
 /**
+ * \brief Close lua based modules
+ */
+void *lua_unload(void *a)
+{
+        lua_close(a);
+	return NULL;
+}
+
+/**
  * \brief Where it all begins
  */
 int main(int argc, char** argv)
 {
 	char *err=NULL;
-    int pipe1[2];
-    int pipe2[2];
-    pid_t pid;
+        int pipe1[2];
+        int pipe2[2];
+        pid_t pid;
 	int opt;
 	
 	int log_level=0;
@@ -33,7 +42,7 @@ int main(int argc, char** argv)
 	
 	int conf;
 	char *config_path=NULL;
-    config_t config;
+        config_t config;
 	config_setting_t *config_prop;
 
 	memset(Modules, 0, 256*sizeof(struct module_info));
@@ -164,22 +173,53 @@ int main(int argc, char** argv)
 				char *error;
 
 				if((varName = config_setting_get_string_elem(config_prop, x))==NULL) continue;
-
-				lib_handle = dlopen(varName, RTLD_NOW);
-				if (!lib_handle) 
-				{
-					log_write(dlerror(), LOG_FATAL);
-					exit(1);
-				}
 				
-				fn = (int(*)(int, struct module_info *))dlsym(lib_handle, "init_module");
-				if ((error = dlerror()) != NULL)  
+				
+				//Script or Binary
+				if(strend(".lua", varName)==0)
 				{
-					log_write(error, LOG_FATAL);
-					exit(1);
+                                        lua_State *L=NULL;
+                                        L=(lua_State*)luaL_newstate();
+                                        if(L!=NULL && luaL_loadfile(L, varName)==0)
+                                        {
+
+                                        	char buf[64];
+                                        	sprintf(buf, "Loading %s", varName);
+                                        	log_write(buf, LOG_INFO);
+
+                                        	Modules[x+1].id=x+1;
+                                        	Modules[x+1].name="LUA";
+                                        	Modules[x+1].description="Just an example.";
+                                        	Modules[x+1].data=L;
+                                        
+                                        	sighndlr_add(lua_unload, L);
+                                        }
+                                        else
+                                        {
+                                                if(L!=NULL) lua_close(L);
+                                                log_write((char *)varName, LOG_ERR);
+                                                log_write("Invalid LUA script", LOG_ERR);
+                                        }
+                                        
 				}
-				(*fn)(x+1,&Modules[x+1]);
-				sighndlr_add(dl_unload, lib_handle);
+				else
+				{
+        				lib_handle = dlopen(varName, RTLD_NOW);
+        				if (!lib_handle) 
+        				{
+        					log_write(dlerror(), LOG_FATAL);
+        					exit(1);
+        				}
+        				
+        				fn = (int(*)(int, struct module_info *))dlsym(lib_handle, "init_module");
+        				if ((error = dlerror()) != NULL)  
+        				{
+        					log_write(error, LOG_FATAL);
+        					exit(1);
+        				}
+        				(*fn)(x+1,&Modules[x+1]);
+        				sighndlr_add(dl_unload, lib_handle);
+				}
 			}
 
 			config_destroy(&config);
@@ -190,11 +230,11 @@ int main(int argc, char** argv)
 		else
 		{
 		//Parent process
-            close(pipe1[0]);
-            close(pipe2[1]);
+                        close(pipe1[0]);
+                        close(pipe2[1]);
 			
-			//Read config
-			int conf, port=0;
+                //Read config
+                        int conf, port=0;
 			int listen_queue=0;
 			int timeout=0;
 			config_setting_t *config_prop;
@@ -218,8 +258,8 @@ int main(int argc, char** argv)
 			
 			log_write("Server started. Enter 'quit' to shutdown the server", LOG_WARN);
 			start_server(port, listen_queue, timeout, pipe2[0], pipe1[1]);
+                }
         }
-    }
 	
 	sighndlr_safe_exit(0);
 	

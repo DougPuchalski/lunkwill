@@ -95,7 +95,11 @@ extern int answer_request(void *md, request *client_request)
 		"<h1>", "git", "</h1><br>");
 	html_add_tag( \
 		&user_iface->main, \
-		"<table><tr style=\"background-color: #C0C0C0;\">", "<td width=\"120\" style=\"padding-left: 5px;\"><b>Commit</b></td><td width=\"650\" style=\"padding-left: 5px;\"><b>Message</b></td><td width=\"600\" style=\"padding-left: 5px;\"><b>Author</b></td><td width=\"250\" style=\"padding-left: 5px;\"><b>Time</b></td></tr>", "");
+		"<table><tr style=\"background-color: #C0C0C0;\">",
+		"<td width=\"120\" style=\"padding-left: 5px;\"><b>Commit</b></td>" \
+		"<td width=\"650\" style=\"padding-left: 5px;\"><b>Message</b></td>" \
+		"<td width=\"600\" style=\"padding-left: 5px;\"><b>Author</b></td>" \
+		"<td width=\"250\" style=\"padding-left: 5px;\"><b>Time</b></td></tr>", "");
 
 	const char *commit_message;
 	char *commit_sha;
@@ -121,14 +125,43 @@ extern int answer_request(void *md, request *client_request)
 		char date[64];
 		strftime(date, 63, "%d. %B %G &nbsp; %R", commit_time_gmt);
 
-		char row[512];
-		/** \todo Add ... if field content gets cut */
-		sprintf(row, "<tr style=\"background-color: %s;\" class=\"git_commits\"><td style=\"padding-left: 5px;\">%.7s</td><td style=\"padding-left: 5px;\">%.80s</td><td style=\"padding-left: 5px;\">%.40s &lt;%.60s&gt;</td><td style=\"padding-left: 5px;\">%s</td></tr>",
-				color[i%2], commit_sha, commit_message, commit_author->name, commit_author->email, date);
+		void *row, *escaped, *author;
 
 		html_add_tag( \
 			&user_iface->main, \
-			"", row, "");
+			"<tr style=\"background-color: ", color[i%2], ";\" class=\"git_commits\">");
+
+		row=html_add_tag( \
+			&user_iface->main, \
+			NULL, NULL, "</tr>");
+
+		html_add_tag( &row,
+		        "<td style=\"padding-left: 5px;\">",
+		        commit_sha,
+		        "</td>" );
+			
+		html_add_tag( &row,
+		        "<td style=\"padding-left: 5px;\">",
+		        escaped=html_escape((char *)commit_message),
+		        "</td>" );
+		nfree(escaped);
+			
+		author=html_add_tag( &row,
+		        "<td style=\"padding-left: 5px;\">",
+		        escaped=html_escape((char *)commit_author->name),
+		        "</td>" );
+		nfree(escaped);
+			
+		html_add_tag( &author,
+		        " &lt;",
+                        escaped=html_escape((char *)commit_author->email),
+		        "&gt; " );
+		nfree(escaped);
+			
+		html_add_tag( &row,
+		        "<td style=\"padding-left: 5px;\">",
+		        date,
+		        "</td>" );
 			
 		git_commit_free(commit);
 		i++;

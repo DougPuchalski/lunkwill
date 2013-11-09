@@ -44,4 +44,7 @@ extern char *html_flush(void **html, int follow);
 /** \brief Adds a "HTML_TAG" into an existing tag */
 extern void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close );
 
+/** \brief Escapes every char. String has to be freed afterwards */
+extern char *html_escape(char *string_ptr);
+
 #endif

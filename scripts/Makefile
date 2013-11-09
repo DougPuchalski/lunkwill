@@ -1,6 +1,6 @@
 CC?=gcc
-CFLAGS+= -Wall -g -pthread -O2 -Werror
-LDFLAGS+= -lconfig -lsqlite3 -lgit2 -ldl
+CFLAGS+= -Wall -g -pthread -O2 -Werror -I/usr/include/lua5.1 
+LDFLAGS+= -lconfig -lsqlite3 -lgit2 -llua5.1 -ldl
 SRC_DIRS = ${shell find !SRC! -type d -print | grep -v 04-plugins }
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,%.o,$(SRCS))

@@ -106,7 +106,7 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	return (*tag);
 }
 
-struct html_ui * new_html()
+struct html_ui *new_html()
 {
 	struct html_ui *user_iface;
 	
@@ -124,4 +124,26 @@ struct html_ui * new_html()
 		html_add_tag(&user_iface->base, MAIN_OPEN, NULL, MAIN_CLOSE );
 		
 	return user_iface;
+}
+
+char *html_escape(char *string_ptr)
+{
+        int i;
+        char *a;
+
+        a=malloc(6*strlen(string_ptr)+2);
+        
+        for(i=0;i<strlen(string_ptr);i++)
+        {
+                if((int)string_ptr[i]==10)
+                {
+                        strcpy(a+6*i, "  <br>");
+                }
+                else
+                {
+                        sprintf(a+6*i, "&#%03d;", (int)string_ptr[i]);
+                }
+        }
+        
+	return a;
 }
