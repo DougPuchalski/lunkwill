@@ -4,29 +4,6 @@ struct _fifo *Sighandler=NULL;
 struct module_info Modules[256];
 
 /**
- * \brief Close dynamically loaded modules
- */
-void *dl_unload(void *a)
-{
-	char *error;
-	if ((dlclose(a))&&((error = dlerror()) != NULL))
-	{
-		log_write(error, LOG_ERR);
-		nfree(error);
-	}
-	return NULL;
-}
-
-/**
- * \brief Close lua based modules
- */
-void *lua_unload(void *a)
-{
-        lua_close(a);
-	return NULL;
-}
-
-/**
  * \brief Where it all begins
  */
 int main(int argc, char** argv)
@@ -168,58 +145,11 @@ int main(int argc, char** argv)
 			for(x=0;x<n;x++)
 			{
 				const char *varName;
-				void *lib_handle;
-				int (*fn)(int , struct module_info* );
-				char *error;
 
 				if((varName = config_setting_get_string_elem(config_prop, x))==NULL) continue;
 				
-				
-				//Script or Binary
-				if(strend(".lua", varName)==0)
-				{
-                                        lua_State *L=NULL;
-                                        L=(lua_State*)luaL_newstate();
-                                        if(L!=NULL && luaL_loadfile(L, varName)==0)
-                                        {
+				load_module(varName, x);
 
-                                        	char buf[64];
-                                        	sprintf(buf, "Loading %s", varName);
-                                        	log_write(buf, LOG_INFO);
-
-                                        	Modules[x+1].id=x+1;
-                                        	Modules[x+1].name="LUA";
-                                        	Modules[x+1].description="Just an example.";
-                                        	Modules[x+1].data=L;
-                                        
-                                        	sighndlr_add(lua_unload, L);
-                                        }
-                                        else
-                                        {
-                                                if(L!=NULL) lua_close(L);
-                                                log_write((char *)varName, LOG_ERR);
-                                                log_write("Invalid LUA script", LOG_ERR);
-                                        }
-                                        
-				}
-				else
-				{
-        				lib_handle = dlopen(varName, RTLD_NOW);
-        				if (!lib_handle) 
-        				{
-        					log_write(dlerror(), LOG_FATAL);
-        					exit(1);
-        				}
-        				
-        				fn = (int(*)(int, struct module_info *))dlsym(lib_handle, "init_module");
-        				if ((error = dlerror()) != NULL)  
-        				{
-        					log_write(error, LOG_FATAL);
-        					exit(1);
-        				}
-        				(*fn)(x+1,&Modules[x+1]);
-        				sighndlr_add(dl_unload, lib_handle);
-				}
 			}
 
 			config_destroy(&config);

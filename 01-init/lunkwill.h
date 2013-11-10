@@ -4,6 +4,7 @@
 #include "../utils/lwutils.h"
 
 #include "config.h"
+#include "module_loader.h"
 
 #include "../02-server/server.h"
 #include "../03-request/login.h"
