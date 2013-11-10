@@ -168,6 +168,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 						log_write("STDIN not readable",LOG_WARN);
 						log_write("Input will be ignored", LOG_WARN);
 						buf[0]=0;
+						FD_CLR(i, &master);
 					}
 					if(strbegin(buf, "quit")==0)
 					{
