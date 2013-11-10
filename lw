@@ -3,12 +3,23 @@
 set -e
 
 TARGET_DIR=$(dirname $0)
+RM=true
 
-rm -rf ${TARGET_DIR}/build
-mkdir ${TARGET_DIR}/build
+if [[ $1 == "keep"  ]]
+then
+	RM=false
+	shift
+fi
+
+if ${RM}
+then
+	rm -rf ${TARGET_DIR}/build
+fi
+mkdir -p ${TARGET_DIR}/build
 cd ${TARGET_DIR}/build
 
 ../configure
+
 
 case $1 in
 
@@ -66,4 +77,8 @@ case $1 in
 		bash
 esac
 
-rm -rf ${TARGET_DIR}/build
+if ${RM}
+then
+	rm -rf ${TARGET_DIR}/build
+fi
+
