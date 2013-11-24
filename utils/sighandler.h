@@ -26,4 +26,7 @@ extern void sighndlr_safe_exit(int param);
 /** \brief Works throu queue. */
 extern void atexit_safe_exit();
 
+/** \brief Use this function to free data on exit. */
+void *sighndlr_free(void *a);
+
 #endif

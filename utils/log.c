@@ -10,7 +10,7 @@ struct logger init_logger(char *LOGFILE, int log_lev)
 	log.level=log_lev;
 
 	if((log.file = fopen(LOGFILE, "a")) == NULL){
-		log_write("%s\tCould not open logfile. Error reporting to stderr only\n", LOG_WARN);
+		log_write("%s\tCould not open logfile. Error reporting to stderr only\n", LOG_WARN, 0);
 		return log;
 	}
 	
@@ -19,7 +19,7 @@ struct logger init_logger(char *LOGFILE, int log_lev)
 	return log;
 }
 
-int logprint(struct logger log,char *message, int error_level, int print_stderr)
+int logprint(struct logger log, char *message, int error_level, char print_stderr, char vargs ,...)
 {	
 	char *Error_level[]=  \
 		{ "[  DEBUG  ]", \
@@ -40,15 +40,27 @@ int logprint(struct logger log,char *message, int error_level, int print_stderr)
 
 	strftime(t_buf, 128, "%d. %b %Y %H:%M:%S", ti);
 
+	va_list args;
+	char *format;
+	va_start (args, vargs);
+	
+	if(vargs)format=va_arg(args, char *);
+
 	if(print_stderr)
 	{
-		fprintf(stderr, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
+		fprintf(stderr, "%s\t%s\t%s", Error_level[error_level], t_buf, message);
+		if(vargs)vfprintf (stderr, format, args);
+		fprintf(stderr, "\n");
 	}
 
 	if(log.file!=NULL)
 	{
-		fprintf(log.file, "%s\t%s\t%s\n", Error_level[error_level], t_buf, message);
+		fprintf(log.file, "%s\t%s\t%s", Error_level[error_level], t_buf, message);
+		if(vargs)vfprintf (log.file, format, args);
+		fprintf(log.file, "\n");
 	}
+
+	va_end (args);
 		
 	return 0;
 }

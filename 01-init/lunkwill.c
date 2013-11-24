@@ -58,10 +58,10 @@ int main(int argc, char** argv)
 	//Load configuration
 	if(config_path!=NULL)
 	{
-		log_write("Initializing lunkwill", LOG_DBG);
+		log_write("Initializing lunkwill", LOG_DBG, 0);
 		/* printf("USING CONFIG: %s\n", config_path); */	/** \todo < Find possibility to write  */
-		log_write("Using config: ", LOG_DBG);
-		log_write(config_path, LOG_DBG);
+		log_write("Using config: ", LOG_DBG, 0);
+		log_write(config_path, LOG_DBG, 0);
 		
 		
 		if(load_config(&config, config_path)!=0)
@@ -74,17 +74,17 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		log_write("Initializing lunkwill", LOG_DBG);
+		log_write("Initializing lunkwill", LOG_DBG, 0);
 		if(load_config(&config,"lunkwill.cfg")!=0)
 		{
-			log_write("Creating default config", LOG_DBG);
+			log_write("Creating default config", LOG_DBG, 0);
 			if(create_config(&config, "lunkwill.cfg")!=0)
 			{
 				err="Failed to create default configuration";
 				goto _fail;
 			}
 		}
-		log_write("Using default config", LOG_DBG);
+		log_write("Using default config", LOG_DBG, 0);
 	}
 	
 	if ((config_prop=config_lookup(&config, "LOG"))==NULL)
@@ -186,7 +186,7 @@ int main(int argc, char** argv)
 
 			config_destroy(&config);
 			
-			log_write("Server started. Enter 'quit' to shutdown the server", LOG_WARN);
+			log_write("Server started. Enter 'quit' to shutdown the server", LOG_WARN, 1, " (Port: %d)", port);
 			start_server(port, listen_queue, timeout, pipe2[0], pipe1[1]);
                 }
         }
@@ -196,11 +196,11 @@ int main(int argc, char** argv)
 	return 0;
 
 	argv_fail:
-		log_write("Usage: lunkwill [-c CONFIG_FILE] [-f]", LOG_FATAL);
+		log_write("Usage: lunkwill [-c CONFIG_FILE] [-f]", LOG_FATAL, 0);
 		return 1;
 	
 	_fail:
-		log_write(err, LOG_ERR);
+		log_write(err, LOG_ERR, 0);
 		return 2;
 
 }

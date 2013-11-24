@@ -85,7 +85,7 @@ int login_request(void *module_data, request *client_request)
 	int i;
 	void *div=html_add_tag(&html->header, \
 		"<div id='ModuleList'"\
-		"style='display:inline-block;overflow-x:scroll;width:90%'>", \
+		"style='display:inline-block;overflow-x:auto;margin-left:5px;width:90%'>", \
 		NULL,"</div>");
 
 	for(i=0;i<256;i++)

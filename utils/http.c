@@ -20,19 +20,19 @@ int send_file(char **buffer, char *file_path)
 
 	if(stat(file_path, &statbuf) == -1)
 	{
-		log_write("Could not open requested file", LOG_ERR);
+		log_write("Could not open requested file", LOG_ERR, 0);
 		return -1;
 	}
 	
 	if(!S_ISREG(statbuf.st_mode))
 	{
-		log_write("Could not open requested file", LOG_ERR);
+		log_write("Could not open requested file", LOG_ERR, 0);
 		return -1;
 	}
 	
 	if((file = fopen(file_path, "r")) == NULL)
 	{
-		log_write("Could not open requested file", LOG_ERR);
+		log_write("Could not open requested file", LOG_ERR, 0);
 		return -1;
 	}
 	

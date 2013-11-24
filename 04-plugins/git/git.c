@@ -9,7 +9,7 @@ int init_module(int id, struct module_info *m)
 {
 	char buf[64];
 	sprintf(buf, "Git module intialized at %d", id);
-	log_write(buf, LOG_INFO);
+	log_write(buf, LOG_INFO, 0);
 
 	m->id=id;
 	m->name="git";
@@ -27,7 +27,7 @@ extern int answer_request(void *md, request *client_request)
 	struct html_ui *user_iface=client_request->answer;
 
 	/** \todo Only works for 1 repository at the moment */
-	const char *repo_path = "../.git";	
+	const char *repo_path = client_request->module_request;
 	//~ if (!config_lookup_string(&session.config, "REPOSITORY", &repo_path)){
 		//~ fprintf(stderr, "Failed reading configuration\n");
 		//~ return 1;
@@ -181,7 +181,7 @@ extern int answer_request(void *md, request *client_request)
 
 /** \brief Exits git module */
 void *close_module(void *arg){
-	free(arg);
+	nfree(arg);
 	return NULL;
 }
 

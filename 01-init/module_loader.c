@@ -5,7 +5,7 @@ void *dl_unload(void *a)
 	char *error;
 	if ((dlclose(a))&&((error = dlerror()) != NULL))
 	{
-		log_write(error, LOG_ERR);
+		log_write(error, LOG_ERR, 0);
 		nfree(error);
 	}
 	return NULL;
@@ -83,7 +83,7 @@ void load_module(const char *varName, int x)
         
                 	char buf[64];
                 	sprintf(buf, "Loading %s", varName);
-                	log_write(buf, LOG_INFO);
+                	log_write(buf, LOG_INFO, 0);
         
                 	Modules[x+1].id=x+1;
 
@@ -91,6 +91,7 @@ void load_module(const char *varName, int x)
                         if (!lua_isnil(L,-1))
                         {
                                 Modules[x+1].name=strdup(lua_tostring(L,-1));
+								sighndlr_add(sighndlr_free, Modules[x+1].name);
                         }
                         else
                         {
@@ -102,6 +103,7 @@ void load_module(const char *varName, int x)
                         if (!lua_isnil(L,-1))
                         {
                                 Modules[x+1].description=strdup(lua_tostring(L,-1));
+								sighndlr_add(sighndlr_free, Modules[x+1].description);
                         }
                         else
                         {
@@ -110,15 +112,15 @@ void load_module(const char *varName, int x)
                         lua_pop(L, 1);
                         
                 	Modules[x+1].data=L;
-        		Modules[x+1].func=lua_answer_request;
-                
+					Modules[x+1].func=lua_answer_request;
+
                 	sighndlr_add(lua_unload, L);
                 }
                 else
                 {
                         if(L!=NULL) lua_close(L);
-                        log_write((char *)varName, LOG_ERR);
-                        log_write("Invalid LUA script", LOG_ERR);
+                        log_write((char *)varName, LOG_ERR, 0);
+                        log_write("Invalid LUA script", LOG_ERR, 0);
                 }
                 
         }
@@ -127,14 +129,14 @@ void load_module(const char *varName, int x)
         	lib_handle = dlopen(varName, RTLD_NOW);
         	if (!lib_handle) 
         	{
-        		log_write(dlerror(), LOG_FATAL);
+        		log_write(dlerror(), LOG_FATAL, 0);
         		exit(1);
         	}
         	
         	fn = (int(*)(int, struct module_info *))dlsym(lib_handle, "init_module");
         	if ((error = dlerror()) != NULL)  
         	{
-        		log_write(error, LOG_FATAL);
+        		log_write(error, LOG_FATAL, 0);
         		exit(1);
         	}
         	(*fn)(x+1,&Modules[x+1]);

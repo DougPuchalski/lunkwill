@@ -94,13 +94,13 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 
 
 	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
-		log_write("Error binding server to port", LOG_ERR);
+		log_write("Error binding server to port", LOG_ERR, 0);
 		return 1;
 	}
 
 
 	if((listen(server_sock, listen_queue)) < 0){
-		log_write("Error listening on port", LOG_ERR);
+		log_write("Error listening on port", LOG_ERR, 0);
 		return 1;
 	}
 	
@@ -119,7 +119,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 		read_fds = master;
 		if(select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
 		{
-			log_write("Select stream failed", LOG_FATAL);
+			log_write("Select stream failed", LOG_FATAL, 0);
 			return -1;
 		}
 		
@@ -148,7 +148,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 					if(read(fd_ro, buffer.data, buffer.size)<=0)
 					{
 						nfree(buffer.data);
-						log_write("Broken pipe", LOG_FATAL);
+						log_write("Broken pipe", LOG_FATAL, 0);
 						return 1;
 					}
 
@@ -165,8 +165,8 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 					char buf[11]={0};
 					if(fgets(buf,10,stdin)==NULL)
 					{
-						log_write("STDIN not readable",LOG_WARN);
-						log_write("Input will be ignored", LOG_WARN);
+						log_write("STDIN not readable",LOG_WARN, 0);
+						log_write("Input will be ignored", LOG_WARN, 0);
 						buf[0]=0;
 						FD_CLR(i, &master);
 					}

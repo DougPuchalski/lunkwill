@@ -1,5 +1,11 @@
 #include "sighandler.h"
 
+void *sighndlr_free(void *a)
+{
+	nfree(a);
+	return NULL;
+}
+
 void sighndlr_add(void *(*func)(void *), void *param)
 {
 	sighndlr_list *sig_list;
@@ -20,7 +26,7 @@ void atexit_safe_exit()
 		}
 		nfree(sig_list);
 	}
-	log_write("Server stopped", LOG_WARN);
+	log_write("Server stopped", LOG_WARN, 0);
 }
 
 void sighndlr_safe_exit(int param)

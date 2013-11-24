@@ -16,7 +16,8 @@
 #include <arpa/inet.h> 
 #include <netinet/in.h>
 
-#include <pthread.h>   
+#include <pthread.h>
+#include <stdarg.h>
 #include <getopt.h>
 #include <libconfig.h>
 #include <dlfcn.h>
