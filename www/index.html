@@ -8,87 +8,10 @@
 </head>
 
 <body>
-<div class="title" onclick="javascript:get_url('')">
+<div class="title" onclick="javascript:window.setCookie('module','');window.ajax('');">
 	<span><img src="logo.png" alt="lunkwill"></span>
 </div>
 <div class=base id=base>
 </div>
-<script type='text/javascript'>
-
-var get_login= function()
-{
-	if((a=readCookie("login"))=="")
-		return "AAAAAAAAAAAAAAAAAAAA";
-	
-	return a;
-};
-
-var get_project= function()
-{
-	if((a=readCookie("project"))=="")
-		return "AAAA";
-	
-	return a;
-};
-
-var get_module= function()
-{
-	if((a=readCookie("module"))=="")
-	return "AA";
-	
-	return a;
-};
-
-get_url=function(url)
-{
-	var autocomplete = new XMLHttpRequest();
-	req="/"+get_project()+"/"+get_module()+"/"+url;
-	autocomplete.open("GET", "/"+get_login()+req, false);
-	location.hash=req;
-	autocomplete.send();
-	
-	if(autocomplete.readyState == 4){
-		if(autocomplete.status == 200){
-		}
-	}
-	
-	document.getElementById("base").innerHTML=autocomplete.responseText;
-	var s=document.getElementById("base").getElementsByTagName('script')
-	for(var i=0; i<s.length;i++)
-	{
-		eval(s[i].text);
-	}
-};
-
-
-function createCookie(name,value,days) {
-	if (days) {
-		var date = new Date();
-		date.setTime(date.getTime()+(days*24*60*60*1000));
-		var expires = "; expires="+date.toGMTString();
-	}
-	else var expires = "";
-	document.cookie = name+"="+value+expires+"; path=/";
-}
-
-function readCookie(name) {
-	var nameEQ = name + "=";
-	var ca = document.cookie.split(';');
-	for(var i=0;i < ca.length;i++) {
-		var c = ca[i];
-		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-	}
-	return "";
-}
-
-function eraseCookie(name) {
-	createCookie(name,"",-1);
-}
-
-get_url("");
-
-</script>
-
 </body>
 </html>

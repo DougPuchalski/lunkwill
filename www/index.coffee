@@ -20,10 +20,8 @@ flush = ->
 		#Create "style" tag
 
 		head = document.getElementsByTagName('head')[0]
-
-		OldStyle=head.getElementsByTagName('style')
-		if OldStyle.length>0
-			OldStyle.parentNode.removeChild(OldStyle)
+		if head?
+			OldStyle?.parentNode?.removeChild?(OldStyle) for OldStyle in head.getElementsByTagName('style')
 
 		style = document.createElement 'style'
 		style.type = 'text/css';
@@ -39,9 +37,54 @@ flush = ->
 
 				head.appendChild style
 
+window.readCookie = (name) ->
+	nameEQ = name + "="
+	ca = document.cookie.split(";")
+	i = 0
+	while i < ca.length
+		c = ca[i]
+		c = c.substring(1, c.length)  while c.charAt(0) is " "
+		return c.substring(nameEQ.length, c.length).replace(/"/g, '')  if c.indexOf(nameEQ) is 0
+		i++
+	ca
+
+ 
+
+window.setCookie = (cookieName, cookieValue) ->
+	today = new Date()
+	expire = new Date(today.getTime()+6000000)
+	document.cookie = cookieName + "=" + escape(cookieValue) + ";expires=" + expire.toGMTString();
+	location.hash="/"+projectCookie()+"/"+moduleCookie()+"/"
+
+loginCookie= ->
+	a=window.readCookie("login")
+	return if( a? and a.length is 20) then a else  "AAAAAAAAAAAAAAAAAAAA"
+
+projectCookie= ->
+	a=window.readCookie("project")
+	return if( a? and a.length is 4) then a else "AAAA"
+
+moduleCookie= ->
+	a=window.readCookie("module")
+	return if( a? and a.length is 2) then a else "AA"
+
+window.ajax= (url) ->
+	window.onhashchange()
+	HttpRequest = new XMLHttpRequest()
+	req="/"+projectCookie()+"/"+moduleCookie()+"/"+btoa url
+	HttpRequest.open "GET", "/"+loginCookie()+req, false
+	location.hash=req
+
+	HttpRequest.addEventListener 'readystatechange', ->
+		document.body.style.visibility="visible"
+		if HttpRequest.readyState is 4
+			document.getElementById("base").innerHTML=HttpRequest.responseText
+			eval(s.text) for s in document.getElementById("base").getElementsByTagName('script')
+
+	document.body.style.visibility="hidden"
+	HttpRequest.send()
 
 #Add default css values
-
 CSS.add "body", "background-color: #aa2211;
 	font-family: Verdana, Helvetica, Arial"
 		
@@ -81,5 +124,12 @@ CSS.add "a:visited", "color:#000;"
 CSS.add "a:active", "color:#000;"
 CSS.add "a:hover", "color:#000;"
 
+window.onhashchange = ->
+	if location.hash.split('/')[1] isnt projectCookie or location.hash.split('/')[2] isnt moduleCookie
+		window.setCookie "project", location.hash.split('/')[1]
+		window.setCookie "module",  location.hash.split('/')[2]
 
-flush()	
+window.onload = ->
+	flush()
+	window.ajax ""
+

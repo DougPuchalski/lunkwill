@@ -60,16 +60,16 @@ int login_request(void *module_data, request *client_request)
 				client_request->session2))!=0)goto ERROR_SERVER;
 
 			html_add_tag(&html->main, "<script>"\
-				"createCookie('login','",
+				"window.setCookie('login','",
 				client_request->module_request,
-				"',7);createCookie('module','BA',7);"\
+				"',7);window.setCookie('module','BA',7);"\
 				"</script>");
 		}
 
 		void *form=html_add_tag(&html->main, \
-		"<form action='javascript:get_url("\
+		"<form action='javascript:window.ajax("\
 		"(document.getElementById(\"email\").value+document.getElementById(\"password\").value)"\
-		"),get_url(\"\")'>","","</form>");
+		"),window.ajax(\"\")'>","","</form>");
 		html_add_tag(&form, "<strong>E-Mail:</strong><br><input id=email type=email>","","</input><p>");
 		html_add_tag(&form, "<strong>Password:</strong><br><input id=password type=password>","","</input><p>");
 		html_add_tag(&form, "<input type=submit value=Login>",NULL,"</input>");
@@ -94,9 +94,9 @@ int login_request(void *module_data, request *client_request)
 		{
 			html_add_tag(&div, \
 				"<a href='javascript:"\
-				"createCookie(\"module\",\"", \
+				"window.setCookie(\"module\",\"", \
 				x=split_to_xstring(i,URL_CHARS,6,2) \
-				,"\",\"7\"),get_url(\"\")' " \
+				,"\",\"7\"),window.ajax(\"\")' " \
 				"style='background:#aa2211;color:#FFF;margin-left:5px;'"\
 				"><div style='margin:1px 10px;display: inline-block;'>");
 				
@@ -128,7 +128,7 @@ int login_request(void *module_data, request *client_request)
 	{
 		html_add_tag(&html->header, \
 			"<a href='javascript:"\
-			"eraseCookie(\"login\"),get_url(\"\")' " \
+			"window.setCookie(\"login\", \"\"),window.ajax(\"\")' " \
 			"style='background:#aa2211;color:#FFF;margin-right:5px;width:9%;vertical-align: top;'"\
 			"><div style='margin:1px 10px;display: inline-block;'>", \
 			"Logout","</div></a>");
