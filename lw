@@ -3,27 +3,41 @@
 set -e
 
 TARGET_DIR=$(dirname $0)
+RM=true
 
-rm -rf ${TARGET_DIR}/build
-mkdir ${TARGET_DIR}/build
+if [[ $1 == "keep"  ]]
+then
+	RM=false
+	shift
+fi
+
+if ${RM}
+then
+	rm -rf ${TARGET_DIR}/build
+fi
+mkdir -p ${TARGET_DIR}/build
 cd ${TARGET_DIR}/build
 
 ../configure
 
-case $@ in
+
+case $1 in
 
 	"dbg")
+		shift
 		make -j9;
-		bash -c "gdb ./lunkwill -ex 'set follow-fork-mode child'"
+		bash -c "gdb ./lunkwill -ex 'set follow-fork-mode child' $@"
 	;;
 	"mem")
+		shift
 		make -j9;
-		bash -c "valgrind --leak-check=full --track-origins=yes --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill"
+		bash -c "valgrind --leak-check=full --track-origins=yes --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill $@"
 	;;
 	"run")
+		shift
 		make -j9;
 		clear;
-		bash -c "./lunkwill"
+		bash -c "./lunkwill $@"
 	;;
 	"doc")
 		cd ..
@@ -49,7 +63,7 @@ case $@ in
 	;;
 
 	"clang")
-		CC=clang make #-j9
+		CC=clang make -j9
 		bash
 	;;
 	
@@ -63,4 +77,8 @@ case $@ in
 		bash
 esac
 
-rm -rf ${TARGET_DIR}/build
+if ${RM}
+then
+	rm -rf ${TARGET_DIR}/build
+fi
+
