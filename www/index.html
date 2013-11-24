@@ -4,58 +4,7 @@
 	<meta charset="utf-8">
 	<title>lunkwill</title>
 	<link rel="icon" type="image/x-icon" href="favicon.ico">
-	<style type="text/css">
-		body{
-			background-color: #aa2211;
-			font-family: Verdana, Helvetica, Arial;
-		}
-		
-		.title{
-			font-size: 46px;
-			color: #FFF;
-			font-weight:bold;
-			height:100px;
-			background:#aa2211
-		}
-		
-		.menu{
-			width: 150px;
-			overflow: hidden;
-			text-align: center;
-			background: #aa2211;
-			font-weight: bold;
-			height: 5px;
-		}
-		
-		a.silentlink{
-			color: #000000;
-			text-decoration: none;
-		}
-		
-		.base{
-			position:absolute;
-			top:80px;
-			bottom:50px;
-			left:0px;
-			right:0px;
-			margin:auto;
-			width:100%;
-			height: 80%;
-			background:#FFF;
-			overflow: auto;
-			white-space:nowrap;
-		}
-		
-		.header{
-			margin-top: 10px;
-			height: 35px;
-		}
-
-		a:link {color:#000;}   
-		a:visited {color:#000;}
-		a:hover {color:#000;}  
-		a:active {color:#000;} 
-	</style>
+	<script type='text/javascript' src="?/www/index.js"></script>
 </head>
 
 <body>
@@ -91,9 +40,11 @@ var get_module= function()
 };
 
 get_url=function(url)
-{ 
+{
 	var autocomplete = new XMLHttpRequest();
-	autocomplete.open("GET", "/"+get_login()+"/"+get_project()+"/"+get_module()+"/"+url, false);
+	req="/"+get_project()+"/"+get_module()+"/"+url;
+	autocomplete.open("GET", "/"+get_login()+req, false);
+	location.hash=req;
 	autocomplete.send();
 	
 	if(autocomplete.readyState == 4){

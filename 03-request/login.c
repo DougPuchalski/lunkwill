@@ -79,25 +79,30 @@ int login_request(void *module_data, request *client_request)
 	if(login_verify(client_request->user, \
 		client_request->group, client_request->session1, \
 		client_request->session2)!=0) goto ERROR_SERVER;
-		
+
 
 	//MODULE LIST
 	int i;
+	void *div=html_add_tag(&html->header, \
+		"<div id='ModuleList'"\
+		"style='display:inline-block;overflow-x:scroll;width:90%'>", \
+		NULL,"</div>");
+
 	for(i=0;i<256;i++)
 	{
 		if(Modules[i].name!=NULL)
 		{
-			html_add_tag(&html->header, \
+			html_add_tag(&div, \
 				"<a href='javascript:"\
 				"createCookie(\"module\",\"", \
 				x=split_to_xstring(i,URL_CHARS,6,2) \
 				,"\",\"7\"),get_url(\"\")' " \
 				"style='background:#aa2211;color:#FFF;margin-left:5px;'"\
-				"><div style='margin:1px 10px;display: inline-block'>");
+				"><div style='margin:1px 10px;display: inline-block;'>");
 				
 			nfree(x);
 
-			html_add_tag(&html->header, \
+			html_add_tag(&div, \
 				Modules[i].name, \
 				NULL, "</div></a>" );
 		}
@@ -124,9 +129,9 @@ int login_request(void *module_data, request *client_request)
 		html_add_tag(&html->header, \
 			"<a href='javascript:"\
 			"eraseCookie(\"login\"),get_url(\"\")' " \
-			"style='background:#aa2211;color:#FFF;"\
-			"position:absolute;right:5px;'" \
-			">","<div style='margin:1px 10px;'>Logout</div>","</a>");
+			"style='background:#aa2211;color:#FFF;margin-right:5px;width:9%;vertical-align: top;'"\
+			"><div style='margin:1px 10px;display: inline-block;'>", \
+			"Logout","</div></a>");
 	}
 	return retcode;
 	

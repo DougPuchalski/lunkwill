@@ -25,7 +25,25 @@ request parse_request(char *get_request)
 	if(get_request[0]=='?')
 	{
 		req.special_file = LINK_RESOLVER;
-		return req;
+
+		get_request++;
+		while((get_request[0]=='/'||get_request[0]=='\\')&&get_request[0]!=' ')
+		{			
+			get_request++;
+		}
+		
+		char *gr=get_request;
+		
+		while(gr[0]!=' ')
+		{
+			if(gr[0]=='.'&&gr[1]=='.')
+			{
+				goto HTTP451;
+			}
+			gr++;
+		}
+		
+		goto module_request;
 	}
 
 	if(strbegin(get_request, "logo.png ") == 0)
@@ -87,6 +105,7 @@ request parse_request(char *get_request)
 	if(get_request[0]!=' ')get_request++;
 
 	// Find end of module_request
+module_request:;
 	char *ptr = strstr(get_request, " ");
 	if(ptr == NULL)	goto HTTP451;
 

@@ -54,6 +54,14 @@ void *workerthread(struct serverwork *sw)
 				buffer->size=send_file(&buffer->data, "www/favicon.ico");
 				goto PIPE;
 				break;
+			case LINK_RESOLVER:
+				buffer->size=send_file(&buffer->data, parsed_request.module_request);
+				goto PIPE;
+				break;
+			case ERROR_451:
+				buffer->size=send_raw(&buffer->data,HTTP_451);
+				goto PIPE;
+				break;
 			default:
 				buffer->size=send_raw(&buffer->data,HTTP_500);
 				goto PIPE;

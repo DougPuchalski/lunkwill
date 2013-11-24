@@ -2,7 +2,8 @@
 
 set -e
 
-TARGET_DIR=$(dirname $0)
+SOURCE_DIR="$(dirname $(realpath $0))"
+TARGET_DIR="${SOURCE_DIR}/../lunkwill_build"
 RM=true
 
 if [[ $1 == "keep"  ]]
@@ -18,7 +19,7 @@ fi
 mkdir -p ${TARGET_DIR}/build
 cd ${TARGET_DIR}/build
 
-../configure
+${SOURCE_DIR}/configure
 
 
 case $1 in
@@ -40,7 +41,7 @@ case $1 in
 		bash -c "./lunkwill $@"
 	;;
 	"doc")
-		cd ..
+		cd ${SOURCE_DIR}
 		mkdir -p docs
 
 		(cat scripts/doxyfile; \
@@ -68,7 +69,7 @@ case $1 in
 	;;
 	
 	"gcc")
-		make -j9;
+		YUI="~/.bin/yui.jar" make -j9;
 		bash
 	;;
 	

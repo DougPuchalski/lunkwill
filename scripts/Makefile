@@ -1,4 +1,6 @@
 CC?=gcc
+COF?=coffee
+
 CFLAGS+= -Wall -g -pthread -O2 -Werror \
 		$(shell pkg-config --cflags libconfig) \
 		$(shell pkg-config --cflags sqlite3) \
@@ -15,6 +17,9 @@ SRC_DIRS = ${shell find !SRC! -type d -print | grep -v 04-plugins }
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,%.o,$(SRCS))
 
+WWW=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.coffee))
+WWW_OBJS=$(patsubst !SRC!/%.coffee,%.js,$(WWW))
+
 PLUGIN_DIRS = ${shell find !SRC! -type d -print | grep "04-plugins/.*" }
 PLUGIN_NAMES=$(foreach dir, $(PLUGIN_DIRS),${shell basename $(dir)})
 PLUGINS=$(foreach dir, $(PLUGIN_DIRS),$(wildcard $(dir)/*.c))
@@ -22,17 +27,22 @@ PLUGIN_OBJS=$(patsubst !SRC!/%.c,%.o,$(PLUGINS))
 
 TARGET=lunkwill
 
-all: $(OBJS) $(PLUGIN_NAMES)
+all: $(OBJS) $(PLUGIN_NAMES) $(WWW_OBJS)
 	@echo -e [ BIN ]\\t\"$(TARGET)\"
 	@$(CC) $(CFLAGS) -rdynamic -o $(TARGET) $(OBJS) $(LDFLAGS)
 	@echo -e [ DAT ]\\t\"www\"
-	@cp -r !SRC!/www ./www
+	@cp -r !SRC!/www/* ./www/
+
+$(WWW_OBJS): $(WWW)
+	@echo -e [ WWW ]\\t\"$@\"
+	@mkdir www -p
+	@$(COF) -o $(shell dirname $@) -c $(patsubst %.js,!SRC!/%.coffee,$@)
+	@java -jar $(YUI) $@ -o $@ 2>/dev/null 1>/dev/null || true
 
 $(OBJS): $(SRCS)
 	@echo -e [ OBJ ]\\t\"$@\"
 	@mkdir $(dir $@) -p
 	@$(CC) -c $(CFLAGS) $(patsubst %.o,!SRC!/%.c,$@) -o $@
-	
 $(PLUGIN_OBJS): $(PLUGINS)
 	@echo -e [ OBJ ]\\t\"$@\"
 	@mkdir $(dir $@) -p
