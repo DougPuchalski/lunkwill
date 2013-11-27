@@ -68,7 +68,7 @@ int login_request(void *module_data, request *client_request)
 
 		void *form=html_add_tag(&html->main, \
 		"<form action='javascript:window.ajax("\
-		"(document.getElementById(\"email\").value+document.getElementById(\"password\").value)"\
+		"(document.getElementById(\"email\").value+\"@##@\"+document.getElementById(\"password\").value)"\
 		"),window.ajax(\"\")'>","","</form>");
 		html_add_tag(&form, "<strong>E-Mail:</strong><br><input id=email type=email>","","</input><p>");
 		html_add_tag(&form, "<strong>Password:</strong><br><input id=password type=password>","","</input><p>");
@@ -93,10 +93,10 @@ int login_request(void *module_data, request *client_request)
 		if(Modules[i].name!=NULL)
 		{
 			html_add_tag(&div, \
-				"<a href='javascript:"\
+				"<a onclick='javascript:"\
 				"window.setCookie(\"module\",\"", \
 				x=split_to_xstring(i,URL_CHARS,6,2) \
-				,"\",\"7\"),window.ajax(\"\")' " \
+				,"\",\"7\")' " \
 				"style='background:#aa2211;color:#FFF;margin-left:5px;'"\
 				"><div style='margin:1px 10px;display: inline-block;'>");
 				
@@ -127,7 +127,7 @@ int login_request(void *module_data, request *client_request)
 	if(retcode==0)
 	{
 		html_add_tag(&html->header, \
-			"<a href='javascript:"\
+			"<a onclick='javascript:"\
 			"window.setCookie(\"login\", \"\"),window.ajax(\"\")' " \
 			"style='background:#aa2211;color:#FFF;margin-right:5px;width:9%;vertical-align: top;'"\
 			"><div style='margin:1px 10px;display: inline-block;'>", \

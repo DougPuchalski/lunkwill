@@ -28,7 +28,7 @@
 #include <lauxlib.h>
 
 
-#define nfree(willy) if(willy!=NULL){free(willy); willy=NULL;}
+#define nfree(willy) if(willy!=NULL){free((void *)willy); willy=NULL;}
 
 #define strbegin(a,b) strncmp(a,b,strlen(b))
 #define strend(a,b) strcmp(a,(strlen(b)>=strlen(a))?((b)+strlen(b)-strlen(a)):b)
@@ -39,6 +39,7 @@
 
 #include "log.h"
 #include "fifo.h"
+#include "base64.h"
 #include "html.h"
 #include "http.h"
 #include "sighandler.h"

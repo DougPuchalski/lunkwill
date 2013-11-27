@@ -49,7 +49,9 @@ window.setCookie = (cookieName, cookieValue) ->
 	today = new Date()
 	expire = new Date(today.getTime()+6000000)
 	document.cookie = cookieName + "=" + escape(cookieValue) + ";expires=" + expire.toGMTString();
-	location.hash="/"+projectCookie()+"/"+moduleCookie()+"/"
+
+	d=location.hash.split('/')[3]
+	location.hash="/"+projectCookie()+"/"+moduleCookie()+"/"+d
 
 loginCookie= ->
 	a=window.readCookie("login")
@@ -125,10 +127,11 @@ window.onhashchange =  ->
 	window.loading=true
 	b=location.hash.split('/')[1]
 	c=location.hash.split('/')[2]
+	d=location.hash.split('/')[3]
 	window.setCookie "project", b
 	window.setCookie "module",  c
 	window.loading = a
-	window.ajax '' if window.loading is false
+	window.ajax( atob d ) if window.loading is false
 
 window.onload = ->
 	flush()

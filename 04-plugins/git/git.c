@@ -27,7 +27,7 @@ extern int answer_request(void *md, request *client_request)
 	struct html_ui *user_iface=client_request->answer;
 
 	/** \todo Only works for 1 repository at the moment */
-	const char *repo_path = client_request->module_request;
+	const char *repo_path = b64_decode(client_request->module_request, B64_URL);
 	//~ if (!config_lookup_string(&session.config, "REPOSITORY", &repo_path)){
 		//~ log_write("",LOG_ERR,1, "Failed reading configuration\n");
 		//~ return 1;
@@ -174,12 +174,14 @@ extern int answer_request(void *md, request *client_request)
 
 	git_revwalk_free(walker);
 	git_repository_free(repo);
-
+	
+	nfree(repo_path);
 	return 0;
 	
 ERROR_SERVER:;
 	void *x=html_flush(&((struct html_ui*)client_request->answer)->base,1);
 	nfree(x);
+	nfree(repo_path);
 	html_add_tag(&((struct html_ui*)client_request->answer)->base, HTTP_451, "", "");
 	return 2;
 }
