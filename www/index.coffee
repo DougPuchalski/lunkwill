@@ -7,11 +7,6 @@ CSS.remove=(affects)->
 	if CSS.data?
 		CSS.data = 
 			(data for data in CSS.data when(CSS.data.indexOf data is 0))
-
-#Session management
-SESSION={}
-#SESSION.GET ->
-	
 	
 #Write data to window.document
 flush = ->
@@ -69,7 +64,7 @@ moduleCookie= ->
 	return if( a? and a.length is 2) then a else "AA"
 
 window.ajax= (url) ->
-	window.onhashchange()
+	window.loading= true
 	HttpRequest = new XMLHttpRequest()
 	req="/"+projectCookie()+"/"+moduleCookie()+"/"+btoa url
 	HttpRequest.open "GET", "/"+loginCookie()+req, false
@@ -78,6 +73,7 @@ window.ajax= (url) ->
 	HttpRequest.addEventListener 'readystatechange', ->
 		document.body.style.visibility="visible"
 		if HttpRequest.readyState is 4
+			window.loading = false
 			document.getElementById("base").innerHTML=HttpRequest.responseText
 			eval(s.text) for s in document.getElementById("base").getElementsByTagName('script')
 
@@ -124,10 +120,15 @@ CSS.add "a:visited", "color:#000;"
 CSS.add "a:active", "color:#000;"
 CSS.add "a:hover", "color:#000;"
 
-window.onhashchange = ->
-	if location.hash.split('/')[1] isnt projectCookie or location.hash.split('/')[2] isnt moduleCookie
-		window.setCookie "project", location.hash.split('/')[1]
-		window.setCookie "module",  location.hash.split('/')[2]
+window.onhashchange =  ->
+	a=window.loading
+	window.loading=true
+	b=location.hash.split('/')[1]
+	c=location.hash.split('/')[2]
+	window.setCookie "project", b
+	window.setCookie "module",  c
+	window.loading = a
+	window.ajax '' if window.loading is false
 
 window.onload = ->
 	flush()
