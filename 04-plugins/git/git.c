@@ -29,14 +29,14 @@ extern int answer_request(void *md, request *client_request)
 	/** \todo Only works for 1 repository at the moment */
 	const char *repo_path = client_request->module_request;
 	//~ if (!config_lookup_string(&session.config, "REPOSITORY", &repo_path)){
-		//~ fprintf(stderr, "Failed reading configuration\n");
+		//~ log_write("",LOG_ERR,1, "Failed reading configuration\n");
 		//~ return 1;
 	//~ }
 	
 	git_repository *repo;
 	if(git_repository_open(&repo, repo_path) != GIT_SUCCESS){
-		fprintf(stderr, "Failed opening repository: '%s'\n", repo_path);
-		return 1;
+		log_write("",LOG_ERR,1, "Failed opening repository: '%s'\n", repo_path);
+		goto ERROR_SERVER;
 	}
 
 	// Read HEAD on master
@@ -53,14 +53,14 @@ extern int answer_request(void *md, request *client_request)
 		
 	
 	if((head_fileptr = fopen(head_filepath, "r")) == NULL){
-		fprintf(stderr, "Error opening '%s'\n", head_filepath);
-		return 1;
+		log_write("",LOG_ERR,1, "Error opening '%s'\n", head_filepath);
+		goto ERROR_SERVER;
 	}
 	
 	if(fread(head_rev, 40, 1, head_fileptr) != 1){
-		fprintf(stderr, "Error reading from '%s'\n", head_filepath);
+		log_write("",LOG_ERR,1, "Error reading from '%s'\n", head_filepath);
 		fclose(head_fileptr);
-		return 1;
+		goto ERROR_SERVER;
 	}	
 	
 	fclose(head_fileptr);
@@ -74,8 +74,8 @@ extern int answer_request(void *md, request *client_request)
 	int commit_offset;
 
 	if(git_oid_fromstr(&oid, head_rev) != GIT_SUCCESS){
-		fprintf(stderr, "Invalid git object: '%s'\n", head_rev);
-		return 1;
+		log_write("",LOG_ERR,1, "Invalid git object: '%s'\n", head_rev);
+		goto ERROR_SERVER;
 	}
 
 	git_revwalk_new(&walker, repo);
@@ -110,8 +110,8 @@ extern int answer_request(void *md, request *client_request)
 	int i=0;
 	while(git_revwalk_next(&oid, walker) == GIT_SUCCESS){
 		if(git_commit_lookup(&commit, repo, &oid)){
-			fprintf(stderr, "Failed to lookup the next object\n");
-			return 1;
+			log_write("",LOG_ERR,1, "Failed to lookup the next object\n");
+			goto ERROR_SERVER;
 		}
 
 		commit_sha = git_oid_allocfmt(&oid);
@@ -176,6 +176,12 @@ extern int answer_request(void *md, request *client_request)
 	git_repository_free(repo);
 
 	return 0;
+	
+ERROR_SERVER:;
+	void *x=html_flush(&((struct html_ui*)client_request->answer)->base,1);
+	nfree(x);
+	html_add_tag(&((struct html_ui*)client_request->answer)->base, HTTP_451, "", "");
+	return 2;
 }
 
 

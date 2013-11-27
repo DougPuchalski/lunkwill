@@ -10,7 +10,7 @@
 	"white-space:normal;' id='SIDEBAR' class='sidebar'>"
 #define SIDEBAR_CLOSE "</div>"
 
-#define MAIN_OPEN "<div style='display:inline-block;white-space: normal;vertical-align:top;'"\
+#define MAIN_OPEN "<div style='display:inline-block;white-space: normal;vertical-align:top;' "\
 	"id='MAIN' class='main'>"
 #define MAIN_CLOSE "</div>"
 

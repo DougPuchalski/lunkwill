@@ -84,7 +84,7 @@ int login_request(void *module_data, request *client_request)
 	//MODULE LIST
 	int i;
 	void *div=html_add_tag(&html->header, \
-		"<div id='ModuleList'"\
+		"<div id='ModuleList' "\
 		"style='display:inline-block;overflow-x:auto;margin-left:5px;width:90%'>", \
 		NULL,"</div>");
 
