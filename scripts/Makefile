@@ -18,7 +18,7 @@ SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,%.o,$(SRCS))
 
 WWW=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.coffee))
-WWW_OBJS=$(patsubst !SRC!/%.coffee,%.js,$(WWW))
+WWW_OBJS=www/index.js
 
 PLUGIN_DIRS = ${shell find !SRC! -type d -print | grep "04-plugins/.*" }
 PLUGIN_NAMES=$(foreach dir, $(PLUGIN_DIRS),${shell basename $(dir)})
@@ -36,7 +36,7 @@ all: $(OBJS) $(PLUGIN_NAMES) $(WWW_OBJS)
 $(WWW_OBJS): $(WWW)
 	@echo -e [ WWW ]\\t\"$@\"
 	@mkdir www -p
-	@$(COF) -o $(shell dirname $@) -c $(patsubst %.js,!SRC!/%.coffee,$@)
+	@$(COF) -o $(shell dirname $@) -c -j index.coffee $(WWW)
 	@java -jar $(YUI) $@ -o $@ 2>/dev/null 1>/dev/null || true
 
 $(OBJS): $(SRCS)
