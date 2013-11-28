@@ -66,13 +66,7 @@ int login_request(void *module_data, request *client_request)
 				"</script>");
 		}
 
-		void *form=html_add_tag(&html->main, \
-		"<form action='javascript:window.ajax("\
-		"(document.getElementById(\"email\").value+\"@##@\"+document.getElementById(\"password\").value)"\
-		"),window.ajax(\"\")'>","","</form>");
-		html_add_tag(&form, "<strong>E-Mail:</strong><br><input id=email type=email>","","</input><p>");
-		html_add_tag(&form, "<strong>Password:</strong><br><input id=password type=password>","","</input><p>");
-		html_add_tag(&form, "<input type=submit value=Login>",NULL,"</input>");
+		html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
 		return 0;
 	}
 
@@ -84,27 +78,19 @@ int login_request(void *module_data, request *client_request)
 	//MODULE LIST
 	int i;
 	void *div=html_add_tag(&html->header, \
-		"<div id='ModuleList' "\
-		"style='display:inline-block;overflow-x:auto;margin-left:5px;width:90%'>", \
-		NULL,"</div>");
+		"<script>window.lw_ModuleList = {",NULL,
+		"}; window.lw_show_ModuleList();</script>");
 
 	for(i=0;i<256;i++)
 	{
 		if(Modules[i].name!=NULL)
 		{
-			html_add_tag(&div, \
-				"<a onclick='javascript:"\
-				"window.setCookie(\"module\",\"", \
-				x=split_to_xstring(i,URL_CHARS,6,2) \
-				,"\",\"7\")' " \
-				"style='background:#aa2211;color:#FFF;margin-left:5px;'"\
-				"><div style='margin:1px 10px;display: inline-block;'>");
+			html_add_tag(&div, "'", \
+				x=split_to_xstring(i,URL_CHARS,6,2), "':");
 				
 			nfree(x);
 
-			html_add_tag(&div, \
-				Modules[i].name, \
-				NULL, "</div></a>" );
+			html_add_tag(&div, "'",Modules[i].name, "', " );
 		}
 	}
 
@@ -127,11 +113,7 @@ int login_request(void *module_data, request *client_request)
 	if(retcode==0)
 	{
 		html_add_tag(&html->header, \
-			"<a onclick='javascript:"\
-			"window.setCookie(\"login\", \"\"),window.ajax(\"\")' " \
-			"style='background:#aa2211;color:#FFF;margin-right:5px;width:9%;vertical-align: top;'"\
-			"><div style='margin:1px 10px;display: inline-block;'>", \
-			"Logout","</div></a>");
+			"<script>","window.lw_logout_button()","</script>");
 	}
 	return retcode;
 	

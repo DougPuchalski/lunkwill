@@ -41,7 +41,9 @@ window.ajax= (url) ->
 		if HttpRequest.readyState is 4
 			window.loading = false
 			document.getElementById("base").innerHTML=HttpRequest.responseText
-			eval(s.text) for s in document.getElementById("base").getElementsByTagName('script')
+			for s in document.getElementById("base").getElementsByTagName('script')
+				window.EvalScriptElem=s
+				eval(s.text)
 
 	document.body.style.visibility="hidden"
 	HttpRequest.send()
