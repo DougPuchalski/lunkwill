@@ -159,12 +159,12 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-		//Parent process
-                        close(pipe1[0]);
-                        close(pipe2[1]);
+			//Parent process
+			close(pipe1[0]);
+			close(pipe2[1]);
 			
-                //Read config
-                        int conf, port=0;
+			//Read config
+			int conf, port=0;
 			int listen_queue=0;
 			int timeout=0;
 			config_setting_t *config_prop;
@@ -188,8 +188,8 @@ int main(int argc, char** argv)
 			
 			log_write("Server started. Enter 'quit' to shutdown the server", LOG_WARN, 1, " (Port: %d)", port);
 			start_server(port, listen_queue, timeout, pipe2[0], pipe1[1]);
-                }
-        }
+		}
+	}
 	
 	sighndlr_safe_exit(0);
 	

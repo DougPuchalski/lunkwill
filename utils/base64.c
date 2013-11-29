@@ -67,6 +67,9 @@ char* b64_decode( char *b64_string, enum B64_CHARSET cs )
 		lookup_url=calloc(1,256);
 		lookup_def=calloc(1,256);
 		
+		sighndlr_add(sighndlr_free,lookup_def);
+		sighndlr_add(sighndlr_free,lookup_url);
+		
 		for(i=0;i<64;i++)
 		{
 			data=B64_URL_CHARS;
@@ -77,7 +80,7 @@ char* b64_decode( char *b64_string, enum B64_CHARSET cs )
 	}
 	
 	len= strlen(b64_string);
-	data=calloc(1, len);
+	data=calloc(1, len+1);
 
 	switch(cs)
 	{

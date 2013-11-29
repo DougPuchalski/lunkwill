@@ -54,14 +54,16 @@ extern int answer_request(void *md, request *client_request)
 	
 	if((head_fileptr = fopen(head_filepath, "r")) == NULL){
 		log_write("",LOG_ERR,1, "Error opening '%s'\n", head_filepath);
+		git_repository_free(repo);
 		goto ERROR_SERVER;
 	}
 	
 	if(fread(head_rev, 40, 1, head_fileptr) != 1){
 		log_write("",LOG_ERR,1, "Error reading from '%s'\n", head_filepath);
 		fclose(head_fileptr);
+		git_repository_free(repo);
 		goto ERROR_SERVER;
-	}	
+	}
 	
 	fclose(head_fileptr);
 	
@@ -75,6 +77,7 @@ extern int answer_request(void *md, request *client_request)
 
 	if(git_oid_fromstr(&oid, head_rev) != GIT_SUCCESS){
 		log_write("",LOG_ERR,1, "Invalid git object: '%s'\n", head_rev);
+		git_repository_free(repo);
 		goto ERROR_SERVER;
 	}
 
@@ -111,6 +114,9 @@ extern int answer_request(void *md, request *client_request)
 	while(git_revwalk_next(&oid, walker) == GIT_SUCCESS){
 		if(git_commit_lookup(&commit, repo, &oid)){
 			log_write("",LOG_ERR,1, "Failed to lookup the next object\n");
+			if(commit!=NULL)git_commit_free(commit);
+			git_revwalk_free(walker);
+			git_repository_free(repo);
 			goto ERROR_SERVER;
 		}
 
@@ -136,32 +142,33 @@ extern int answer_request(void *md, request *client_request)
 			NULL, NULL, "</tr>");
 
 		html_add_tag( &row,
-		        "<td style=\"padding-left: 5px;\">",
-		        commit_sha,
-		        "</td>" );
+				"<td style=\"padding-left: 5px;\">",
+				commit_sha,
+				"</td>" );
+		nfree(commit_sha);			
 			
 		html_add_tag( &row,
-		        "<td style=\"padding-left: 5px;\">",
-		        escaped=html_escape((char *)commit_message),
-		        "</td>" );
+				"<td style=\"padding-left: 5px;\">",
+				escaped=html_escape((char *)commit_message),
+				"</td>" );
 		nfree(escaped);
 			
 		author=html_add_tag( &row,
-		        "<td style=\"padding-left: 5px;\">",
-		        escaped=html_escape((char *)commit_author->name),
-		        "</td>" );
+			"<td style=\"padding-left: 5px;\">",
+			escaped=html_escape((char *)commit_author->name),
+			"</td>" );
 		nfree(escaped);
 			
 		html_add_tag( &author,
-		        " &lt;",
-                        escaped=html_escape((char *)commit_author->email),
-		        "&gt; " );
+			" &lt;",
+			escaped=html_escape((char *)commit_author->email),
+			"&gt; " );
 		nfree(escaped);
 			
 		html_add_tag( &row,
-		        "<td style=\"padding-left: 5px;\">",
-		        date,
-		        "</td>" );
+			"<td style=\"padding-left: 5px;\">",
+			date,
+			"</td>" );
 			
 		git_commit_free(commit);
 		i++;
