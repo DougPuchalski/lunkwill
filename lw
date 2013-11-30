@@ -16,8 +16,8 @@ if ${RM}
 then
 	rm -rf ${TARGET_DIR}/build
 fi
-mkdir -p ${TARGET_DIR}/build
-cd ${TARGET_DIR}/build
+mkdir -p ${TARGET_DIR}
+cd ${TARGET_DIR}
 
 ${SOURCE_DIR}/configure
 

@@ -3,7 +3,7 @@
 void *projects_close_module(void *arg)
 {
 	nfree(arg);
-    return NULL;
+	return NULL;
 }
 
 int print_projects(void *data, int num, char **arguments, char **colnames)

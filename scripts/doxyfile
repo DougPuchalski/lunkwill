@@ -10,16 +10,16 @@ OUTPUT_LANGUAGE        = English
 BRIEF_MEMBER_DESC      = YES
 REPEAT_BRIEF           = YES
 ABBREVIATE_BRIEF       = "The $name class" \
-                         "The $name widget" \
-                         "The $name file" \
-                         is \
-                         provides \
-                         specifies \
-                         contains \
-                         represents \
-                         a \
-                         an \
-                         the
+						 "The $name widget" \
+						 "The $name file" \
+						 is \
+						 provides \
+						 specifies \
+						 contains \
+						 represents \
+						 a \
+						 an \
+						 the
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = NO
@@ -96,39 +96,39 @@ WARN_LOGFILE           =
 INPUT                  = .
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.c \
-                         *.cc \
-                         *.cxx \
-                         *.cpp \
-                         *.c++ \
-                         *.d \
-                         *.java \
-                         *.ii \
-                         *.ixx \
-                         *.ipp \
-                         *.i++ \
-                         *.inl \
-                         *.h \
-                         *.hh \
-                         *.hxx \
-                         *.hpp \
-                         *.h++ \
-                         *.idl \
-                         *.odl \
-                         *.cs \
-                         *.php \
-                         *.php3 \
-                         *.inc \
-                         *.m \
-                         *.markdown \
-                         *.md \
-                         *.mm \
-                         *.dox \
-                         *.py \
-                         *.f90 \
-                         *.f \
-                         *.for \
-                         *.vhd \
-                         *.vhdl
+						 *.cc \
+						 *.cxx \
+						 *.cpp \
+						 *.c++ \
+						 *.d \
+						 *.java \
+						 *.ii \
+						 *.ixx \
+						 *.ipp \
+						 *.i++ \
+						 *.inl \
+						 *.h \
+						 *.hh \
+						 *.hxx \
+						 *.hpp \
+						 *.h++ \
+						 *.idl \
+						 *.odl \
+						 *.cs \
+						 *.php \
+						 *.php3 \
+						 *.inc \
+						 *.m \
+						 *.markdown \
+						 *.md \
+						 *.mm \
+						 *.dox \
+						 *.py \
+						 *.f90 \
+						 *.f \
+						 *.for \
+						 *.vhd \
+						 *.vhdl
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO

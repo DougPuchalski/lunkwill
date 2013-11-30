@@ -9,9 +9,9 @@ struct module_info Modules[256];
 int main(int argc, char** argv)
 {
 	char *err=NULL;
-        int pipe1[2];
-        int pipe2[2];
-        pid_t pid;
+	int pipe1[2];
+	int pipe2[2];
+	pid_t pid;
 	int opt;
 	
 	int log_level=0;
@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 	
 	int conf;
 	char *config_path=NULL;
-        config_t config;
+	config_t config;
 	config_setting_t *config_prop;
 
 	memset(Modules, 0, 256*sizeof(struct module_info));

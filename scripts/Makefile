@@ -15,47 +15,68 @@ LDFLAGS+= -ldl \
 
 SRC_DIRS = ${shell find !SRC! -type d -print | grep -v 04-plugins }
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
-OBJS=$(patsubst !SRC!/%.c,%.o,$(SRCS))
+OBJS=$(patsubst !SRC!/%.c,build/%.o,$(SRCS))
 
 WWW=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.coffee))
 WWW_OBJS=www/index.js
 
 PLUGIN_DIRS = ${shell find !SRC! -type d -print | grep "04-plugins/.*" }
-PLUGIN_NAMES=$(foreach dir, $(PLUGIN_DIRS),${shell basename $(dir)})
+PLUGIN_NAMES=$(foreach dir, $(PLUGIN_DIRS),${shell bash -c 'if [ -f $(dir)/*.c ]; then basename $(dir); fi'})
 PLUGINS=$(foreach dir, $(PLUGIN_DIRS),$(wildcard $(dir)/*.c))
-PLUGIN_OBJS=$(patsubst !SRC!/%.c,%.o,$(PLUGINS))
+PLUGIN_OBJS=$(patsubst !SRC!/%.c,build/%.o,$(PLUGINS))
+
+LUA_PLUGINS_SRC=${shell find !SRC! -print | grep "04-plugins/.*lua$$" }
+LUA_PLUGINS=${shell echo $(foreach plug, $(LUA_PLUGINS_SRC), ${shell basename $$(dirname $(plug))}) | sort}
 
 TARGET=lunkwill
 
-all: $(OBJS) $(PLUGIN_NAMES) $(WWW_OBJS)
+all: $(OBJS) $(PLUGIN_NAMES) $(LUA_PLUGINS) $(WWW_OBJS)
 	@echo -e [ BIN ]\\t\"$(TARGET)\"
 	@$(CC) $(CFLAGS) -rdynamic -o $(TARGET) $(OBJS) $(LDFLAGS)
 	@echo -e [ DAT ]\\t\"www\"
-	@cp -r !SRC!/www/* ./www/
+	@cp -r $(foreach p,${shell ls -d !SRC!/www/*},$(if $(findstring .coffee,$(p)),,$(p))) ./www/
+
+$(LUA_PLUGINS):$(LUA_PLUGINS_SRC)
+	@echo -e [ LUA ]\\t\"$@\"
+	@mkdir -p plugins/$@/
+	@cp $(foreach p,$(LUA_PLUGINS_SRC),$(if $(findstring $@,$(p)),$(p),)) plugins/$@/
 
 $(WWW_OBJS): $(WWW)
 	@echo -e [ WWW ]\\t\"$@\"
 	@mkdir www -p
 	@$(COF) -o $(shell dirname $@) -c -j index.coffee $(WWW)
-	@java -jar $(YUI) $@ -o $@ 2>/dev/null 1>/dev/null || true
+	@java -jar $(YUI) $@ -o $@ &>/dev/null || true
 
 $(OBJS): $(SRCS)
 	@echo -e [ OBJ ]\\t\"$@\"
 	@mkdir $(dir $@) -p
-	@$(CC) -c $(CFLAGS) $(patsubst %.o,!SRC!/%.c,$@) -o $@
+	@$(CC) -c $(CFLAGS) $(patsubst build/%.o,!SRC!/%.c,$@) -o $@
+
 $(PLUGIN_OBJS): $(PLUGINS)
 	@echo -e [ OBJ ]\\t\"$@\"
 	@mkdir $(dir $@) -p
-	@$(CC) -fPIC -c $(CFLAGS) $(patsubst %.o,!SRC!/%.c,$@) -o $@
+	@$(CC) -fPIC -c $(CFLAGS) $(patsubst build/%.o,!SRC!/%.c,$@) -o $@
 
 $(PLUGIN_NAMES): $(PLUGIN_OBJS)
 	@echo -e [ LIB ]\\t\"$@\"
-	@$(CC) -shared -Wl,-soname,$@.so $(CFLAGS)  -o $@.so $(foreach v,$(PLUGIN_OBJS),$(if $(findstring $@,/$(v)/),$(v),)) $(LDFLAGS)
+	@mkdir -p ./plugins/$@
+	@$(CC) -shared -Wl,-soname,$@.so $(CFLAGS)  -o ./plugins/$@/$@.so $(foreach v,$(PLUGIN_OBJS),$(if $(findstring $@,/$(v)/),$(v),)) $(LDFLAGS)
 
 clean:
 	@echo -e Cleaning build directory ...
-	@mv Makefile .Makefile
-	@mv $(TARGET) .$(TARGET) >/dev/null 2>/dev/null || :
+	@rm -rf build
+
+distclean:
+	@rm -rf .*
 	@rm -rf *
+
+install: all
+	@rm .build .Makefile -rf
+	@mv build .build
+	@mv Makefile .Makefile
+	@mkdir -p /usr/share/lunkwill/
+	@cp -r * /usr/share/lunkwill/
+	@mv .build build
 	@mv .Makefile Makefile
-	@mv .$(TARGET) $(TARGET) >/dev/null 2>/dev/null || :
+	@echo -e "#!/bin/bash\ncd /usr/share/lunkwill/\n./lunkwill \$\$$@" > /usr/bin/lunkwill
+	@chmod 755 /usr/bin/lunkwill

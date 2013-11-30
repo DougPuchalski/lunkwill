@@ -69,8 +69,8 @@ void load_module(const char *varName, int x)
 	void *lib_handle;
 	int (*fn)(int , struct module_info* );
 	char *error;
-        
-        
+		
+		
 	//Script or Binary
 	if(strend(".lua", varName)==0)
 	{
@@ -83,7 +83,7 @@ void load_module(const char *varName, int x)
 			char buf[64];
 			sprintf(buf, "Loading %s", varName);
 			log_write(buf, LOG_INFO, 0);
-        
+		
 			Modules[x+1].id=x+1;
 
 			lua_getglobal(L,"ModuleName");

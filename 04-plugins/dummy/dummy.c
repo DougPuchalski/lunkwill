@@ -3,7 +3,7 @@
 void *close_module(void *arg)
 {
 	nfree(arg);
-    return NULL;
+	return NULL;
 }
 
 int init_module(int id, struct module_info *m)
