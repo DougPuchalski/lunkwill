@@ -1,5 +1,6 @@
 CC?=gcc
 COF?=coffee
+PREFIX?=/usr/
 
 CFLAGS+= -Wall -g -pthread -O2 -Werror \
 		$(shell pkg-config --cflags libconfig) \
@@ -29,41 +30,49 @@ LUA_PLUGINS_SRC=${shell find !SRC! -print | grep "04-plugins/.*lua$$" }
 LUA_PLUGINS=${shell echo $(foreach plug, $(LUA_PLUGINS_SRC), ${shell basename $$(dirname $(plug))}) | sort}
 
 TARGET=lunkwill
+define RUN_SCRIPT
+#!/bin/bash
+
+cd $(PREFIX)/share/lunkwill
+./lunkwill $$@
+endef
+
+export RUN_SCRIPT
 
 all: $(OBJS) $(PLUGIN_NAMES) $(LUA_PLUGINS) $(WWW_OBJS)
-	@echo -e [ BIN ]\\t\"$(TARGET)\"
+	@echo [ BIN ]    \"$(TARGET)\"
 	@$(CC) $(CFLAGS) -rdynamic -o $(TARGET) $(OBJS) $(LDFLAGS)
-	@echo -e [ DAT ]\\t\"www\"
+	@echo [ DAT ]    \"www\"
 	@cp -r $(foreach p,${shell ls -d !SRC!/www/*},$(if $(findstring .coffee,$(p)),,$(p))) ./www/
 
 $(LUA_PLUGINS):$(LUA_PLUGINS_SRC)
-	@echo -e [ LUA ]\\t\"$@\"
+	@echo [ LUA ]    \"$@\"
 	@mkdir -p plugins/$@/
 	@cp $(foreach p,$(LUA_PLUGINS_SRC),$(if $(findstring $@,$(p)),$(p),)) plugins/$@/
 
 $(WWW_OBJS): $(WWW)
-	@echo -e [ WWW ]\\t\"$@\"
+	@echo [ WWW ]    \"$@\"
 	@mkdir www -p
 	@$(COF) -o $(shell dirname $@) -c -j index.coffee $(WWW)
 	@java -jar $(YUI) $@ -o $@ &>/dev/null || true
 
 $(OBJS): $(SRCS)
-	@echo -e [ OBJ ]\\t\"$@\"
+	@echo [ OBJ ]    \"$@\"
 	@mkdir $(dir $@) -p
 	@$(CC) -c $(CFLAGS) $(patsubst build/%.o,!SRC!/%.c,$@) -o $@
 
 $(PLUGIN_OBJS): $(PLUGINS)
-	@echo -e [ OBJ ]\\t\"$@\"
+	@echo [ OBJ ]    \"$@\"
 	@mkdir $(dir $@) -p
 	@$(CC) -fPIC -c $(CFLAGS) $(patsubst build/%.o,!SRC!/%.c,$@) -o $@
 
 $(PLUGIN_NAMES): $(PLUGIN_OBJS)
-	@echo -e [ LIB ]\\t\"$@\"
+	@echo [ LIB ]    \"$@\"
 	@mkdir -p ./plugins/$@
 	@$(CC) -shared -Wl,-soname,$@.so $(CFLAGS)  -o ./plugins/$@/$@.so $(foreach v,$(PLUGIN_OBJS),$(if $(findstring $@,/$(v)/),$(v),)) $(LDFLAGS)
 
 clean:
-	@echo -e Cleaning build directory ...
+	@echo Cleaning build directory ...
 	@rm -rf build
 
 distclean:
@@ -74,9 +83,11 @@ install: all
 	@rm .build .Makefile -rf
 	@mv build .build
 	@mv Makefile .Makefile
-	@mkdir -p /usr/share/lunkwill/
-	@cp -r * /usr/share/lunkwill/
+	@mkdir -p $(PREFIX)/share/lunkwill/
+	@cp -r * $(PREFIX)/share/lunkwill/
 	@mv .build build
 	@mv .Makefile Makefile
-	@echo -e "#!/bin/bash\ncd /usr/share/lunkwill/\n./lunkwill \$\$$@" > /usr/bin/lunkwill
-	@chmod 755 /usr/bin/lunkwill
+	@echo "$$RUN_SCRIPT" > $(PREFIX)/bin/lunkwill
+	@chmod 755 $(PREFIX)/bin/lunkwill
+
+
