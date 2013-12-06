@@ -54,14 +54,12 @@ extern int answer_request(void *md, request *client_request)
 	
 	if((head_fileptr = fopen(head_filepath, "r")) == NULL){
 		log_write("",LOG_ERR,1, "Error opening '%s'\n", head_filepath);
-		git_repository_free(repo);
 		goto ERROR_SERVER;
 	}
 	
 	if(fread(head_rev, 40, 1, head_fileptr) != 1){
 		log_write("",LOG_ERR,1, "Error reading from '%s'\n", head_filepath);
 		fclose(head_fileptr);
-		git_repository_free(repo);
 		goto ERROR_SERVER;
 	}
 	
@@ -77,7 +75,6 @@ extern int answer_request(void *md, request *client_request)
 
 	if(git_oid_fromstr(&oid, head_rev) != GIT_SUCCESS){
 		log_write("",LOG_ERR,1, "Invalid git object: '%s'\n", head_rev);
-		git_repository_free(repo);
 		goto ERROR_SERVER;
 	}
 
@@ -116,7 +113,6 @@ extern int answer_request(void *md, request *client_request)
 			log_write("",LOG_ERR,1, "Failed to lookup the next object\n");
 			if(commit!=NULL)git_commit_free(commit);
 			git_revwalk_free(walker);
-			git_repository_free(repo);
 			goto ERROR_SERVER;
 		}
 
@@ -185,7 +181,8 @@ extern int answer_request(void *md, request *client_request)
 	nfree(repo_path);
 	return 0;
 	
-ERROR_SERVER:;
+ERROR_SERVER:
+	git_repository_free(repo);
 	void *x=html_flush(&((struct html_ui*)client_request->answer)->base,1);
 	nfree(x);
 	nfree(repo_path);
