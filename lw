@@ -14,7 +14,7 @@ fi
 
 if ${RM}
 then
-	rm -rf ${TARGET_DIR}/build
+	rm -rf ${TARGET_DIR}
 fi
 mkdir -p ${TARGET_DIR}
 cd ${TARGET_DIR}
@@ -80,6 +80,6 @@ esac
 
 if ${RM}
 then
-	rm -rf ${TARGET_DIR}/build
+	rm -rf ${TARGET_DIR}
 fi
 
