@@ -24,14 +24,20 @@ int init_module(int id, struct module_info *m)
 /** \brief Answer requests */
 extern int answer_request(void *md, request *client_request)
 {
+	static pthread_mutex_t lock;
+	static int l;
+	if(l==0)
+	{
+		l++;
+		pthread_mutex_init(&lock, NULL);
+	}
+	
+	pthread_mutex_lock(&lock);
+
 	struct html_ui *user_iface=client_request->answer;
 
 	/** \todo Only works for 1 repository at the moment */
 	const char *repo_path = b64_decode(client_request->module_request, B64_URL);
-	//~ if (!config_lookup_string(&session.config, "REPOSITORY", &repo_path)){
-		//~ log_write("",LOG_ERR,1, "Failed reading configuration\n");
-		//~ return 1;
-	//~ }
 	
 	git_repository *repo;
 	if(git_repository_open(&repo, repo_path) != GIT_SUCCESS){
@@ -179,6 +185,7 @@ extern int answer_request(void *md, request *client_request)
 	git_repository_free(repo);
 	
 	nfree(repo_path);
+	pthread_mutex_unlock(&lock);
 	return 0;
 	
 ERROR_SERVER:
@@ -187,6 +194,7 @@ ERROR_SERVER:
 	nfree(x);
 	nfree(repo_path);
 	html_add_tag(&((struct html_ui*)client_request->answer)->base, HTTP_451, "", "");
+	pthread_mutex_unlock(&lock);
 	return 2;
 }
 

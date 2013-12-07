@@ -19,9 +19,16 @@
 struct html_tag
 {
 	char *tag_open;
+	int tag_open_len;
+
 	char *tag_content_string;
+	int tag_content_string_len;
+
 	void *tag_embedded_tags;
+
 	char *tag_close;
+	int tag_close_len;
+
 	void *next_tag;
 };
 
@@ -46,5 +53,8 @@ extern void *html_add_tag(void **parent, char *tag_open, char* content_string, c
 
 /** \brief Escapes every char. String has to be freed afterwards */
 extern char *html_escape(char *string_ptr);
+
+/** \brief Escapes every char. String has to be freed afterwards */
+extern char *html_nescape(char *string_ptr, int string_len);
 
 #endif

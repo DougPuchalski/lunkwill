@@ -2,10 +2,9 @@
 
 char *html_flush(void **html, int follow)
 {
-		char *ret=NULL;
+		char *ret=NULL, *r;
 		char *children=NULL, *following=NULL;
-		int length;
-
+		int length, children_len;
 
 		if(html==NULL || (*html)==NULL){
 			return NULL;
@@ -32,18 +31,19 @@ char *html_flush(void **html, int follow)
 		}
 		
 		
-		length=strlen((*((HTML_TAG**)html))->tag_open);		
-		length+=strlen((*((HTML_TAG**)html))->tag_content_string);
-		length+=strlen(children);
-		length+=strlen((*((HTML_TAG**)html))->tag_close);
+		length= (*((HTML_TAG**)html))->tag_open_len;
+		length+=(*((HTML_TAG**)html))->tag_content_string_len;
+		length+=(*((HTML_TAG**)html))->tag_close_len;
+
+		length+=(children_len=strlen(children));
 		length+=strlen(following);
 		
-		ret=malloc(length+BUF_SIZE);
-		strcpy(ret,(*((HTML_TAG**)html))->tag_open);
-		strcat(ret,(*((HTML_TAG**)html))->tag_content_string);
-		strcat(ret,children);
-		strcat(ret,(*((HTML_TAG**)html))->tag_close);
-		strcat(ret,following);
+		r=ret=malloc(length+BUF_SIZE);
+		strcpy(r,(*((HTML_TAG**)html))->tag_open);
+		strcpy(r+=(*((HTML_TAG**)html))->tag_open_len,(*((HTML_TAG**)html))->tag_content_string);
+		strcpy(r+=(*((HTML_TAG**)html))->tag_content_string_len,children);
+		strcpy(r+=children_len,(*((HTML_TAG**)html))->tag_close);
+		strcpy(r+=(*((HTML_TAG**)html))->tag_close_len,following);
 
 		//Free everything
 		nfree((*((HTML_TAG**)html))->tag_open);
@@ -89,10 +89,17 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	}
 
 	(*tag)=malloc(sizeof(HTML_TAG));
-	(*tag)->tag_open=malloc(strlen(tag_open)+8);
-	(*tag)->tag_content_string=malloc(strlen(content_string)+8);
-	(*tag)->tag_close=malloc(strlen(tag_close)+8);
-	(*tag)->tag_embedded_tags=NULL;	
+
+	(*tag)->tag_open_len=strlen(tag_open);
+	(*tag)->tag_open=malloc((*tag)->tag_open_len+8);
+
+	(*tag)->tag_content_string_len=strlen(content_string);
+	(*tag)->tag_content_string=malloc((*tag)->tag_content_string_len+8);
+
+	(*tag)->tag_close_len=strlen(tag_close);
+	(*tag)->tag_close=malloc((*tag)->tag_close_len+8);
+
+	(*tag)->tag_embedded_tags=NULL;
 	(*tag)->next_tag=NULL;	
 	
 	strcpy((*tag)->tag_open, tag_open);
@@ -128,12 +135,17 @@ struct html_ui *new_html()
 
 char *html_escape(char *string_ptr)
 {
+	return html_nescape(string_ptr, strlen(string_ptr));
+}
+
+char *html_nescape(char *string_ptr, int string_len)
+{
 		int i;
 		char *a;
 
-		a=malloc(6*strlen(string_ptr)+2);
+		a=malloc(6*string_len+2);
 		
-		for(i=0;i<strlen(string_ptr);i++)
+		for(i=0;i<string_len;i++)
 		{
 				if((int)string_ptr[i]==10)
 				{
