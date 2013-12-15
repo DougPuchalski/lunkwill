@@ -85,8 +85,8 @@ int login_request(void *module_data, request *client_request)
 	{
 		if(Modules[i].name!=NULL)
 		{
-			html_add_tag(&div, "'", \
-				x=split_to_xstring(i,URL_CHARS,6,2), "':");
+			x=split_to_xstring(i,URL_CHARS,6,2);
+			html_add_tag(&div, "'", x, "':");
 				
 			nfree(x);
 

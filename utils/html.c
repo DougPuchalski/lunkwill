@@ -2,61 +2,73 @@
 
 char *html_flush(void **html, int follow)
 {
-		char *ret=NULL, *r;
-		char *children=NULL, *following=NULL;
-		int length, children_len;
+	char *ret=NULL, *r;
+	char *children=NULL, *following=NULL;
+	int length, children_len, following_len;
 
-		if(html==NULL || (*html)==NULL){
-			return NULL;
-		}
-		
-		//Turn subordinated elements into a string  
-		children=html_flush(&((*((HTML_TAG**)html))->tag_embedded_tags), 1);
-		if(children==NULL){
-			children=calloc(1,1);
-		}
-		
-		if(follow)
-		{
-			//Proceed with the next element at the same depth  
-			following=html_flush(&((*((HTML_TAG**)html))->next_tag), 1);
-		}
-		else
-		{
-			following=NULL;
-		}
-		
-		if(following==NULL){
-			following=calloc(1,1);
-		}
-		
-		
-		length= (*((HTML_TAG**)html))->tag_open_len;
-		length+=(*((HTML_TAG**)html))->tag_content_string_len;
-		length+=(*((HTML_TAG**)html))->tag_close_len;
+	if(html==NULL || (*html)==NULL){
+		return NULL;
+	}
 
-		length+=(children_len=strlen(children));
-		length+=strlen(following);
-		
-		r=ret=malloc(length+BUF_SIZE);
-		strcpy(r,(*((HTML_TAG**)html))->tag_open);
-		strcpy(r+=(*((HTML_TAG**)html))->tag_open_len,(*((HTML_TAG**)html))->tag_content_string);
-		strcpy(r+=(*((HTML_TAG**)html))->tag_content_string_len,children);
-		strcpy(r+=children_len,(*((HTML_TAG**)html))->tag_close);
-		strcpy(r+=(*((HTML_TAG**)html))->tag_close_len,following);
+	//Turn subordinated elements into a string  
+	children=html_flush(&((*((HTML_TAG**)html))->tag_embedded_tags), 1);
+	if(children==NULL){
+		children=calloc(1,1);
+	}
+	
+	if(follow)
+	{
+		//Proceed with the next element at the same depth  
+		following=html_flush(&((*((HTML_TAG**)html))->next_tag), 1);
+	}
+	else
+	{
+		following=NULL;
+	}
+	
+	if(following==NULL){
+		following=calloc(1,1);
+	}
+	
+	
+	length= (*((HTML_TAG**)html))->tag_open_len;
+	length+=(*((HTML_TAG**)html))->tag_content_string_len;
+	length+=(*((HTML_TAG**)html))->tag_close_len;
 
-		//Free everything
-		nfree((*((HTML_TAG**)html))->tag_open);
-		nfree((*((HTML_TAG**)html))->tag_close);
-		nfree((*((HTML_TAG**)html))->tag_content_string);
-		nfree(children);
-		nfree(following);
-		nfree((*html));
+	length+=(children_len=strlen(children));
+	length+=(following_len=strlen(following));
+	
+	r=ret=malloc(length+BUF_SIZE);
+	
+	memcpy(r,(*((HTML_TAG**)html))->tag_open,(*((HTML_TAG**)html))->tag_open_len);
+	r+=(*((HTML_TAG**)html))->tag_open_len;
+	
+	memcpy(r,(*((HTML_TAG**)html))->tag_content_string, (*((HTML_TAG**)html))->tag_content_string_len);
+	r+=(*((HTML_TAG**)html))->tag_content_string_len;
 
-		return ret;
+	memcpy(r,children,children_len);
+	r+=children_len;
+	
+	memcpy(r,(*((HTML_TAG**)html))->tag_close, (*((HTML_TAG**)html))->tag_close_len);
+	r+=(*((HTML_TAG**)html))->tag_close_len;
+	
+	memcpy(r,following,following_len);
+	
+	*(r+following_len)=0;
+
+	//Free everything
+	nfree((*((HTML_TAG**)html))->tag_open);
+	nfree((*((HTML_TAG**)html))->tag_close);
+	nfree((*((HTML_TAG**)html))->tag_content_string);
+	nfree(children);
+	nfree(following);
+	nfree((*html));
+
+	return ret;
 }
 
-void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close ){
+void *html_a_tag(void **parent, char *tag_open, int tag_open_len, char* content_string, int content_string_len, char *tag_close, int tag_close_len)
+{
 	HTML_TAG **tag;
 	void *leeko=NULL,*leekc=NULL, *leekcs=NULL;
 
@@ -77,26 +89,39 @@ void *html_add_tag(void **parent, char *tag_open, char* content_string, char *ta
 	
 	if(tag_open==NULL)
 	{
-		leeko=tag_open=calloc(1,sizeof(char));
+		leeko=tag_open=malloc(sizeof(char));
+		tag_open[0]=0;
 	}
 	if(tag_close==NULL)
 	{
-		leekc=tag_close=calloc(1,sizeof(char));
+		leekc=tag_close=malloc(sizeof(char));
+		tag_close[0]=0;
 	}
 	if(content_string==NULL)
 	{
-		leekcs=content_string=calloc(1,sizeof(char));
+		leekcs=content_string=malloc(sizeof(char));
+		content_string[0]=0;
 	}
 
 	(*tag)=malloc(sizeof(HTML_TAG));
+	
+	for(;tag_open_len!=BUF_SIZE && tag_open_len>=sizeof(void*) && tag_open[tag_open_len-1]==0 && tag_open[tag_open_len-2]!=0;tag_open_len--);
+	for(;content_string_len!=BUF_SIZE && content_string_len>=sizeof(void*) && content_string[content_string_len-1]==0 && content_string[content_string_len-2]!=0;content_string_len--);
+	for(;tag_close_len!=BUF_SIZE && tag_close_len>=sizeof(void*) && tag_close[tag_close_len-1]==0 && tag_close[tag_close_len-2]!=0;tag_close_len--);
 
-	(*tag)->tag_open_len=strlen(tag_open);
+	(*tag)->tag_open_len=(tag_open_len>sizeof(void*)&&tag_open_len!=BUF_SIZE)?
+		tag_open_len:strlen(tag_open);
+
 	(*tag)->tag_open=malloc((*tag)->tag_open_len+8);
 
-	(*tag)->tag_content_string_len=strlen(content_string);
+	(*tag)->tag_content_string_len=(content_string_len>sizeof(void*)&&content_string_len!=BUF_SIZE)?
+		content_string_len:strlen(content_string);
+
 	(*tag)->tag_content_string=malloc((*tag)->tag_content_string_len+8);
 
-	(*tag)->tag_close_len=strlen(tag_close);
+	(*tag)->tag_close_len=(tag_close_len>sizeof(void*)&&tag_close_len!=BUF_SIZE)?
+		tag_close_len:strlen(tag_close);
+	
 	(*tag)->tag_close=malloc((*tag)->tag_close_len+8);
 
 	(*tag)->tag_embedded_tags=NULL;

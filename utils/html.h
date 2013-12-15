@@ -49,7 +49,12 @@ extern struct html_ui *new_html();
 extern char *html_flush(void **html, int follow);
 
 /** \brief Adds a "HTML_TAG" into an existing tag */
-extern void *html_add_tag(void **parent, char *tag_open, char* content_string, char *tag_close );
+extern void *html_a_tag(void **parent, char *tag_open, int tag_open_len, char* content_string, int content_string_len, char *tag_close, int tag_close_len);
+
+#define html_add_tag(p, to, cs, tc ) \
+ html_a_tag(p, (char *)to, (to!=NULL)?(int)sizeof(to)/sizeof(to[0]):0, \
+ (char *)cs, (cs!=NULL)?(int)sizeof(cs)/sizeof(cs[0]):0, \
+ (char *)tc, (tc!=NULL)?(int)sizeof(tc)/sizeof(tc[0]):0)
 
 /** \brief Escapes every char. String has to be freed afterwards */
 extern char *html_escape(char *string_ptr);

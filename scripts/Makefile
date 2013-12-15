@@ -2,7 +2,7 @@ CC?=gcc
 COF?=coffee
 PREFIX?=/usr/
 
-CFLAGS+= -Wall -g -pthread -O2 -Werror \
+CFLAGS+= -Wall -g -pthread -Werror \
 		$(shell pkg-config --cflags libconfig) \
 		$(shell pkg-config --cflags sqlite3) \
 		$(shell pkg-config --cflags libgit2) \

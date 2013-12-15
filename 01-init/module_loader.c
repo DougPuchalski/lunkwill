@@ -44,13 +44,13 @@ int lua_answer_request(void *md, request *client_request)
 		n=html_flush(((struct html_ui*)client_request->answer)->base, 1);
 		nfree(n);
 		
-		html_add_tag(&((struct html_ui*)client_request->answer)->base, (char *) lua_tostring(L, -2), NULL, NULL);
-		html_add_tag(&((struct html_ui*)client_request->answer)->base, (char *) lua_tostring(L, -1), NULL, NULL);
+		html_add_tag(&((struct html_ui*)client_request->answer)->base, lua_tostring(L, -2), NULL, NULL);
+		html_add_tag(&((struct html_ui*)client_request->answer)->base, lua_tostring(L, -1), NULL, NULL);
 	}
 	else
 	{
-		html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, (char *) lua_tostring(L, -2), NULL, NULL);
-		html_add_tag(&((struct html_ui*)client_request->answer)->main, (char *) lua_tostring(L, -1), NULL, NULL);
+		html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, lua_tostring(L, -2), NULL, NULL);
+		html_add_tag(&((struct html_ui*)client_request->answer)->main, lua_tostring(L, -1), NULL, NULL);
 	}
 
 	lua_pop(L,3);

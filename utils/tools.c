@@ -49,7 +49,7 @@ char *split_to_xstring(int data, char *encoding, int bits, int n)
 {
 	int x,filter=0;
 	char *ret;
-	ret=calloc(1,n+1);
+	ret=calloc(1,n+5);
 	
 	for(x=0;x<bits;filter<<=1,filter|=1,x++);
 

@@ -22,16 +22,10 @@ int init_module(int id, struct module_info *m)
 }
 
 /** \brief Answer requests */
-extern int answer_request(void *md, request *client_request)
+int answer_request(void *md, request *client_request)
 {
-	static pthread_mutex_t lock;
-	static int l;
-	if(l==0)
-	{
-		l++;
-		pthread_mutex_init(&lock, NULL);
-	}
-	
+	static pthread_mutex_t lock=PTHREAD_MUTEX_INITIALIZER;
+
 	pthread_mutex_lock(&lock);
 
 	struct html_ui *user_iface=client_request->answer;
@@ -41,7 +35,7 @@ extern int answer_request(void *md, request *client_request)
 	
 	git_repository *repo;
 	if(git_repository_open(&repo, repo_path) != GIT_SUCCESS){
-		log_write("",LOG_ERR,1, "Failed opening repository: '%s'\n", repo_path);
+		log_write("",LOG_ERR,1, "Failed opening repository: '%s'", repo_path);
 		goto ERROR_SERVER;
 	}
 
@@ -149,22 +143,20 @@ extern int answer_request(void *md, request *client_request)
 				"</td>" );
 		nfree(commit_sha);			
 			
+		escaped=html_escape((char *)commit_message);
 		html_add_tag( &row,
 				"<td style=\"padding-left: 5px;\">",
-				escaped=html_escape((char *)commit_message),
+				escaped,
 				"</td>" );
 		nfree(escaped);
-			
+
+		escaped=html_escape((char *)commit_author->name);			
 		author=html_add_tag( &row,
-			"<td style=\"padding-left: 5px;\">",
-			escaped=html_escape((char *)commit_author->name),
-			"</td>" );
+			"<td style=\"padding-left: 5px;\">", escaped, "</td>" );
 		nfree(escaped);
 			
-		html_add_tag( &author,
-			" &lt;",
-			escaped=html_escape((char *)commit_author->email),
-			"&gt; " );
+		escaped=html_escape((char *)commit_author->email);
+		html_add_tag( &author, " &lt;", escaped, "&gt; " );
 		nfree(escaped);
 			
 		html_add_tag( &row,
