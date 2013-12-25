@@ -182,7 +182,7 @@ int main(int argc, char** argv)
 			if(listen_queue<=0||listen_queue>0xFF) listen_queue=20;
 
 			if (config_setting_lookup_int(config_prop, "RCV_TIMEOUT", &conf)) timeout=conf;
-			if(listen_queue<=0||listen_queue>0xFF) timeout=1;
+			if(timeout<=0||timeout>0xFF) timeout=1;
 
 			config_destroy(&config);
 			
