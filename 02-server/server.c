@@ -69,7 +69,7 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 {
 	struct sockaddr_in server_addr, client_addr;
-	unsigned int server_sock, client_sock, addr_len;
+	int server_sock, client_sock, addr_len;
 	int fdmax,i;
  
 	fd_set master;
