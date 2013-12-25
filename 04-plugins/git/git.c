@@ -44,7 +44,7 @@ int answer_request(void *md, request *client_request)
 	FILE *head_fileptr;
 	char head_rev[41];
 	
-	strcpy(head_filepath, repo_path);
+	strncpy(head_filepath, repo_path, 512);
 	
 	if(strrchr(repo_path, '/') != (repo_path+strlen(repo_path)))
 		strcat(head_filepath, "/refs/heads/master");
