@@ -34,7 +34,8 @@ int answer_request(void *md, request *client_request)
 	const char *repo_path = b64_decode(client_request->module_request, B64_URL);
 	
 	git_repository *repo;
-	if(git_repository_open(&repo, repo_path) != GIT_SUCCESS){
+	if(git_repository_open(&repo, repo_path) != GIT_SUCCESS)
+	{
 		log_write("",LOG_ERR,1, "Failed opening repository: '%s'", repo_path);
 		goto ERROR_SERVER;
 	}
@@ -52,12 +53,14 @@ int answer_request(void *md, request *client_request)
 		strcat(head_filepath, "refs/heads/master");
 		
 	
-	if((head_fileptr = fopen(head_filepath, "r")) == NULL){
+	if((head_fileptr = fopen(head_filepath, "r")) == NULL)
+	{
 		log_write("",LOG_ERR,1, "Error opening '%s'\n", head_filepath);
 		goto ERROR_SERVER;
 	}
 	
-	if(fread(head_rev, 40, 1, head_fileptr) != 1){
+	if(fread(head_rev, 40, 1, head_fileptr) != 1)
+	{
 		log_write("",LOG_ERR,1, "Error reading from '%s'\n", head_filepath);
 		fclose(head_fileptr);
 		goto ERROR_SERVER;
@@ -73,7 +76,8 @@ int answer_request(void *md, request *client_request)
 	time_t commit_time;
 	int commit_offset;
 
-	if(git_oid_fromstr(&oid, head_rev) != GIT_SUCCESS){
+	if(git_oid_fromstr(&oid, head_rev) != GIT_SUCCESS)
+	{
 		log_write("",LOG_ERR,1, "Invalid git object: '%s'\n", head_rev);
 		goto ERROR_SERVER;
 	}
@@ -108,8 +112,10 @@ int answer_request(void *md, request *client_request)
 	char *color[] = {"#FFFFFF", "#E0E0E0"};
 	
 	int i=0;
-	while(git_revwalk_next(&oid, walker) == GIT_SUCCESS){
-		if(git_commit_lookup(&commit, repo, &oid)){
+	while(git_revwalk_next(&oid, walker) == GIT_SUCCESS)
+	{
+		if(git_commit_lookup(&commit, repo, &oid))
+		{
 			log_write("",LOG_ERR,1, "Failed to lookup the next object\n");
 			if(commit!=NULL)git_commit_free(commit);
 			git_revwalk_free(walker);

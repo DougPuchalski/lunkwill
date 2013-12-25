@@ -83,7 +83,8 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 
 
 	//Set socket options
-	if((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+	if((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	{
 		log_write("Error retrieving socket from system", LOG_ERR, 0);
 		return 1;
 	}
@@ -96,7 +97,8 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 
 	// Configure sockets
 	if(setsockopt(server_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval)) < 0
-		|| setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int))){
+		|| setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)))
+	{
 		
 		log_write("Error configuring sockets", LOG_ERR, 0);
 		close(server_sock);
@@ -104,15 +106,15 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 		
 	}
 	
-
-	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
+	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+	{
 		log_write("Error binding server to port", LOG_ERR, 0);
 		close(server_sock);
 		return 1;
 	}
 
-
-	if((listen(server_sock, listen_queue)) < 0){
+	if((listen(server_sock, listen_queue)) < 0)
+	{
 		log_write("Error listening on port", LOG_ERR, 0);
 		close(server_sock);
 		return 1;

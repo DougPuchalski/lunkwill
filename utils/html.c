@@ -6,13 +6,15 @@ char *html_flush(void **html, int follow)
 	char *children=NULL, *following=NULL;
 	int length, children_len, following_len;
 
-	if(html==NULL || (*html)==NULL){
+	if(html==NULL || (*html)==NULL)
+	{
 		return NULL;
 	}
 
 	//Turn subordinated elements into a string  
 	children=html_flush(&((*((HTML_TAG**)html))->tag_embedded_tags), 1);
-	if(children==NULL){
+	if(children==NULL)
+	{
 		children=calloc(1,1);
 	}
 	
@@ -26,7 +28,8 @@ char *html_flush(void **html, int follow)
 		following=NULL;
 	}
 	
-	if(following==NULL){
+	if(following==NULL)
+	{
 		following=calloc(1,1);
 	}
 	

@@ -9,7 +9,8 @@ struct logger init_logger(char *LOGFILE, int log_lev)
 
 	log.level=log_lev;
 
-	if((log.file = fopen(LOGFILE, "a")) == NULL){
+	if((log.file = fopen(LOGFILE, "a")) == NULL)
+	{
 		log_write("%s\tCould not open logfile. Error reporting to stderr only\n", LOG_WARN, 0);
 		return log;
 	}
