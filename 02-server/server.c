@@ -93,9 +93,17 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	memset(&(server_addr.sin_zero), '\0', 8);
 
-	setsockopt(server_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
-	setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
 
+	// Configure sockets
+	if(setsockopt(server_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval)) < 0
+		|| setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int))){
+		
+		log_write("Error configuring sockets", LOG_ERR, 0);
+		close(server_sock);
+		return 1; 
+		
+	}
+	
 
 	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){
 		log_write("Error binding server to port", LOG_ERR, 0);
