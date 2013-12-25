@@ -29,7 +29,6 @@ int answer_request(void *md, request *client_request)
 		
 	return 0;
 
-	goto ERROR_SERVER;
 	ERROR_SERVER:
 		return 2;
 }
