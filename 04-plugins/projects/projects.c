@@ -36,7 +36,4 @@ int projects_request(void *md, request *client_request)
 	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<table style='margin-left:10px'", NULL,"</table>");
 		
 	return 0;
-
-	ERROR_SERVER:
-		return 2;
 }

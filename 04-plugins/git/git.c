@@ -104,14 +104,13 @@ int answer_request(void *md, request *client_request)
 		"<td width=\"650\" style=\"padding-left: 5px;\"><b>Message</b></td>" \
 		"<td width=\"600\" style=\"padding-left: 5px;\"><b>Author</b></td>" \
 		"<td width=\"250\" style=\"padding-left: 5px;\"><b>Time</b></td></tr>", "");
-
 	const char *commit_message;
 	char *commit_sha;
 	const git_signature *commit_author;
 	
 	char *color[] = {"#FFFFFF", "#E0E0E0"};
-	
 	int i=0;
+
 	while(git_revwalk_next(&oid, walker) == GIT_SUCCESS)
 	{
 		if(git_commit_lookup(&commit, repo, &oid))
@@ -130,7 +129,7 @@ int answer_request(void *md, request *client_request)
 		commit_time_gmt = gmtime(&commit_time);
 		
 		
-		char date[64];
+		char date[64]={0};
 		strftime(date, 63, "%d. %B %G &nbsp; %R", commit_time_gmt);
 
 		void *row, *escaped, *author;
