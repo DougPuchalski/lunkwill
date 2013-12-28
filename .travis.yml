@@ -1,0 +1,17 @@
+language: c
+compiler: gcc
+script:
+        - wget -O- https://github.com/libgit2/libgit2/archive/v0.17.0.tar.gz | tar xzf -
+        - cd libgit2-0.17.0
+        - cmake -DCMAKE_INSTALL_PREFIX=/usr
+        - sudo make install -j99
+        - cd ..
+        - rm -rf libgit2-0.17.0
+        - wget -O- http://www.hyperrealm.com/libconfig/libconfig-1.4.9.tar.gz | tar xzf -
+        - cd libconfig-1.4.9
+        - ./configure prefix=/usr
+        - sudo make -j99 install
+        - cd ..
+        - rm -rf libconfig-1.4.9
+        - sudo apt-get install realpath coffeescript libsqlite3-dev liblua5.1-dev
+        - ./lw run
