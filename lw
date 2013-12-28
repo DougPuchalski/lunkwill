@@ -73,6 +73,15 @@ case $1 in
 		bash
 	;;
 	
+	"travis")
+		make -j99
+	;;
+
+	"astyle")
+		cd ${SOURCE_DIR}
+		astyle -nUt --style=ansi --recursive *.c *.h
+	;;
+
 	*)
 		echo $@
 		bash

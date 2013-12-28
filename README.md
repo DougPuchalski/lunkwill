@@ -8,3 +8,8 @@ even on our Raspberry Pi.
 
 However, lunkwill and its
 modules are still in development. We keep coding!
+
+### Development badges
+**Travis** (*Continous Integration*)    [![Build Status](https://travis-ci.org/0pq76r/lunkwill.png)](https://travis-ci.org/0pq76r/lunkwill)
+
+**Coverity** (*Statical Code Analysis*) [![Static Analysis](https://scan.coverity.com/projects/1118/badge.svg)](https://scan.coverity.com/projects/1118/)
