@@ -9,7 +9,7 @@ void *sighndlr_free(void *a)
 void sighndlr_add(void *(*func)(void *), void *param)
 {
 	sighndlr_list *sig_list;
-	sig_list=calloc(sizeof(sighndlr_list),1);	
+	sig_list=calloc(sizeof(sighndlr_list),1);
 	sig_list->func=func;
 	sig_list->param=param;
 

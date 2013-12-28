@@ -4,7 +4,8 @@
 #include "lwutils.h"
 
 /** \brief Struct for signalhandling */
-typedef struct{
+typedef struct
+{
 	void *(*func)(void *);
 	void *param;
 	void *next;

@@ -35,7 +35,8 @@ struct html_tag
 typedef struct html_tag HTML_TAG;
 
 /** \brief "html_ui" is required for module output */
-struct html_ui{
+struct html_ui
+{
 	void *base;
 	void *header;
 	void *sidebar;

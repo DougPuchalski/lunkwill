@@ -2,7 +2,8 @@
 #define __STRUCTURES_H__
 
 /** \brief This struct contains the parsed request */
-typedef struct{
+typedef struct
+{
 
 	char session_id[21];
 	char project_id[5];
@@ -19,10 +20,11 @@ typedef struct{
 
 	void *answer;
 
-} request; 
+} request;
 
 /** \brief Contains all important module infos*/
-struct module_info{
+struct module_info
+{
 	int id;
 	char *name;
 	char *description;

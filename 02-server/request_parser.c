@@ -5,15 +5,15 @@ request parse_request(char *get_request)
 	request req;
 	memset(&req, 0, sizeof(request));
 	req.module_request[0]=0;
-	
+
 	// Invalid request
 	if(strbegin(get_request, "GET /") != 0)
 	{
 		goto HTTP451;
 	}
-	
+
 	get_request+=5;
-	
+
 	// Send index.html
 	if(strbegin(get_request," ") == 0)
 	{
@@ -28,12 +28,12 @@ request parse_request(char *get_request)
 
 		get_request++;
 		while((get_request[0]=='/'||get_request[0]=='\\')&&get_request[0]!=' ')
-		{			
+		{
 			get_request++;
 		}
-		
+
 		char *gr=get_request;
-		
+
 		while(gr[0]!=' ')
 		{
 			if(gr[0]=='.'&&gr[1]=='.')
@@ -42,7 +42,7 @@ request parse_request(char *get_request)
 			}
 			gr++;
 		}
-		
+
 		goto module_request;
 	}
 
@@ -51,13 +51,13 @@ request parse_request(char *get_request)
 		req.special_file = LOGO_PNG;
 		return req;
 	}
-	
+
 	if(strbegin(get_request, "favicon.ico ") == 0)
 	{
 		req.special_file = FAVICON_ICO;
 		return req;
 	}
-	
+
 	// Set special_file to 0 by default
 	req.special_file = NON_SPECIAL;
 
@@ -91,7 +91,7 @@ request parse_request(char *get_request)
 	req.project=join_to_int(get_request, URL_CHARS, 6, 4);
 	get_request+=5;
 
-	
+
 	// Check module id
 	if(strnmatch((get_request), URL_CHARS, 2)!=0)
 	{
@@ -105,7 +105,8 @@ request parse_request(char *get_request)
 	if(get_request[0]!=' ')get_request++;
 
 	// Find end of module_request
-module_request:;
+module_request:
+	;
 	char *ptr = strstr(get_request, " ");
 	if(ptr == NULL)	goto HTTP451;
 
@@ -121,8 +122,8 @@ module_request:;
 	return req;
 
 	// Returns NULL
-	HTTP451:
-		req.special_file = ERROR_451;
-		return req;
+HTTP451:
+	req.special_file = ERROR_451;
+	return req;
 }
 

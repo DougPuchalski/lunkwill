@@ -2,7 +2,7 @@
 #define __GIT_MODULE__
 
 #ifndef GIT_SUCCESS
-	#define GIT_SUCCESS 0
+#define GIT_SUCCESS 0
 #endif
 
 #include "../../utils/lwutils.h"

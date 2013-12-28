@@ -4,10 +4,11 @@
 #include "lwutils.h"
 
 /** \brief Struct for linked list */
-struct _fifo {
-		void *data;
-		struct _fifo *next;
-		struct _fifo *last;
+struct _fifo
+{
+	void *data;
+	struct _fifo *next;
+	struct _fifo *last;
 };
 
 //FIRST IN > FIRST OUT LIST

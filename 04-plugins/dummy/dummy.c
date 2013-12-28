@@ -26,6 +26,6 @@ int answer_request(void *md, request *client_request)
 
 	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<h3 style='margin-left:10px'>","DUMMY","</h3>");
 	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<table style='margin-left:10px'", NULL,"</table>");
-		
+
 	return 0;
 }

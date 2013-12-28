@@ -4,11 +4,11 @@ struct _fifo *fifo_init(void *data)
 {
 	struct _fifo *fifo;
 	fifo=malloc(sizeof(struct _fifo));
-	
+
 	fifo->next=NULL;
 	fifo->last=fifo;
 	fifo->data=data;
-	
+
 	return fifo;
 }
 
@@ -33,8 +33,9 @@ void *fifo_pop(struct _fifo **fifo)
 {
 	void *ret;
 	void *v;
-	
-	if((*fifo)==NULL) {
+
+	if((*fifo)==NULL)
+	{
 		return NULL;
 	}
 

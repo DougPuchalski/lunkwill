@@ -21,16 +21,17 @@
 
 
 /** \brief Supported MIME types */
-enum mime_types{
-	MIME_UNKNOWN=0,
-	MIME_PLAINTEXT,
-	MIME_HTML,
-	MIME_JAVASCRIPT,
-	MIME_CSS,
-	MIME_PNG
+enum mime_types
+{
+    MIME_UNKNOWN=0,
+    MIME_PLAINTEXT,
+    MIME_HTML,
+    MIME_JAVASCRIPT,
+    MIME_CSS,
+    MIME_PNG
 };
 
-/** \brief Fills the buffer with an HTTP file request answer 
+/** \brief Fills the buffer with an HTTP file request answer
  *  \returns The size of the answer to send */
 extern int send_file(char **buffer, char *file_path);
 
@@ -43,7 +44,7 @@ extern int get_mime(char *file_path);
 extern int send_string(char **buffer, char *string);
 
 /** \brief Copy string new allocated string, e.g. for sending error message
- *  \returns The size of the answer to send */ 
+ *  \returns The size of the answer to send */
 extern int send_raw(char **buffer, char *string);
 
 #endif

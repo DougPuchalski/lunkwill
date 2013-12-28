@@ -2,7 +2,7 @@ CC?=gcc
 COF?=coffee
 PREFIX?=/usr/
 
-CFLAGS+= -Wall -g -pthread -Werror \
+CFLAGS+= -Wall -g -pthread -Werror -O2 \
 		$(shell pkg-config --cflags libconfig) \
 		$(shell pkg-config --cflags sqlite3) \
 		$(shell pkg-config --cflags libgit2) \
@@ -14,7 +14,7 @@ LDFLAGS+= -ldl \
 		$(shell pkg-config --libs libgit2) \
 		$(shell pkg-config --libs lua||pkg-config --libs lua5.1)
 
-SRC_DIRS = ${shell find !SRC! -type d -print | grep -v 04-plugins }
+SRC_DIRS = ${shell find !SRC! -type d -print | grep -v "04-plugins" | grep -v "utils" }
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,build/%.o,$(SRCS))
 
@@ -29,6 +29,9 @@ PLUGIN_OBJS=$(patsubst !SRC!/%.c,build/%.o,$(PLUGINS))
 LUA_PLUGINS_SRC=${shell find !SRC! -print | grep "04-plugins/.*lua$$" }
 LUA_PLUGINS=${shell echo $(foreach plug, $(LUA_PLUGINS_SRC), ${shell basename $$(dirname $(plug))}) | sort}
 
+UTILS=$(wildcard !SRC!/utils/*.c)
+UTILS_OBJS=$(patsubst !SRC!/%.c,build/%.o,$(UTILS))
+
 TARGET=lunkwill
 define RUN_SCRIPT
 #!/bin/bash
@@ -39,9 +42,9 @@ endef
 
 export RUN_SCRIPT
 
-all: $(OBJS) $(PLUGIN_NAMES) $(LUA_PLUGINS) $(WWW_OBJS)
+all: $(UTILS_OBJS) $(OBJS) $(PLUGIN_NAMES) $(LUA_PLUGINS) $(WWW_OBJS)
 	@echo [ BIN ]    \"$(TARGET)\"
-	@$(CC) $(CFLAGS) -rdynamic -o $(TARGET) $(OBJS) $(LDFLAGS)
+	@$(CC) $(CFLAGS) -rdynamic -o $(TARGET) $(UTILS) $(OBJS) $(LDFLAGS)
 	@echo [ DAT ]    \"www\"
 	@cp -r $(foreach p,${shell ls -d !SRC!/www/*},$(if $(findstring .coffee,$(p)),,$(p))) ./www/
 
@@ -57,6 +60,11 @@ $(WWW_OBJS): $(WWW)
 	@java -jar $(YUI) $@ -o $@ &>/dev/null || true
 
 $(OBJS): $(SRCS)
+	@echo [ OBJ ]    \"$@\"
+	@mkdir $(dir $@) -p
+	@$(CC) -c $(CFLAGS) $(patsubst build/%.o,!SRC!/%.c,$@) -o $@
+
+$(UTILS_OBJS): $(UTILS)
 	@echo [ OBJ ]    \"$@\"
 	@mkdir $(dir $@) -p
 	@$(CC) -c $(CFLAGS) $(patsubst build/%.o,!SRC!/%.c,$@) -o $@

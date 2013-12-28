@@ -15,12 +15,12 @@
 
 enum B64_CHARSET
 {
-	B64_DEFAULT,
-	B64_URL
+    B64_DEFAULT,
+    B64_URL
 };
 
-char* b64_encode( char *data, int data_len, enum B64_CHARSET cs);
-char* b64_decode( char *b64_string, enum B64_CHARSET cs );
+char* b64_encode(char *data, int data_len, enum B64_CHARSET cs);
+char* b64_decode(char *b64_string, enum B64_CHARSET cs);
 
 #endif
 

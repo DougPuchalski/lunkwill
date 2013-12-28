@@ -22,12 +22,12 @@ int login_init_module(int id)
 	return 0;
 }
 
-int login_verify(int uid, int gid, int ses1, int ses2 )
+int login_verify(int uid, int gid, int ses1, int ses2)
 {
 	return 0;
 }
 
-int login_new_session(char *input, int uid, int gid, int ses1, int ses2 )
+int login_new_session(char *input, int uid, int gid, int ses1, int ses2)
 {
 	//ask db here
 	if(uid==gid&&ses1==ses2)
@@ -49,21 +49,21 @@ int login_request(void *module_data, request *client_request)
 	struct html_ui *html=client_request->answer;
 	void *x;
 	int retcode=0;
-	
+
 	if(client_request->user==0)
 	{
 		if(client_request->group==0 && client_request->session1==0 && \
-			client_request->session2==0 && client_request->module_request[0]!=0)
+		        client_request->session2==0 && client_request->module_request[0]!=0)
 		{
 			if((login_new_session(client_request->module_request, client_request->user, \
-				client_request->group, client_request->session1, \
-				client_request->session2))!=0)goto ERROR_SERVER;
+			                      client_request->group, client_request->session1, \
+			                      client_request->session2))!=0)goto ERROR_SERVER;
 
 			html_add_tag(&html->main, "<script>"\
-				"window.setCookie('login','",
-				client_request->module_request,
-				"',7);window.setCookie('module','BA',7);"\
-				"</script>");
+			             "window.setCookie('login','",
+			             client_request->module_request,
+			             "',7);window.setCookie('module','BA',7);"\
+			             "</script>");
 		}
 
 		html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
@@ -71,26 +71,26 @@ int login_request(void *module_data, request *client_request)
 	}
 
 	if(login_verify(client_request->user, \
-		client_request->group, client_request->session1, \
-		client_request->session2)!=0) goto ERROR_SERVER;
+	                client_request->group, client_request->session1, \
+	                client_request->session2)!=0) goto ERROR_SERVER;
 
 
 	//MODULE LIST
 	int i;
 	void *div=html_add_tag(&html->header, \
-		"<script>window.lw_ModuleList = {",NULL,
-		"}; window.lw_show_ModuleList();</script>");
+	                       "<script>window.lw_ModuleList = {",NULL,
+	                       "}; window.lw_show_ModuleList();</script>");
 
-	for(i=0;i<256;i++)
+	for(i=0; i<256; i++)
 	{
 		if(Modules[i].name!=NULL)
 		{
 			x=split_to_xstring(i,URL_CHARS,6,2);
 			html_add_tag(&div, "'", x, "':");
-				
+
 			nfree(x);
 
-			html_add_tag(&div, "'",Modules[i].name, "', " );
+			html_add_tag(&div, "'",Modules[i].name, "', ");
 		}
 	}
 
@@ -103,9 +103,9 @@ int login_request(void *module_data, request *client_request)
 		}
 		else
 		{
-			retcode=Modules[client_request->module].func( \
-				Modules[client_request->module].data, \
-				client_request);
+			retcode=Modules[client_request->module].func(\
+			        Modules[client_request->module].data, \
+			        client_request);
 		}
 	}
 
@@ -113,13 +113,13 @@ int login_request(void *module_data, request *client_request)
 	if(retcode==0)
 	{
 		html_add_tag(&html->header, \
-			"<script>","window.lw_logout_button()","</script>");
+		             "<script>","window.lw_logout_button()","</script>");
 	}
 	return retcode;
-	
-	ERROR_SERVER:
-		x=html_flush(&html->base,1);
-		nfree(x);
-		if(!retcode)html_add_tag(&html->base, HTTP_451, "", "");
-		return 2;
+
+ERROR_SERVER:
+	x=html_flush(&html->base,1);
+	nfree(x);
+	if(!retcode)html_add_tag(&html->base, HTTP_451, "", "");
+	return 2;
 }

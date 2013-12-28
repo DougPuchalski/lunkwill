@@ -18,7 +18,7 @@ int init_module(int id, struct module_info *m)
 	char buf[64];
 	sprintf(buf, "Project module intialized at %d", id);
 	log_write(buf, LOG_INFO, 0);
-	
+
 	m->id=id;
 	m->name="Project";
 	m->func=projects_request;
@@ -34,6 +34,6 @@ int projects_request(void *md, request *client_request)
 
 	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<h3 style='margin-left:10px'>","Projects","</h3>");
 	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<table style='margin-left:10px'", NULL,"</table>");
-		
+
 	return 0;
 }

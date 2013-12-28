@@ -4,10 +4,11 @@
 #include "../utils/lwutils.h"
 
 /** \brief Struct for pipe rx tx */
-struct pipe_rxtx{
+struct pipe_rxtx
+{
 	int fd;
 	int size;
-	char *data;	
+	char *data;
 };
 
 
@@ -20,7 +21,7 @@ struct serverwork
 	int thread_count;
 
 	struct _fifo *jobs;
-	
+
 };
 
 extern int strnmatch(char *a, char *b, int n);

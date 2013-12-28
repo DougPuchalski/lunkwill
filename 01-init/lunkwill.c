@@ -13,44 +13,44 @@ int main(int argc, char** argv)
 	int pipe2[2];
 	pid_t pid;
 	int opt;
-	
+
 	int log_level=0;
 	char *log_file=NULL;
-	
+
 	int conf;
 	char *config_path=NULL;
 	config_t config;
 	config_setting_t *config_prop;
 
 	memset(Modules, 0, 256*sizeof(struct module_info));
-	
+
 	//Parse args
 	while((opt=getopt(argc,argv,"c:f"))!=-1)
 	{
 		switch(opt)
 		{
-			case 'c':
-				config_path=malloc(strlen(optarg)+10);
-				strcpy(config_path, optarg);
+		case 'c':
+			config_path=malloc(strlen(optarg)+10);
+			strcpy(config_path, optarg);
 			break;
-			case 'f':
-				switch((int)fork())
-				{
-					case -1:
-						err="Unable to fork worker";
-						goto _fail;
-					break;
-					case 0:
-						log_level=99;
-					break;
-					default:
-						return 0;
-					break;
-				}
-			break;
+		case 'f':
+			switch((int)fork())
+			{
+			case -1:
+				err="Unable to fork worker";
+				goto _fail;
+				break;
+			case 0:
+				log_level=99;
+				break;
 			default:
-				err=argv[0];
-				goto argv_fail;
+				return 0;
+				break;
+			}
+			break;
+		default:
+			err=argv[0];
+			goto argv_fail;
 			break;
 		}
 	}
@@ -62,8 +62,8 @@ int main(int argc, char** argv)
 		/* printf("USING CONFIG: %s\n", config_path); */	/** \todo < Find possibility to write  */
 		log_write("Using config: ", LOG_DBG, 0);
 		log_write(config_path, LOG_DBG, 0);
-		
-		
+
+
 		if(load_config(&config, config_path)!=0)
 		{
 			err="Failed to load configuration";
@@ -86,35 +86,35 @@ int main(int argc, char** argv)
 		}
 		log_write("Using default config", LOG_DBG, 0);
 	}
-	
-	if ((config_prop=config_lookup(&config, "LOG"))==NULL)
+
+	if((config_prop=config_lookup(&config, "LOG"))==NULL)
 	{
 		config_prop=config_root_setting(&config);
 	}
 
 	if(config_setting_lookup_int(config_prop, "LOGLEVEL", &conf)&&log_level==0) log_level=conf;
 	if(!config_setting_lookup_string(config_prop, "LOGFILE", (const char**)&log_file)) return 1;
-	
+
 	init_logger(log_file,log_level);
 
 	init_sighndlr();
 	fflush(stdout);
-	
-	if (pipe(pipe1) == 0 && pipe(pipe2)==0)
+
+	if(pipe(pipe1) == 0 && pipe(pipe2)==0)
 	{
 		pid = fork();
-		if (pid == (pid_t)-1)
+		if(pid == (pid_t)-1)
 		{
 			err="Unable to fork worker";
 			goto _fail;
 		}
-		else if (pid == (pid_t)0)
+		else if(pid == (pid_t)0)
 		{
-		//Child process
+			//Child process
 			close(pipe2[0]);
 			close(pipe1[1]);
 			fclose(stdin);
-			
+
 			if(!init_db())
 			{
 				err="Failed to load database";
@@ -127,33 +127,33 @@ int main(int argc, char** argv)
 
 			int max_num_threads=0;
 
-			if ((config_prop=config_lookup(&config, "WORKER"))==NULL)
+			if((config_prop=config_lookup(&config, "WORKER"))==NULL)
 			{
 				config_prop=config_root_setting(&config);
 			}
 
-			if (config_setting_lookup_int(config_prop, "MAX_NUM_THREADS", &conf)) max_num_threads=conf;
+			if(config_setting_lookup_int(config_prop, "MAX_NUM_THREADS", &conf)) max_num_threads=conf;
 			if(max_num_threads<=0||max_num_threads>0xFFFF) max_num_threads=15;
-			
-			if ((config_prop=config_lookup(&config, "MODULES"))==NULL)
+
+			if((config_prop=config_lookup(&config, "MODULES"))==NULL)
 			{
 				config_prop=config_root_setting(&config);
 			}
-			
+
 			int x,n=0;
 			n=config_setting_length(config_prop);
-			for(x=0;x<n;x++)
+			for(x=0; x<n; x++)
 			{
 				const char *varName;
 
 				if((varName = config_setting_get_string_elem(config_prop, x))==NULL) continue;
-				
+
 				load_module(varName, x);
 
 			}
 
 			config_destroy(&config);
-			
+
 			start_worker(max_num_threads, pipe1[0], pipe2[1]);
 
 		}
@@ -162,45 +162,45 @@ int main(int argc, char** argv)
 			//Parent process
 			close(pipe1[0]);
 			close(pipe2[1]);
-			
+
 			//Read config
 			int conf, port=0;
 			int listen_queue=0;
 			int timeout=0;
 			config_setting_t *config_prop;
-			
 
-			if ((config_prop=config_lookup(&config, "SOCKET"))==NULL)
+
+			if((config_prop=config_lookup(&config, "SOCKET"))==NULL)
 			{
 				config_prop=config_root_setting(&config);
 			}
 
-			if (config_setting_lookup_int(config_prop, "PORT", &conf))	port=conf;
+			if(config_setting_lookup_int(config_prop, "PORT", &conf))	port=conf;
 			if(port<=0||port>0xFFFF) port=3000;
 
-			if (config_setting_lookup_int(config_prop, "PEND_CONNECTIONS", &conf)) listen_queue=conf;
+			if(config_setting_lookup_int(config_prop, "PEND_CONNECTIONS", &conf)) listen_queue=conf;
 			if(listen_queue<=0||listen_queue>0xFF) listen_queue=20;
 
-			if (config_setting_lookup_int(config_prop, "RCV_TIMEOUT", &conf)) timeout=conf;
+			if(config_setting_lookup_int(config_prop, "RCV_TIMEOUT", &conf)) timeout=conf;
 			if(timeout<=0||timeout>0xFF) timeout=1;
 
 			config_destroy(&config);
-			
+
 			log_write("Server started. Enter 'quit' to shutdown the server", LOG_WARN, 1, " (Port: %d)", port);
 			start_server(port, listen_queue, timeout, pipe2[0], pipe1[1]);
 		}
 	}
-	
+
 	sighndlr_safe_exit(0);
-	
+
 	return 0;
 
-	argv_fail:
-		log_write("Usage: lunkwill [-c CONFIG_FILE] [-f]", LOG_FATAL, 0);
-		return 1;
-	
-	_fail:
-		log_write(err, LOG_ERR, 0);
-		return 2;
+argv_fail:
+	log_write("Usage: lunkwill [-c CONFIG_FILE] [-f]", LOG_FATAL, 0);
+	return 1;
+
+_fail:
+	log_write(err, LOG_ERR, 0);
+	return 2;
 
 }
