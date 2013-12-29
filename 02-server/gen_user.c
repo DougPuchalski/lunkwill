@@ -20,7 +20,7 @@ int generate_user(struct login_data *md, unsigned char *username, unsigned char 
 	{
 		log_write("Could not write new user to passwd file", LOG_ERR, 0);
 		fclose(user_db);
-		
+
 		return 1;
 	}
 	fclose(user_db);

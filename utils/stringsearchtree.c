@@ -28,7 +28,7 @@ inline char init_node(node *parent, int depth)
 	// Try to initialize node a or fail!
 	if(init_node(parent->a, depth+1) != 0)
 	{
-		free(parent->a);
+		nfree(parent->a);
 		return 1;
 	}
 
@@ -36,15 +36,15 @@ inline char init_node(node *parent, int depth)
 	parent->b = calloc(1, sizeof(node));
 	if(parent->b == NULL)
 	{
-		free(parent->a);
+		nfree(parent->a);
 		return 1;
 	}
 
 	// Try to initialize node b or fail!
 	if(init_node(parent->b, depth+1) != 0)
 	{
-		free(parent->a);
-		free(parent->b);
+		nfree(parent->a);
+		nfree(parent->b);
 
 		return 1;
 	}
@@ -63,7 +63,7 @@ node *init_searchtree(void)
 
 	if(init_node(root, 0) != 0)
 	{
-		free(root);
+		nfree(root);
 		return NULL;
 	}
 
@@ -127,7 +127,7 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	// Copy key into list
 	if(strcpy((char *)list_ptr->key, (char *)key) == NULL)
 	{
-		free(list_ptr->key);
+		nfree(list_ptr->key);
 
 		return 1;
 	}
@@ -136,7 +136,7 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	list_ptr->string = (unsigned char *)calloc(1, strlen((char *)value)+1);
 	if(list_ptr->string == NULL)
 	{
-		free(list_ptr->key);
+		nfree(list_ptr->key);
 
 		return 1;
 	}
@@ -144,8 +144,8 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	// Copy string into list
 	if(strcpy((char *)list_ptr->string, (char *)value) == NULL)
 	{
-		free(list_ptr->key);
-		free(list_ptr->string);
+		nfree(list_ptr->key);
+		nfree(list_ptr->string);
 
 		return 1;
 	}
@@ -154,8 +154,8 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	list_ptr->next = calloc(1, sizeof(list));
 	if(list_ptr->next == NULL)
 	{
-		free(list_ptr->key);
-		free(list_ptr->string);
+		nfree(list_ptr->key);
+		nfree(list_ptr->string);
 
 		return 1;
 	}
@@ -199,9 +199,9 @@ inline void free_list(list *list_ptr)
 		list *list_old = list_ptr;
 		list_ptr = list_ptr->next;
 
-		free(list_old->key);
-		free(list_old->string);
-		free(list_old);
+		nfree(list_old->key);
+		nfree(list_old->string);
+		nfree(list_old);
 	}
 
 	log_write("stringsearchtree: Freed %u elements", LOG_DBG, 1, c);
@@ -209,20 +209,25 @@ inline void free_list(list *list_ptr)
 
 inline void free_node(node *node, int depth)
 {
+	if(node == NULL)
+		return;
+	
 	// Free concatenated lists
 	if(depth == 4)
 	{
 		// Start freeing from beginning of the list
 		free_list((list *)node->a);
-		free(node->a);
-		free(node);
-		
+		nfree(node);
+
 		return;
 	}
 
-	free_node(node->a, depth+1);
-	free_node(node->b, depth+1);
-	free(node);
+	if(node->a != NULL)
+		free_node(node->a, depth+1);
+	if(node->b != NULL)
+		free_node(node->b, depth+1);
+	
+	nfree(node);
 }
 
 void free_searchtree(node *tree)

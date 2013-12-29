@@ -99,7 +99,7 @@ int parse_logins(struct login_data* md)
 			log_write("Error on writing passwd data into search tree", LOG_ERR, 0);
 			fclose(passwd);
 			free(passwd_content);
-			
+
 			return 1;
 		}
 	}
