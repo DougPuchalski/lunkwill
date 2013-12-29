@@ -107,18 +107,23 @@ int parse_logins(struct login_data* md)
 
 
 // TO BE DOCUMENTED
-int check_user_password(char *user, char *password)
+int check_user_password(struct login_data* md, char *user, char *password)
 {
 	// Hash the given password
 	char hashed_password[20];
 
 	// Search the tree for the password
 	char *real_user;
+
+	pthread_mutex_lock(&md->search_lock);
 	if((real_user = search_string(get_search_tree(), hashed_password)) == NULL)
 	{
+		pthread_mutex_unlock(&md->search_lock);
 		log_write("User %s tried to login with invalid password", LOG_DBG, 1, user);
 		return 1;
 	}
+	pthread_mutex_unlock(&md->search_lock);
+
 
 	if(strcmp(real_user, user) != 0)
 	{
