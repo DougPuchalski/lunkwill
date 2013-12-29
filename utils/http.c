@@ -38,7 +38,7 @@ int send_file(char **buffer, char *file_path)
 
 	sprintf(*buffer, "HTTP/1.1 200 OK\r\nContent-Type: %s\r\nContent-Length: %u\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-store\r\n\r\n", content_types[get_mime(file_path)], file_size);
 	int header_len=strlen(*buffer);
-	if(fread((*buffer+strlen(*buffer)), file_size, 1, file)==0)
+	if(fread((*buffer+strlen(*buffer)), file_size, 1, file) != file_size)
 	{
 		fclose(file);
 		return -1;
