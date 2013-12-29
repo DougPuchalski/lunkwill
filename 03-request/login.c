@@ -1,4 +1,5 @@
 #include "login.h"
+#include "../02-server/gen_user.h"
 
 void *login_close_module(void *arg)
 {
@@ -26,7 +27,12 @@ int login_init_module(int id)
 		return 1;
 	}
 
-	//	parse_logins(md);
+
+	//~ parse_logins(md);
+	unsigned char *demo_user = (unsigned char *)"root";
+	unsigned char *demo_pw = (unsigned char *)"test";
+
+	generate_user(md, demo_user, demo_pw);
 
 	pthread_mutex_unlock(&md->search_lock);
 
@@ -88,10 +94,10 @@ int parse_logins(struct login_data* md)
 	for(i=0; i<passwd_fs; i+=120)
 	{
 		// Copy password to set null terminator
-		char pw[21] = {0};
+		unsigned char pw[21] = {0};
 		memcpy(pw, &passwd_content[i+100], 20);
 
-		if(add_string(md->search, &passwd_content[i], pw) != 0)
+		if(add_string(md->search, (unsigned char *)&passwd_content[i], pw) != 0)
 		{
 			log_write("Error on writing passwd data into search tree", LOG_ERR, 0);
 			return 1;
@@ -110,13 +116,13 @@ int parse_logins(struct login_data* md)
 int check_user_password(struct login_data* md, char *user, char *password)
 {
 	// Hash the given password
-	char hashed_password[20];
+	unsigned char hashed_password[20];
 
 	// Search the tree for the password
-	char *real_user;
+	unsigned char *real_user;
 
 	pthread_mutex_lock(&md->search_lock);
-	if((real_user = search_string(get_search_tree(), hashed_password)) == NULL)
+	if((real_user = search_string(md->search, hashed_password)) == NULL)
 	{
 		pthread_mutex_unlock(&md->search_lock);
 		log_write("User %s tried to login with invalid password", LOG_DBG, 1, user);
@@ -125,7 +131,7 @@ int check_user_password(struct login_data* md, char *user, char *password)
 	pthread_mutex_unlock(&md->search_lock);
 
 
-	if(strcmp(real_user, user) != 0)
+	if(strcmp((char *)real_user, (char *)user) != 0)
 	{
 		log_write("Wrong login data: User %s", LOG_DBG, 1, user);
 		return 1;

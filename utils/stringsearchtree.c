@@ -73,7 +73,7 @@ node *init_searchtree(void)
 inline node *get_list_from_key(node *tree, unsigned char *key)
 {
 	// Our key needs to be at least 20 bytes long
-	if(strlen(key) < 20)
+	if(strlen((char *)key) < 20)
 		return NULL;
 
 	// The 5 integers are equal to first 20 bytes of the (hashed) string.
@@ -120,12 +120,12 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	list *list_ptr = (list *)node_ptr->b;
 
 	// Allocate key or fail!
-	list_ptr->key = calloc(1, strlen(key)+1);
+	list_ptr->key = (unsigned char *)calloc(1, strlen((char *)key)+1);
 	if(list_ptr->key == NULL)
 		return 1;
 
 	// Copy key into list
-	if(strcpy(list_ptr->key, key) == NULL)
+	if(strcpy((char *)list_ptr->key, (char *)key) == NULL)
 	{
 		free(list_ptr->key);
 
@@ -133,7 +133,7 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	}
 
 	// Allocate string or fail!
-	list_ptr->string = calloc(1, strlen(value)+1);
+	list_ptr->string = (unsigned char *)calloc(1, strlen((char *)value)+1);
 	if(list_ptr->string == NULL)
 	{
 		free(list_ptr->key);
@@ -142,7 +142,7 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	}
 
 	// Copy string into list
-	if(strcpy(list_ptr->string, value) == NULL)
+	if(strcpy((char *)list_ptr->string, (char *)value) == NULL)
 	{
 		free(list_ptr->key);
 		free(list_ptr->string);
@@ -166,7 +166,7 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	return 0;
 }
 
-char *search_string(node *tree, unsigned char *key)
+unsigned char *search_string(node *tree, unsigned char *key)
 {
 	// Get the list where the value should be stored
 	node *node_ptr = get_list_from_key(tree, key);
@@ -178,7 +178,7 @@ char *search_string(node *tree, unsigned char *key)
 	// Linear search on list
 	while(list_ptr != NULL)
 	{
-		if(strcmp(list_ptr->key, key) == 0)
+		if(strcmp((char *)list_ptr->key, (char *)key) == 0)
 			return list_ptr->string;
 
 		list_ptr = list_ptr->next;
