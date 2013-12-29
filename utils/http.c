@@ -31,6 +31,8 @@ int send_file(char **buffer, char *file_path)
 	if(file_size <= 0)
 	{
 		log_write("Could not read requested file", LOG_ERR, 0);
+		fclose(file);
+
 		return -1;
 	}
 
