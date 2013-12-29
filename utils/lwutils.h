@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <time.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
