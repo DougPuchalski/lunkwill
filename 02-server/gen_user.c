@@ -14,7 +14,8 @@ int generate_user(struct login_data *md, unsigned char *username, unsigned char 
 
 	unsigned char new_user[100+21];
 	strncpy((char *)new_user, (char *)username, 99);
-	memcpy(new_user+101, hashed_password, 20);
+	new_user[99] = 0;
+	memcpy(new_user+100, hashed_password, 20);
 
 	if(fwrite(new_user, 1, 121, user_db) != 121)
 	{

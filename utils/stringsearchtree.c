@@ -120,12 +120,12 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	list *list_ptr = (list *)node_ptr->b;
 
 	// Allocate key or fail!
-	list_ptr->key = (unsigned char *)calloc(1, strlen((char *)key)+1);
+	list_ptr->key = (unsigned char *)calloc(1, 20);
 	if(list_ptr->key == NULL)
 		return 1;
 
 	// Copy key into list
-	if(strcpy((char *)list_ptr->key, (char *)key) == NULL)
+	if(memcpy((char *)list_ptr->key, (char *)key, 20) == NULL)
 	{
 		nfree(list_ptr->key);
 
@@ -178,7 +178,7 @@ unsigned char *search_string(node *tree, unsigned char *key)
 	// Linear search on list
 	while(list_ptr != NULL)
 	{
-		if(strcmp((char *)list_ptr->key, (char *)key) == 0)
+		if(memcmp((char *)list_ptr->key, (char *)key, 20) == 0)
 			return list_ptr->string;
 
 		list_ptr = list_ptr->next;
@@ -211,7 +211,7 @@ inline void free_node(node *node, int depth)
 {
 	if(node == NULL)
 		return;
-	
+
 	// Free concatenated lists
 	if(depth == 4)
 	{
@@ -226,7 +226,7 @@ inline void free_node(node *node, int depth)
 		free_node(node->a, depth+1);
 	if(node->b != NULL)
 		free_node(node->b, depth+1);
-	
+
 	nfree(node);
 }
 
