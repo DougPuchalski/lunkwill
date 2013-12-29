@@ -97,6 +97,9 @@ int parse_logins(struct login_data* md)
 		if(add_string(md->search, (unsigned char *)&passwd_content[i], pw) != 0)
 		{
 			log_write("Error on writing passwd data into search tree", LOG_ERR, 0);
+			fclose(passwd);
+			free(passwd_content);
+			
 			return 1;
 		}
 	}

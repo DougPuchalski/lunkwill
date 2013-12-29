@@ -16,7 +16,13 @@ int generate_user(struct login_data *md, unsigned char *username, unsigned char 
 	strncpy((char *)new_user, (char *)username, 99);
 	memcpy(new_user+101, hashed_password, 20);
 
-	fwrite(new_user, 1, 121, user_db);
+	if(fwrite(new_user, 1, 121, user_db) != 121)
+	{
+		log_write("Could not write new user to passwd file", LOG_ERR, 0);
+		fclose(user_db);
+		
+		return 1;
+	}
 	fclose(user_db);
 
 	// Add user to tree in RAM!

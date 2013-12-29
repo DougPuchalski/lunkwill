@@ -214,6 +214,9 @@ inline void free_node(node *node, int depth)
 	{
 		// Start freeing from beginning of the list
 		free_list((list *)node->a);
+		free(node->a);
+		free(node);
+		
 		return;
 	}
 
