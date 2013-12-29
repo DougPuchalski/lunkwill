@@ -3,7 +3,7 @@
 int send_file(char **buffer, char *file_path)
 {
 	FILE *file;
-	unsigned int file_size;
+	int file_size;
 	struct stat statbuf;
 
 	/** \brief Content-Type for supported MIME types */
@@ -18,14 +18,22 @@ int send_file(char **buffer, char *file_path)
 		"image/x-icon"
 	};
 
-	if(stat(file_path, &statbuf) == -1 || !S_ISREG(statbuf.st_mode) || (file = fopen(file_path, "r")) == NULL)
+	if((file = fopen(file_path, "r")) == NULL)
 	{
 		log_write("Could not open requested file", LOG_ERR, 0);
 		return -1;
 	}
 
+	// This possibly fixes the TOCTOU problem
+	fseek(file, 0, SEEK_END);
+	file_size = ftell(file);
+	fseek(file, 0, SEEK_SET);
 
-	file_size = statbuf.st_size;
+	if(file_size <= 0)
+	{
+		log_write("Could not read requested file", LOG_ERR, 0);
+		return -1;
+	}
 
 	*buffer=(char *)calloc(BUF_SIZE+file_size,1);
 
