@@ -117,7 +117,7 @@ void load_module(const char *varName, int x)
 			Modules[x+1].func=lua_answer_request;
 			((struct lua_data*)Modules[x+1].data)->L=L;
 			pthread_mutex_init(&((struct lua_data*)Modules[x+1].data)->lua_lock,NULL);
-			
+
 			sighndlr_add(lua_unload, Modules[x+1].data);
 		}
 		else
