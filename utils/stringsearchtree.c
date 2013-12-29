@@ -70,7 +70,7 @@ node *init_searchtree(void)
 	return root;
 }
 
-inline node *get_list_from_key(node *tree, char *key)
+inline node *get_list_from_key(node *tree, unsigned char *key)
 {
 	// Our key needs to be at least 20 bytes long
 	if(strlen(key) < 20)
@@ -101,7 +101,7 @@ inline node *get_list_from_key(node *tree, char *key)
 	return node_ptr;
 }
 
-char add_string(node *tree, char *key, char *value)
+char add_string(node *tree, unsigned char *key, unsigned char *value)
 {
 	// Get the list where the value should be stored
 	node *node_ptr = get_list_from_key(tree, key);
@@ -166,7 +166,7 @@ char add_string(node *tree, char *key, char *value)
 	return 0;
 }
 
-char *search_string(node *tree, char *key)
+char *search_string(node *tree, unsigned char *key)
 {
 	// Get the list where the value should be stored
 	node *node_ptr = get_list_from_key(tree, key);

@@ -12,8 +12,8 @@ struct node
 struct list
 {
 	struct list *next;
-	char *key;
-	char *string;
+	unsigned char *key;
+	unsigned char *string;
 };
 
 typedef struct node node;
