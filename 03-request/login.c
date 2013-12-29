@@ -16,6 +16,7 @@ int login_init_module(int id)
 	Modules[id].func=login_request;
 	Modules[id].description="Account settings";
 	struct login_data* md=Modules[id].data=malloc(sizeof(struct login_data));
+
 	pthread_mutex_init(&md->search_lock, NULL);
 
 	pthread_mutex_lock(&md->search_lock);
@@ -35,8 +36,6 @@ int login_init_module(int id)
 	generate_user(md, demo_user, demo_pw);
 
 	pthread_mutex_unlock(&md->search_lock);
-
-
 
 	md->site="<h3>Account</h3>";
 

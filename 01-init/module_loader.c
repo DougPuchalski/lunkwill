@@ -14,7 +14,9 @@ void *dl_unload(void *a)
 int lua_answer_request(void *md, request *client_request)
 {
 	int ret_code=0;
-	lua_State *L=md;
+	pthread_mutex_lock(&((struct lua_data*)md)->lua_lock);
+
+	lua_State *L=((struct lua_data*)md)->L;
 
 	lua_getfield(L, LUA_GLOBALSINDEX, "ModuleAnswerRequest");
 
@@ -55,12 +57,15 @@ int lua_answer_request(void *md, request *client_request)
 
 	lua_pop(L,3);
 
+	pthread_mutex_unlock(&((struct lua_data*)md)->lua_lock);
+
 	return ret_code;
 }
 
 void *lua_unload(void *a)
 {
-	lua_close(a);
+	lua_close(((struct lua_data*)a)->L);
+	nfree(a);
 	return NULL;
 }
 
@@ -80,9 +85,7 @@ void load_module(const char *varName, int x)
 
 		if(L!=NULL && luaL_loadfile(L, varName)==0 && lua_pcall(L, 0, 0, 0)==0)
 		{
-			char buf[64];
-			sprintf(buf, "Loading %s", varName);
-			log_write(buf, LOG_INFO, 0);
+			log_write("", LOG_INFO, 1, "Loading %s", varName);
 
 			Modules[x+1].id=x+1;
 
@@ -110,16 +113,17 @@ void load_module(const char *varName, int x)
 			}
 			lua_pop(L, 1);
 
-			Modules[x+1].data=L;
+			Modules[x+1].data=malloc(sizeof(struct lua_data));
 			Modules[x+1].func=lua_answer_request;
+			((struct lua_data*)Modules[x+1].data)->L=L;
+			pthread_mutex_init(&((struct lua_data*)Modules[x+1].data)->lua_lock,NULL);
 
-			sighndlr_add(lua_unload, L);
+			sighndlr_add(lua_unload, Modules[x+1].data);
 		}
 		else
 		{
 			if(L!=NULL) lua_close(L);
-			log_write((char *)varName, LOG_ERR, 0);
-			log_write("Invalid LUA script", LOG_ERR, 0);
+			log_write("Invalid LUA script", LOG_ERR, 1, "%s", varName);
 		}
 	}
 	else
