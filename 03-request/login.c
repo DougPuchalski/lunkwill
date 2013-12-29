@@ -15,18 +15,18 @@ int login_init_module(int id)
 	Modules[id].func=login_request;
 	Modules[id].description="Account settings";
 	struct login_data* md=Modules[id].data=malloc(sizeof(struct login_data));
-	
+
 	md->search = init_searchtree();
 	if(md->search == NULL)
 	{
 		return 1;
 	}
-	
+
 	pthread_mutex_init(&md->search_lock,NULL);
 	pthread_mutex_lock(&md->search_lock);
 //	parse_logins(md);
 	pthread_mutex_unlock(&md->search_lock);
-	
+
 
 	md->site="<h3>Account</h3>";
 

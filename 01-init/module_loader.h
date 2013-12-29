@@ -23,4 +23,10 @@ void load_module(const char *varName, int x);
  */
 int lua_answer_request(void *md, request *client_request);
 
+struct lua_data
+{
+	lua_State *L;
+	pthread_mutex_t lua_lock;
+};
+
 #endif
