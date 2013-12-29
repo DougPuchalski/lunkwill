@@ -60,6 +60,14 @@ int parse_logins(void)
 	passwd_fs = ftell(passwd);
 	fseek(passwd, 0, SEEK_SET);
 
+	if(passwd_fs <= 0)
+	{
+		log_write("Failed on determining size of passwd", LOG_ERR, 0);
+		fclose(passwd);
+
+		return 1;
+	}
+
 	char *passwd_content = malloc(passwd_fs);
 	if(passwd_content == NULL)
 	{
