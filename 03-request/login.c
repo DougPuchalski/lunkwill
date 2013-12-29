@@ -111,8 +111,6 @@ int parse_logins(struct login_data* md)
 	return 0;
 }
 
-
-// TO BE DOCUMENTED
 int check_user_password(struct login_data* md, char *user, char *password)
 {
 	// Hash the given password

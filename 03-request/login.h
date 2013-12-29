@@ -30,4 +30,11 @@ extern int login_request(void *module_data, request *client_request);
 /** \brief Return current search tree address */
 extern node *get_search_tree(void);
 
+/** \brief Check the password of a user */
+extern int check_user_password(struct login_data* md, char *user, char *password);
+
+/** \brief Parse passwd into tree to search user/passwords */
+extern int parse_logins(struct login_data* md);
+
+
 #endif
