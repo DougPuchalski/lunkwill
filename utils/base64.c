@@ -5,7 +5,7 @@ char* b64_encode(char *data, int data_len, enum B64_CHARSET cs)
 	char *b64_string, *c_set;
 	int i, byte, buf;
 
-	b64_string=calloc(1, (4*(data_len+2))/3);
+	b64_string=calloc(1, 1+(4*(data_len+2))/3);
 
 	switch(cs)
 	{

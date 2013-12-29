@@ -30,8 +30,8 @@ int answer_request(void *md, request *client_request)
 
 	struct html_ui *user_iface=client_request->answer;
 
-	/** \todo Only works for 1 repository at the moment */
-	const char *repo_path = b64_decode(client_request->module_request, B64_URL);
+	/** \todo Only works for 1 window.repository at the moment */
+	const char *repo_path = b64_decode(client_request->module_request, B64_DEFAULT);
 
 	git_repository *repo;
 	if(git_repository_open(&repo, repo_path) != GIT_SUCCESS)
@@ -88,27 +88,44 @@ int answer_request(void *md, request *client_request)
 
 
 	void *html_ptr;
-	html_ptr=html_add_tag(\
-	                      &user_iface->sidebar, \
-	                      "<table>", NULL, "</table>");
-	html_add_tag(\
-	             &html_ptr, \
-	             "<tr><td>", "master", "</td></tr>");
 	html_add_tag(\
 	             &user_iface->main, \
 	             "<h1>", "git", "</h1><br>");
+
+	html_ptr=html_add_tag(\
+	                      &user_iface->main, \
+	                      "<script>", "window.git_list();", "</script>");
 	html_add_tag(\
-	             &user_iface->main, \
-	             "<table><tr style=\"background-color: #C0C0C0;\">",
-	             "<td width=\"120\" style=\"padding-left: 5px;\"><b>Commit</b></td>" \
-	             "<td width=\"650\" style=\"padding-left: 5px;\"><b>Message</b></td>" \
-	             "<td width=\"600\" style=\"padding-left: 5px;\"><b>Author</b></td>" \
-	             "<td width=\"250\" style=\"padding-left: 5px;\"><b>Time</b></td></tr>", "");
+	             &html_ptr, \
+	             "window.branch=[", "'master',", "];");
+
+	html_ptr=html_add_tag(\
+	             &user_iface->header, \
+	             "<script>", "window.repo={};", "</script>");
+
+	void *sha_html_ptr, *message_html_ptr, *author_html_ptr, *time_html_ptr;
+	sha_html_ptr=html_add_tag(\
+	             &html_ptr, \
+	             "window.repo.sha=[", NULL, "];");	
+	
+	message_html_ptr=html_add_tag(\
+	             &html_ptr, \
+	             "window.repo.message=[", NULL, "];");	
+	
+	author_html_ptr=html_add_tag(\
+	             &html_ptr, \
+	             "window.repo.author=[", NULL, "];");	
+	
+	time_html_ptr=html_add_tag(\
+	             &html_ptr, \
+	             "window.repo.time=[", NULL, "];");	
+	
+	             
 	const char *commit_message;
 	char *commit_sha;
 	const git_signature *commit_author;
+			char date[64];
 
-	char *color[] = {"#FFFFFF", "#E0E0E0"};
 	int i=0;
 
 	while(git_revwalk_next(&oid, walker) == GIT_SUCCESS)
@@ -122,61 +139,42 @@ int answer_request(void *md, request *client_request)
 		}
 
 		commit_sha = git_oid_allocfmt(&oid);
-		commit_message = git_commit_message(commit);
-		commit_author = git_commit_committer(commit);
-		commit_offset = git_commit_time_offset(commit);
-		commit_time = git_commit_time(commit) + commit_offset*60;
-		commit_time_gmt = gmtime(&commit_time);
+			commit_message = git_commit_message(commit);
+			commit_author = git_commit_committer(commit);
+			commit_offset = git_commit_time_offset(commit);
+			commit_time = git_commit_time(commit) + commit_offset*60;
+			commit_time_gmt = gmtime(&commit_time);
 
 
-		char date[64]= {0};
-		strftime(date, 63, "%d. %B %G &nbsp; %R", commit_time_gmt);
+			memset(date, 0, sizeof(date));
+			strftime(date, 63, "%d. %B %G &nbsp; %R", commit_time_gmt);
 
-		void *row, *escaped, *author;
+			void *escaped, *author;
 
-		html_add_tag(\
-		             &user_iface->main, \
-		             "<tr style=\"background-color: ", color[i%2], ";\" class=\"git_commits\">");
-
-		row=html_add_tag(\
-		                 &user_iface->main, \
-		                 NULL, NULL, "</tr>");
-
-		html_add_tag(&row,
-		             "<td style=\"padding-left: 5px;\">",
-		             commit_sha,
-		             "</td>");
+			html_add_tag(&sha_html_ptr,"'", commit_sha,"',");
 		nfree(commit_sha);
 
-		escaped=html_escape((char *)commit_message);
-		html_add_tag(&row,
-		             "<td style=\"padding-left: 5px;\">",
-		             escaped,
-		             "</td>");
+		escaped=b64_encode((char *)commit_message,
+			strlen((char *)commit_message),B64_DEFAULT);
+		html_add_tag(&message_html_ptr,"'", escaped,"',");
 		nfree(escaped);
 
-		escaped=html_escape((char *)commit_author->name);
-		author=html_add_tag(&row,
-		                    "<td style=\"padding-left: 5px;\">", escaped, "</td>");
+		escaped=b64_encode((char *)commit_author->name,
+			strlen(commit_author->name),B64_DEFAULT);
+		author=html_add_tag(&author_html_ptr,"'", escaped, "',");
 		nfree(escaped);
 
-		escaped=html_escape((char *)commit_author->email);
-		html_add_tag(&author, " &lt;", escaped, "&gt; ");
+		escaped=b64_encode((char *)commit_author->email,
+			strlen((char *)commit_author->email),B64_DEFAULT);
+		html_add_tag(&author, " ", escaped, NULL);
 		nfree(escaped);
 
-		html_add_tag(&row,
-		             "<td style=\"padding-left: 5px;\">",
-		             date,
-		             "</td>");
+		html_add_tag(&time_html_ptr,
+		             "'", date, "',");
 
 		git_commit_free(commit);
 		i++;
 	}
-
-
-	html_add_tag(\
-	             &user_iface->main, \
-	             "", "</table>", "");
 
 	git_revwalk_free(walker);
 	git_repository_free(repo);

@@ -108,9 +108,9 @@ void *html_a_tag(void **parent, char *tag_open, int tag_open_len, char* content_
 
 	(*tag)=malloc(sizeof(HTML_TAG));
 
-	for(; tag_open_len!=BUF_SIZE && tag_open_len>=sizeof(void*) && tag_open[tag_open_len-1]==0 && tag_open[tag_open_len-2]!=0; tag_open_len--);
-	for(; content_string_len!=BUF_SIZE && content_string_len>=sizeof(void*) && content_string[content_string_len-1]==0 && content_string[content_string_len-2]!=0; content_string_len--);
-	for(; tag_close_len!=BUF_SIZE && tag_close_len>=sizeof(void*) && tag_close[tag_close_len-1]==0 && tag_close[tag_close_len-2]!=0; tag_close_len--);
+	for(; tag_open_len!=BUF_SIZE && tag_open_len>sizeof(void*) && tag_open[tag_open_len-1]==0; tag_open_len--);
+	for(; content_string_len!=BUF_SIZE && content_string_len>sizeof(void*) && content_string[content_string_len-1]==0; content_string_len--);
+	for(; tag_close_len!=BUF_SIZE && tag_close_len>=sizeof(void*) && tag_close[tag_close_len-1]==0; tag_close_len--);
 
 	(*tag)->tag_open_len=(tag_open_len>sizeof(void*)&&tag_open_len!=BUF_SIZE)?
 	                     tag_open_len:strlen(tag_open);
