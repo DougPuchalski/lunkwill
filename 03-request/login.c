@@ -2,7 +2,7 @@
 
 void *login_close_module(void *arg)
 {
-	free_searchtree(get_search_tree());
+	free_searchtree(((struct login_data*)arg)->search);
 	nfree(arg);
 
 	return NULL;
@@ -15,8 +15,19 @@ int login_init_module(int id)
 	Modules[id].func=login_request;
 	Modules[id].description="Account settings";
 	struct login_data* md=Modules[id].data=malloc(sizeof(struct login_data));
+	
+	md->search = init_searchtree();
+	if(md->search == NULL)
+	{
+		return 1;
+	}
+	
+	pthread_mutex_init(&md->search_lock,NULL);
+	pthread_mutex_lock(&md->search_lock);
+//	parse_logins(md);
+	pthread_mutex_unlock(&md->search_lock);
+	
 
-	//init db here
 	md->site="<h3>Account</h3>";
 
 	sighndlr_add(login_close_module, md);
@@ -24,28 +35,9 @@ int login_init_module(int id)
 	return 0;
 }
 
-node *get_search_tree(void)
-{
-	static char first=1;
-	static node *search_tree;
-	if(first == 1)
-	{
-		search_tree = init_searchtree();
-		if(search_tree == NULL)
-		{
-			return NULL;
-		}
-
-		first = 0;
-	}
-
-	return search_tree;
-}
-
-
 
 // TO BE DOCUMENTED
-int parse_logins(void)
+int parse_logins(struct login_data* md)
 {
 	FILE *passwd;
 	if((passwd = fopen("user.db", "r")) == NULL)
@@ -91,7 +83,7 @@ int parse_logins(void)
 	{
 		passwd_content[i*128+100] = '\0';
 		passwd_content[i*128+129] = '\0';
-		add_string(get_search_tree(), &passwd_content[i*128], &passwd_content[i*128+101]);
+		add_string(md->search, &passwd_content[i*128], &passwd_content[i*128+101]);
 	}
 
 	free(passwd_content);
@@ -101,7 +93,7 @@ int parse_logins(void)
 }
 
 
-
+/*
 // TO BE DOCUMENTED
 int check_user_password(char *user, char *password)
 {
@@ -125,21 +117,11 @@ int check_user_password(char *user, char *password)
 	// User logged in :)
 	return 0;
 }
+* */
 
 int login_verify(int uid, int gid, int ses1, int ses2)
 {
 	return 0;
-}
-
-int login_new_session(char *input, int uid, int gid, int ses1, int ses2)
-{
-	//ask db here
-	if(uid==gid&&ses1==ses2)
-	{
-		strcpy(input, "BAAAAAAAAAAAAAAAAAAA");
-		return 0;
-	}
-	return 1;
 }
 
 int user_profile(void *module_data, request *client_request)
@@ -156,20 +138,6 @@ int login_request(void *module_data, request *client_request)
 
 	if(client_request->user==0)
 	{
-		if(client_request->group==0 && client_request->session1==0 && \
-		        client_request->session2==0 && client_request->module_request[0]!=0)
-		{
-			if((login_new_session(client_request->module_request, client_request->user, \
-			                      client_request->group, client_request->session1, \
-			                      client_request->session2))!=0)goto ERROR_SERVER;
-
-			html_add_tag(&html->main, "<script>"\
-			             "window.setCookie('login','",
-			             client_request->module_request,
-			             "',7);window.setCookie('module','BA',7);"\
-			             "</script>");
-		}
-
 		html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
 		return 0;
 	}
