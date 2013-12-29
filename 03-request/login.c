@@ -2,7 +2,9 @@
 
 void *login_close_module(void *arg)
 {
+	free_searchtree(get_search_tree());
 	nfree(arg);
+	
 	return NULL;
 }
 
@@ -19,6 +21,100 @@ int login_init_module(int id)
 
 	sighndlr_add(login_close_module, md);
 
+	return 0;
+}
+
+node *get_search_tree(void)
+{
+	static char first=1;
+	static node *search_tree;
+	if(first == 1)
+	{
+		search_tree = init_searchtree();
+		if(search_tree == NULL)
+		{
+			return NULL;
+		}
+		
+		first = 0;
+	}
+	
+	return search_tree;
+}
+
+
+
+// TO BE DOCUMENTED
+int parse_logins(void)
+{
+	FILE *passwd;
+	if( (passwd = fopen("user.db", "r")) == NULL)
+	{
+		log_write("Could not read user database", LOG_ERR, 0);
+		return 1;
+	}
+
+	// Read password file
+	int passwd_fs;
+	fseek(passwd, 0, SEEK_END);
+	passwd_fs = ftell(passwd);
+	fseek(passwd, 0, SEEK_SET);
+	
+	char *passwd_content = malloc(passwd_fs);
+	if(passwd_content == NULL)
+	{
+		log_write("Failed on allocating passwd memory", LOG_ERR, 0);
+		fclose(passwd);
+		
+		return 1;
+	}
+
+	if( (fread(passwd_content, passwd_fs, 1, passwd)) != passwd_fs)
+	{
+		log_write("Failed on reading passwd", LOG_ERR, 0);
+		free(passwd_content);
+		fclose(passwd);
+		
+		return 1;
+	}
+
+	int i;
+	for(i=0; i<passwd_fs/128; i++)
+	{
+		passwd_content[i*128+100] = '\0';
+		passwd_content[i*128+129] = '\0';
+		add_string(get_search_tree(), &passwd_content[i*128], &passwd_content[i*128+101]);
+	}
+
+	free(passwd_content);
+	fclose(passwd);
+	
+	return 0;
+}
+
+
+
+// TO BE DOCUMENTED
+int check_user_password(char *user, char *password)
+{
+	// Hash the given password
+	char hashed_password[20];
+	
+	// Search the tree for the password
+	char *real_user;
+	if((real_user = search_string(get_search_tree(), hashed_password)) == NULL)
+	{
+		log_write("User %s tried to login with invalid password", LOG_DBG, 1, user);
+		return 1; 
+	}
+	
+	if(strcmp(real_user, user) != 0)
+	{
+		log_write("Wrong login data: User %s", LOG_DBG, 1, user);
+		return 1;
+	}
+
+	// User logged in :)
 	return 0;
 }
 

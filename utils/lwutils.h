@@ -46,6 +46,7 @@
 #include "tools.h"
 #include "database.h"
 #include "structures.h"
+#include "stringsearchtree.h"
 
 
 #endif

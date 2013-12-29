@@ -8,6 +8,7 @@ struct login_data
 {
 	int i;
 	char *site;
+	void *search;
 };
 
 /** \brief Exits login module */
@@ -24,5 +25,8 @@ extern int login_new_session(char *input, int uid, int gid, int ses1, int ses2);
 
 /** \brief Handlerfunction for requests */
 extern int login_request(void *module_data, request *client_request);
+
+/** \brief Return current search tree address */
+extern node *get_search_tree(void);
 
 #endif
