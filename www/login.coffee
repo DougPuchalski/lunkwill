@@ -5,7 +5,7 @@ window.lw_login_form = ->
 		'@##@'+document.getElementById('password').value)),window.ajax('')"
 
 	login_form.innerHTML="
-		<strong>Username:</strong><br><input id=email type=username></input><p>
+		<strong>Email:</strong><br><input id=email type=email></input><p>
 		<strong>Password:</strong><br><input id=password type=password></input><p>
 		<input type=submit value=Login></input>"
 
