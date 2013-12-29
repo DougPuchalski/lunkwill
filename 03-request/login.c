@@ -27,15 +27,13 @@ int login_init_module(int id)
 		pthread_mutex_unlock(&md->search_lock);
 		return 1;
 	}
-
+	pthread_mutex_unlock(&md->search_lock);
 
 	//~ parse_logins(md);
 	unsigned char *demo_user = (unsigned char *)"root";
 	unsigned char *demo_pw = (unsigned char *)"test";
 
 	generate_user(md, demo_user, demo_pw);
-
-	pthread_mutex_unlock(&md->search_lock);
 
 	md->site="<h3>Account</h3>";
 
