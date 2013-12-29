@@ -12,12 +12,12 @@ int generate_user(struct login_data *md, unsigned char *username, unsigned char 
 		return 1;
 	}
 
-	unsigned char new_user[100+21];
+	unsigned char new_user[100+20];
 	strncpy((char *)new_user, (char *)username, 99);
 	new_user[99] = 0;
 	memcpy(new_user+100, hashed_password, 20);
 
-	if(fwrite(new_user, 1, 121, user_db) != 121)
+	if(fwrite(new_user, 1, 120, user_db) != 120)
 	{
 		log_write("Could not write new user to passwd file", LOG_ERR, 0);
 		fclose(user_db);
