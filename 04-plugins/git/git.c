@@ -100,31 +100,31 @@ int answer_request(void *md, request *client_request)
 	             "window.branch=[", "'master',", "];");
 
 	html_ptr=html_add_tag(\
-	             &user_iface->header, \
-	             "<script>", "window.repo={};", "</script>");
+	                      &user_iface->header, \
+	                      "<script>", "window.repo={};", "</script>");
 
 	void *sha_html_ptr, *message_html_ptr, *author_html_ptr, *time_html_ptr;
 	sha_html_ptr=html_add_tag(\
-	             &html_ptr, \
-	             "window.repo.sha=[", NULL, "];");	
-	
+	                          &html_ptr, \
+	                          "window.repo.sha=[", NULL, "];");
+
 	message_html_ptr=html_add_tag(\
-	             &html_ptr, \
-	             "window.repo.message=[", NULL, "];");	
-	
+	                              &html_ptr, \
+	                              "window.repo.message=[", NULL, "];");
+
 	author_html_ptr=html_add_tag(\
-	             &html_ptr, \
-	             "window.repo.author=[", NULL, "];");	
-	
+	                             &html_ptr, \
+	                             "window.repo.author=[", NULL, "];");
+
 	time_html_ptr=html_add_tag(\
-	             &html_ptr, \
-	             "window.repo.time=[", NULL, "];");	
-	
-	             
+	                           &html_ptr, \
+	                           "window.repo.time=[", NULL, "];");
+
+
 	const char *commit_message;
 	char *commit_sha;
 	const git_signature *commit_author;
-			char date[64];
+	char date[64];
 
 	int i=0;
 
@@ -139,33 +139,33 @@ int answer_request(void *md, request *client_request)
 		}
 
 		commit_sha = git_oid_allocfmt(&oid);
-			commit_message = git_commit_message(commit);
-			commit_author = git_commit_committer(commit);
-			commit_offset = git_commit_time_offset(commit);
-			commit_time = git_commit_time(commit) + commit_offset*60;
-			commit_time_gmt = gmtime(&commit_time);
+		commit_message = git_commit_message(commit);
+		commit_author = git_commit_committer(commit);
+		commit_offset = git_commit_time_offset(commit);
+		commit_time = git_commit_time(commit) + commit_offset*60;
+		commit_time_gmt = gmtime(&commit_time);
 
 
-			memset(date, 0, sizeof(date));
-			strftime(date, 63, "%d. %B %G &nbsp; %R", commit_time_gmt);
+		memset(date, 0, sizeof(date));
+		strftime(date, 63, "%d. %B %G &nbsp; %R", commit_time_gmt);
 
-			void *escaped, *author;
+		void *escaped, *author;
 
-			html_add_tag(&sha_html_ptr,"'", commit_sha,"',");
+		html_add_tag(&sha_html_ptr,"'", commit_sha,"',");
 		nfree(commit_sha);
 
 		escaped=b64_encode((char *)commit_message,
-			strlen((char *)commit_message),B64_DEFAULT);
+		                   strlen((char *)commit_message),B64_DEFAULT);
 		html_add_tag(&message_html_ptr,"'", escaped,"',");
 		nfree(escaped);
 
 		escaped=b64_encode((char *)commit_author->name,
-			strlen(commit_author->name),B64_DEFAULT);
+		                   strlen(commit_author->name),B64_DEFAULT);
 		author=html_add_tag(&author_html_ptr,"'", escaped, "',");
 		nfree(escaped);
 
 		escaped=b64_encode((char *)commit_author->email,
-			strlen((char *)commit_author->email),B64_DEFAULT);
+		                   strlen((char *)commit_author->email),B64_DEFAULT);
 		html_add_tag(&author, " ", escaped, NULL);
 		nfree(escaped);
 
