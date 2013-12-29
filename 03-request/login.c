@@ -30,8 +30,8 @@ int login_init_module(int id)
 	pthread_mutex_unlock(&md->search_lock);
 
 	//~ parse_logins(md);
-	unsigned char *demo_user = (unsigned char *)"root";
-	unsigned char *demo_pw = (unsigned char *)"test";
+	unsigned char *demo_user = (unsigned char *)"root@localhost.lo";
+	unsigned char *demo_pw = (unsigned char *)"toor";
 
 	generate_user(md, demo_user, demo_pw);
 
