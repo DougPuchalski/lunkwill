@@ -27,6 +27,7 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 			break;
 		}
 
+
 		buffer->data=calloc(1,buffer->size);
 		if(read(fd_ro, buffer->data, buffer->size)!=buffer->size)
 		{

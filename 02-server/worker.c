@@ -17,6 +17,7 @@ void *workerthread(struct serverwork *sw)
 		{
 			goto IQUITTODAY;
 		}
+
 		request parsed_request=parse_request(buffer->data);
 		nfree(buffer->data);
 

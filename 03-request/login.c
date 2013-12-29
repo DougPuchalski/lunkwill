@@ -43,7 +43,6 @@ int login_init_module(int id)
 }
 
 
-// TO BE DOCUMENTED
 int parse_logins(struct login_data* md)
 {
 	FILE *passwd;
@@ -148,6 +147,7 @@ int login_verify(int uid, int gid, int ses1, int ses2)
 int user_profile(void *module_data, request *client_request)
 {
 	html_add_tag(&((struct html_ui*)client_request->answer)->main,NULL,((struct login_data*)module_data)->site,NULL);
+
 	return 0;
 }
 
