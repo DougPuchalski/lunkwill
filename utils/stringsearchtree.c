@@ -10,7 +10,7 @@ inline char init_node(node *parent, int depth)
 	if(depth == 4)
 	{
 		// Allocate list a or fail!
-		parent->a = (node *)calloc(1, sizeof(list));
+		parent->a = (list *)calloc(1, sizeof(list));
 		if(parent->a == NULL)
 			return 1;
 

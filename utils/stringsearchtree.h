@@ -5,8 +5,8 @@
 
 struct node
 {
-	struct node *a;
-	struct node *b;
+	void *a;
+	void *b;
 };
 
 struct list
