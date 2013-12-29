@@ -3,12 +3,14 @@
 
 #include "../utils/lwutils.h"
 
-struct node{
+struct node
+{
 	struct node *a;
 	struct node *b;
 };
 
-struct list{
+struct list
+{
 	struct list *next;
 	char *key;
 	char *string;

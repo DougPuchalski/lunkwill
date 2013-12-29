@@ -4,7 +4,7 @@ void *login_close_module(void *arg)
 {
 	free_searchtree(get_search_tree());
 	nfree(arg);
-	
+
 	return NULL;
 }
 
@@ -35,10 +35,10 @@ node *get_search_tree(void)
 		{
 			return NULL;
 		}
-		
+
 		first = 0;
 	}
-	
+
 	return search_tree;
 }
 
@@ -48,7 +48,7 @@ node *get_search_tree(void)
 int parse_logins(void)
 {
 	FILE *passwd;
-	if( (passwd = fopen("user.db", "r")) == NULL)
+	if((passwd = fopen("user.db", "r")) == NULL)
 	{
 		log_write("Could not read user database", LOG_ERR, 0);
 		return 1;
@@ -59,22 +59,22 @@ int parse_logins(void)
 	fseek(passwd, 0, SEEK_END);
 	passwd_fs = ftell(passwd);
 	fseek(passwd, 0, SEEK_SET);
-	
+
 	char *passwd_content = malloc(passwd_fs);
 	if(passwd_content == NULL)
 	{
 		log_write("Failed on allocating passwd memory", LOG_ERR, 0);
 		fclose(passwd);
-		
+
 		return 1;
 	}
 
-	if( (fread(passwd_content, passwd_fs, 1, passwd)) != passwd_fs)
+	if((fread(passwd_content, passwd_fs, 1, passwd)) != passwd_fs)
 	{
 		log_write("Failed on reading passwd", LOG_ERR, 0);
 		free(passwd_content);
 		fclose(passwd);
-		
+
 		return 1;
 	}
 
@@ -88,7 +88,7 @@ int parse_logins(void)
 
 	free(passwd_content);
 	fclose(passwd);
-	
+
 	return 0;
 }
 
@@ -99,15 +99,15 @@ int check_user_password(char *user, char *password)
 {
 	// Hash the given password
 	char hashed_password[20];
-	
+
 	// Search the tree for the password
 	char *real_user;
 	if((real_user = search_string(get_search_tree(), hashed_password)) == NULL)
 	{
 		log_write("User %s tried to login with invalid password", LOG_DBG, 1, user);
-		return 1; 
+		return 1;
 	}
-	
+
 	if(strcmp(real_user, user) != 0)
 	{
 		log_write("Wrong login data: User %s", LOG_DBG, 1, user);
