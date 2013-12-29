@@ -43,7 +43,7 @@ int send_file(char **buffer, char *file_path)
 		fclose(file);
 		return -1;
 	}
-	
+
 	file_size+=header_len;
 
 	fclose(file);

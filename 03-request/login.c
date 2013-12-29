@@ -15,18 +15,22 @@ int login_init_module(int id)
 	Modules[id].func=login_request;
 	Modules[id].description="Account settings";
 	struct login_data* md=Modules[id].data=malloc(sizeof(struct login_data));
-	
+	pthread_mutex_init(&md->search_lock, NULL);
+
+	pthread_mutex_lock(&md->search_lock);
+
 	md->search = init_searchtree();
 	if(md->search == NULL)
 	{
+		pthread_mutex_unlock(&md->search_lock);
 		return 1;
 	}
-	
-	pthread_mutex_init(&md->search_lock,NULL);
-	pthread_mutex_lock(&md->search_lock);
-//	parse_logins(md);
+
+	//	parse_logins(md);
+
 	pthread_mutex_unlock(&md->search_lock);
-	
+
+
 
 	md->site="<h3>Account</h3>";
 
@@ -78,13 +82,22 @@ int parse_logins(struct login_data* md)
 		return 1;
 	}
 
+
+	pthread_mutex_lock(&md->search_lock);
 	int i;
-	for(i=0; i<passwd_fs/128; i++)
+	for(i=0; i<passwd_fs; i+=120)
 	{
-		passwd_content[i*128+100] = '\0';
-		passwd_content[i*128+129] = '\0';
-		add_string(md->search, &passwd_content[i*128], &passwd_content[i*128+101]);
+		// Copy password to set null terminator
+		char pw[21] = {0};
+		memcpy(pw, &passwd_content[i+100], 20);
+
+		if(add_string(md->search, &passwd_content[i], pw) != 0)
+		{
+			log_write("Error on writing passwd data into search tree", LOG_ERR, 0);
+			return 1;
+		}
 	}
+	pthread_mutex_unlock(&md->search_lock);
 
 	free(passwd_content);
 	fclose(passwd);
@@ -93,7 +106,6 @@ int parse_logins(struct login_data* md)
 }
 
 
-/*
 // TO BE DOCUMENTED
 int check_user_password(char *user, char *password)
 {
@@ -117,7 +129,7 @@ int check_user_password(char *user, char *password)
 	// User logged in :)
 	return 0;
 }
-* */
+
 
 int login_verify(int uid, int gid, int ses1, int ses2)
 {
