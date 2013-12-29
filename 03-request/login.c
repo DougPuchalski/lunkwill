@@ -209,7 +209,7 @@ int login_request(void *module_data, request *client_request)
 	if(retcode==0)
 	{
 		html_add_tag(&html->header, \
-		             "<script>","window.lw_logout_button()","</script>");
+		             "<script>","window.lw_logout_button();","</script>");
 	}
 	return retcode;
 

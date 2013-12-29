@@ -34,6 +34,7 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 			nfree(buffer);
 			break;
 		}
+		buffer->data[buffer->size-1]=0;
 
 		pthread_mutex_lock(&sw->lock_count);
 		fifo_push(&sw->jobs,buffer);

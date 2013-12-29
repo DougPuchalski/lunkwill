@@ -6,11 +6,11 @@
 #define HEADER_OPEN "<div id='HEAD' class='header' style='white-space:nowrap;'>"
 #define HEADER_CLOSE "</div><br>"
 
-#define SIDEBAR_OPEN "<div style='display:inline-block;width:200px;vertical-align:top;" \
+#define SIDEBAR_OPEN "<div style='display:inline-block;width:20%;vertical-align:top;" \
 	"white-space:normal;' id='SIDEBAR' class='sidebar'>"
 #define SIDEBAR_CLOSE "</div>"
 
-#define MAIN_OPEN "<div style='display:inline-block;white-space: normal;vertical-align:top;' "\
+#define MAIN_OPEN "<div style='display:inline-block;width:79%; white-space: normal;vertical-align:top;' "\
 	"id='MAIN' class='main'>"
 #define MAIN_CLOSE "</div>"
 

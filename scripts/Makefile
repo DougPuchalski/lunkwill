@@ -79,6 +79,12 @@ $(PLUGIN_NAMES): $(PLUGIN_OBJS)
 	@mkdir -p ./plugins/$@
 	@$(CC) -shared -Wl,-soname,$@.so $(CFLAGS)  -o ./plugins/$@/$@.so $(foreach v,$(PLUGIN_OBJS),$(if $(findstring $@,/$(v)/),$(v),)) $(LDFLAGS)
 
+plugins: $(UTILS_OBJS) $(PLUGIN_NAMES) $(LUA_PLUGINS)
+	@echo
+
+www: $(WWW_OBJS)
+	@echo
+
 clean:
 	@echo Cleaning build directory ...
 	@rm -rf build
