@@ -159,7 +159,43 @@ int login_request(void *module_data, request *client_request)
 
 	if(client_request->user==0)
 	{
-		html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
+		// Check login data
+		if(client_request->module_request != NULL)
+		{
+			char *login_decoded = b64_decode(client_request->module_request, B64_DEFAULT);
+			char *delimiter_ptr;
+
+			delimiter_ptr = strstr(login_decoded, "@##@");
+			if(delimiter_ptr == NULL)
+			{
+				log_write("Invalid module data", LOG_DBG, 0);
+				return 1;
+			}
+
+			char username[100];
+			strncpy(username, login_decoded, delimiter_ptr-login_decoded);
+
+			char password[100];
+			delimiter_ptr += 4;
+			strncpy(password, delimiter_ptr, 99);
+
+			free(login_decoded);
+
+			printf("Try to login '%s' with '%s'\n", username, password);
+
+			if(check_user_password(module_data, username, password) == 0)
+				printf("Benutzer %s eingeloggt\n", username);
+			else
+				printf("Falsches Passwort: %s\n", password);
+
+		}
+		else
+		{
+
+			html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
+
+		}
+
 		return 0;
 	}
 
