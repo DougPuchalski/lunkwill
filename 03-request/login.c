@@ -155,31 +155,34 @@ int login_request(void *module_data, request *client_request)
 	if(client_request->user==0)
 	{
 		// Check login data
-			char *login_decoded = b64_decode(client_request->module_request, B64_DEFAULT);
-			char *delimiter_ptr;
+		char *login_decoded = b64_decode(client_request->module_request, B64_DEFAULT);
+		char *delimiter_ptr;
 
-			delimiter_ptr = strstr(login_decoded, "@##@");
-			if(delimiter_ptr == NULL)
-			{
-				log_write("Invalid module data", LOG_DBG);
-				goto LOGIN;
-			}
+		delimiter_ptr = strstr(login_decoded, "@##@");
+		if(delimiter_ptr == NULL)
+		{
+			log_write("Invalid module data", LOG_DBG);
 
-			delimiter_ptr[0]=0;
-			char *username=login_decoded;
-			char *password=delimiter_ptr+4;
+			goto LOGIN;
+		}
+
+		delimiter_ptr[0]=0;
+		char *username=login_decoded;
+		char *password=delimiter_ptr+4;
 
 
-			if(check_user_password(module_data, username, password) == 0)
-			{
-				html_add_tag(&html->main, "<script>", "window.setCookie('login', 'BBBBBBBBBBBBBBBBBBBB');","</script>");
-				free(login_decoded);
-				return 0;
-			}
+		if(check_user_password(module_data, username, password) == 0)
+		{
+			html_add_tag(&html->main, "<script>", "window.setCookie('login', 'BBBBBBBBBBBBBBBBBBBB');","</script>");
 			free(login_decoded);
 
-	LOGIN:
-		html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
+			return 0;
+		}
+
+		free(login_decoded);
+
+LOGIN:
+		html_add_tag(&html->main, "<script>", "lw_login_form(0);","</script>");
 
 		return 0;
 	}
