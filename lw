@@ -32,7 +32,7 @@ case $1 in
 	"mem")
 		shift
 		make -j9;
-		bash -c "valgrind --num-callers=50 --leak-resolution=high --leak-check=full --track-origins=yes --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill $@"
+		bash -c "valgrind --num-callers=50 -v --leak-resolution=high --leak-check=full --track-origins=yes --show-reachable=yes --show-possibly-lost=yes --trace-children=yes --time-stamp=yes ./lunkwill $@"
 	;;
 	"run")
 		shift

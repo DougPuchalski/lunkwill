@@ -156,8 +156,6 @@ int login_request(void *module_data, request *client_request)
 	if(client_request->user==0)
 	{
 		// Check login data
-		if(client_request->module_request != NULL)
-		{
 			char *login_decoded = b64_decode(client_request->module_request, B64_DEFAULT);
 			char *delimiter_ptr;
 
@@ -165,8 +163,7 @@ int login_request(void *module_data, request *client_request)
 			if(delimiter_ptr == NULL)
 			{
 				log_write("Invalid module data", LOG_DBG, 0);
-				goto ERROR_SERVER;
-				return 1;
+				goto LOGIN;
 			}
 
 			delimiter_ptr[0]=0;
@@ -181,8 +178,8 @@ int login_request(void *module_data, request *client_request)
 				return 0;
 			}
 			free(login_decoded);
-		}
 
+	LOGIN:
 		html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
 
 		return 0;

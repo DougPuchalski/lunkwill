@@ -4,14 +4,14 @@ PREFIX?=/usr/
 
 CFLAGS+= -Wall -g -pthread -Werror -O2 \
 		$(shell pkg-config --cflags libconfig) \
-		$(shell pkg-config --cflags sqlite3) \
 		$(shell pkg-config --cflags libgit2) \
+		$(shell pkg-config --cflags openssl) \
 		$(shell pkg-config --cflags lua||pkg-config --cflags lua5.1)
 
 LDFLAGS+= -ldl \
-		$(shell pkg-config --libs libconfig) \
-		$(shell pkg-config --libs sqlite3) \
 		$(shell pkg-config --libs libgit2) \
+		$(shell pkg-config --libs libconfig) \
+		$(shell pkg-config --libs openssl) \
 		$(shell pkg-config --libs lua||pkg-config --libs lua5.1)
 
 SRC_DIRS = ${shell find !SRC! -type d -print | grep -v "04-plugins" | grep -v "utils" }
