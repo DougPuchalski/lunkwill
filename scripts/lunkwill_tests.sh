@@ -1,18 +1,24 @@
 #!/bin/bash
 
+if [ "$1" == "travis" ]
+then
+	printf "    \n"
+	printf "   \n"
+	printf "  \n"
+	printf " \n"
+	
+	# Workaround for travis: Other repo
+	GITREPO="L2hvbWUvdHJhdmlzL2J1aWxkLzBwcTc2ci9sdW5rd2lsbC8uZ2l0"
+else
+	GITREPO="Li4vbHVua3dpbGwvLmdpdA=="
+fi
+
+
 echo "l u n k w i l l   a u t o   t e s t s"
 echo "====================================="
 
 RET=0
 FAILS=0
-
-# Workaround for travis: Other repo
-if [ "$1" == "travis" ]
-then
-	GITREPO="L2hvbWUvdHJhdmlzL2J1aWxkLzBwcTc2ci9sdW5rd2lsbC8uZ2l0"
-else
-	GITREPO="Li4vbHVua3dpbGwvLmdpdA=="
-fi
 
 printf "\nA)\tTesting dashboard page\t\t\t"
 wget -O- http://127.0.0.1:3000/BAAAAAAAAAAAAAAAAAAA/AAAA/AA/  > /dev/null 2>&1
@@ -75,7 +81,6 @@ fi
 
 
 printf "\n\n"
-
 if [ $RET -eq 0 ]
 then
 	printf "All tests passed! :-)\n"
