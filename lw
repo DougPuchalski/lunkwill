@@ -75,11 +75,24 @@ case $1 in
 	
 	"travis")
 		make -j99
+		./lunkwill -f
+		sleep 2
+		
+		../lunkwill/scripts/lunkwill_tests.sh travis
 	;;
 
 	"astyle")
 		cd ${SOURCE_DIR}
 		astyle -nUt --style=ansi --recursive *.c *.h
+	;;
+	
+	"test")
+		shift
+		make -j9;
+		clear;
+		bash -c "./lunkwill -f $@"
+		../lunkwill/scripts/lunkwill_tests.sh
+		killall -s9 lunkwill
 	;;
 
 	*)
