@@ -48,7 +48,7 @@ int parse_logins(struct login_data* md)
 	FILE *passwd;
 	if((passwd = fopen("user.db", "r")) == NULL)
 	{
-		log_write("Could not read user database", LOG_ERR, 0);
+		log_write("Could not read user database", LOG_ERR);
 		return 1;
 	}
 
@@ -60,7 +60,7 @@ int parse_logins(struct login_data* md)
 
 	if(passwd_fs <= 0)
 	{
-		log_write("Failed on determining size of passwd", LOG_ERR, 0);
+		log_write("Failed on determining size of passwd", LOG_ERR);
 		fclose(passwd);
 
 		return 1;
@@ -69,7 +69,7 @@ int parse_logins(struct login_data* md)
 	char *passwd_content = calloc(1, passwd_fs);
 	if(passwd_content == NULL)
 	{
-		log_write("Failed on allocating passwd memory", LOG_ERR, 0);
+		log_write("Failed on allocating passwd memory", LOG_ERR);
 		fclose(passwd);
 
 		return 1;
@@ -77,7 +77,7 @@ int parse_logins(struct login_data* md)
 
 	if((fread(passwd_content, passwd_fs, 1, passwd)) != passwd_fs)
 	{
-		log_write("Failed on reading passwd", LOG_ERR, 0);
+		log_write("Failed on reading passwd", LOG_ERR);
 		free(passwd_content);
 		fclose(passwd);
 
@@ -98,7 +98,7 @@ int parse_logins(struct login_data* md)
 
 			pthread_mutex_unlock(&md->search_lock);
 
-			log_write("Error on writing passwd data into search tree", LOG_ERR, 0);
+			log_write("Error on writing passwd data into search tree", LOG_ERR);
 			fclose(passwd);
 			free(passwd_content);
 
@@ -161,7 +161,7 @@ int login_request(void *module_data, request *client_request)
 			delimiter_ptr = strstr(login_decoded, "@##@");
 			if(delimiter_ptr == NULL)
 			{
-				log_write("Invalid module data", LOG_DBG, 0);
+				log_write("Invalid module data", LOG_DBG);
 				goto LOGIN;
 			}
 

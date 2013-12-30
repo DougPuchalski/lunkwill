@@ -9,7 +9,7 @@ int init_module(int id, struct module_info *m)
 {
 	char buf[64];
 	sprintf(buf, "Git module intialized at %d", id);
-	log_write(buf, LOG_INFO, 0);
+	log_write(buf, LOG_INFO);
 
 	m->id=id;
 	m->name="git";
@@ -36,7 +36,7 @@ int answer_request(void *md, request *client_request)
 	git_repository *repo;
 	if(git_repository_open(&repo, repo_path) != GIT_SUCCESS)
 	{
-		log_write("",LOG_ERR,1, "Failed opening repository: '%s'", repo_path);
+		log_write("Failed opening repository: '%s'", LOG_ERR, repo_path);
 		goto ERROR_SERVER;
 	}
 
@@ -55,13 +55,13 @@ int answer_request(void *md, request *client_request)
 
 	if((head_fileptr = fopen(head_filepath, "r")) == NULL)
 	{
-		log_write("",LOG_ERR,1, "Error opening '%s'\n", head_filepath);
+		log_write("Error opening '%s'\n", LOG_ERR, head_filepath);
 		goto ERROR_SERVER;
 	}
 
 	if(fread(head_rev, 40, 1, head_fileptr) != 1)
 	{
-		log_write("",LOG_ERR,1, "Error reading from '%s'\n", head_filepath);
+		log_write("Error reading from '%s'\n", LOG_ERR, head_filepath);
 		fclose(head_fileptr);
 		goto ERROR_SERVER;
 	}
@@ -78,7 +78,7 @@ int answer_request(void *md, request *client_request)
 
 	if(git_oid_fromstr(&oid, head_rev) != GIT_SUCCESS)
 	{
-		log_write("",LOG_ERR,1, "Invalid git object: '%s'\n", head_rev);
+		log_write("Invalid git object: '%s'\n", LOG_ERR,head_rev);
 		goto ERROR_SERVER;
 	}
 
@@ -132,7 +132,7 @@ int answer_request(void *md, request *client_request)
 	{
 		if(git_commit_lookup(&commit, repo, &oid))
 		{
-			log_write("",LOG_ERR,1, "Failed to lookup the next object\n");
+			log_write("Failed to lookup the next object\n", LOG_ERR);
 			if(commit!=NULL)git_commit_free(commit);
 			git_revwalk_free(walker);
 			goto ERROR_SERVER;

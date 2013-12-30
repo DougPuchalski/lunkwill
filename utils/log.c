@@ -20,8 +20,10 @@ struct logger init_logger(char *LOGFILE, int log_lev)
 	return log;
 }
 
-int logprint(struct logger log, char *message, int error_level, char print_stderr, char vargs ,...)
+int logprint(struct logger log, char *message, int error_level, char print_stderr, ...)
 {
+	if(error_level<log.level) return 1;
+
 	char *Error_level[]=  \
 	{
 		"[  DEBUG  ]", \
@@ -31,36 +33,28 @@ int logprint(struct logger log, char *message, int error_level, char print_stder
 		"[  FATAL  ]"
 	};
 
-
-	if(error_level<log.level) return 1;
-
 	struct tm *ti;
 	time_t time_s;
 	char t_buf[128];
 
+	va_list args;
+	va_start(args, print_stderr);
+
 	time(&time_s);
 	ti = localtime(&time_s);
-
 	strftime(t_buf, 128, "%d. %b %Y %H:%M:%S", ti);
 
-	va_list args;
-	char *format;
-	va_start(args, vargs);
-
-	if(vargs)format=va_arg(args, char *);
+	char buffer[BUF_SIZE];
+	vsnprintf((char *)&buffer, BUF_SIZE, message, args);
 
 	if(print_stderr)
 	{
-		fprintf(stderr, "%s\t%s\t%s", Error_level[error_level], t_buf, message);
-		if(vargs)vfprintf(stderr, format, args);
-		fprintf(stderr, "\n");
+		fprintf(stderr, "%s\t%s\t%s\n", Error_level[error_level], t_buf, buffer);
 	}
 
 	if(log.file!=NULL)
 	{
-		fprintf(log.file, "%s\t%s\t%s", Error_level[error_level], t_buf, message);
-		if(vargs)vfprintf(log.file, format, args);
-		fprintf(log.file, "\n");
+		fprintf(log.file, "%s\t%s\t%s\n", Error_level[error_level], t_buf, buffer);
 	}
 
 	va_end(args);

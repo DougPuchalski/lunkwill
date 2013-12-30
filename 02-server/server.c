@@ -88,7 +88,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 	//Set socket options
 	if((server_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
-		log_write("Error retrieving socket from system", LOG_ERR, 0);
+		log_write("Error retrieving socket from system", LOG_ERR);
 		return 1;
 	}
 
@@ -103,7 +103,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 	        || setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)))
 	{
 
-		log_write("Error configuring sockets", LOG_ERR, 0);
+		log_write("Error configuring sockets", LOG_ERR);
 		close(server_sock);
 		return 1;
 
@@ -111,14 +111,14 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 
 	if(bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 	{
-		log_write("Error binding server to port", LOG_ERR, 0);
+		log_write("Error binding server to port", LOG_ERR);
 		close(server_sock);
 		return 1;
 	}
 
 	if((listen(server_sock, listen_queue)) < 0)
 	{
-		log_write("Error listening on port", LOG_ERR, 0);
+		log_write("Error listening on port", LOG_ERR);
 		close(server_sock);
 		return 1;
 	}
@@ -138,7 +138,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 		read_fds = master;
 		if(select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
 		{
-			log_write("Select stream failed", LOG_FATAL, 0);
+			log_write("Select stream failed", LOG_FATAL);
 			return -1;
 		}
 
@@ -167,7 +167,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 				if(read(fd_ro, buffer.data, buffer.size)<=0)
 				{
 					nfree(buffer.data);
-					log_write("Broken pipe", LOG_FATAL, 0);
+					log_write("Broken pipe", LOG_FATAL);
 					close(server_sock);
 					return 1;
 				}
@@ -185,8 +185,8 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 				char buf[11]= {0};
 				if(fgets(buf,10,stdin)==NULL)
 				{
-					log_write("STDIN not readable",LOG_WARN, 0);
-					log_write("Input will be ignored", LOG_WARN, 0);
+					log_write("STDIN not readable",LOG_WARN);
+					log_write("Input will be ignored", LOG_WARN);
 					buf[0]=0;
 					FD_CLR(i, &master);
 				}

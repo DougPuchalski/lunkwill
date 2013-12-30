@@ -9,7 +9,7 @@ void *projects_close_module(void *arg)
 int print_projects(void *data, int num, char **arguments, char **colnames)
 {
 	//~ html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<b>%s</b><br>", arguments[3]);
-	log_write(arguments[3], LOG_DBG, 0);
+	log_write(arguments[3], LOG_DBG);
 	return 0;
 }
 
@@ -17,7 +17,7 @@ int init_module(int id, struct module_info *m)
 {
 	char buf[64];
 	sprintf(buf, "Project module intialized at %d", id);
-	log_write(buf, LOG_INFO, 0);
+	log_write(buf, LOG_INFO);
 
 	m->id=id;
 	m->name="Project";

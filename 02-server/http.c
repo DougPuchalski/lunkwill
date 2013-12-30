@@ -19,7 +19,7 @@ int send_file(char **buffer, char *file_path)
 
 	if((file = fopen(file_path, "r")) == NULL)
 	{
-		log_write("Could not open requested file", LOG_ERR, 0);
+		log_write("Could not open requested file", LOG_ERR);
 		return -1;
 	}
 
@@ -30,7 +30,7 @@ int send_file(char **buffer, char *file_path)
 
 	if(file_size <= 0)
 	{
-		log_write("Could not read requested file", LOG_ERR, 0);
+		log_write("Could not read requested file", LOG_ERR);
 		fclose(file);
 
 		return -1;

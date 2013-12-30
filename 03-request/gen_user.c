@@ -8,7 +8,7 @@ int generate_user(struct login_data *md, unsigned char *username, unsigned char 
 	FILE *user_db;
 	if((user_db = fopen("user.db", "a")) == NULL)
 	{
-		log_write("Couldn't create user", LOG_DBG, 0);
+		log_write("Couldn't create user", LOG_DBG);
 		return 1;
 	}
 
@@ -19,7 +19,7 @@ int generate_user(struct login_data *md, unsigned char *username, unsigned char 
 
 	if(fwrite(new_user, 1, 120, user_db) != 120)
 	{
-		log_write("Could not write new user to passwd file", LOG_ERR, 0);
+		log_write("Could not write new user to passwd file", LOG_ERR);
 		fclose(user_db);
 
 		return 1;
@@ -31,7 +31,7 @@ int generate_user(struct login_data *md, unsigned char *username, unsigned char 
 	if(add_string(md->search, hashed_password, username) != 0)
 	{
 		pthread_mutex_unlock(&md->search_lock);
-		log_write("Couldn't create user", LOG_DBG, 0);
+		log_write("Couldn't create user", LOG_DBG);
 		return 1;
 	}
 	pthread_mutex_unlock(&md->search_lock);

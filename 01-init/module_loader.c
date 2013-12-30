@@ -5,7 +5,7 @@ void *dl_unload(void *a)
 	char *error;
 	if((dlclose(a))&&((error = dlerror()) != NULL))
 	{
-		log_write(error, LOG_ERR, 0);
+		log_write(error, LOG_ERR);
 		nfree(error);
 	}
 	return NULL;
@@ -85,7 +85,7 @@ void load_module(const char *varName, int x)
 
 		if(L!=NULL && luaL_loadfile(L, varName)==0 && lua_pcall(L, 0, 0, 0)==0)
 		{
-			log_write("", LOG_INFO, 1, "Loading %s", varName);
+			log_write("Loading %s", LOG_INFO, varName);
 
 			Modules[x+1].id=x+1;
 
@@ -123,7 +123,7 @@ void load_module(const char *varName, int x)
 		else
 		{
 			if(L!=NULL) lua_close(L);
-			log_write("Invalid LUA script", LOG_ERR, 1, "%s", varName);
+			log_write("Invalid LUA script %s", LOG_ERR, varName);
 		}
 	}
 	else
@@ -131,14 +131,14 @@ void load_module(const char *varName, int x)
 		lib_handle = dlopen(varName, RTLD_NOW);
 		if(!lib_handle)
 		{
-			log_write(dlerror(), LOG_FATAL, 0);
+			log_write(dlerror(), LOG_FATAL);
 			exit(1);
 		}
 
 		fn = (int(*)(int, struct module_info *))dlsym(lib_handle, "init_module");
 		if((error = dlerror()) != NULL)
 		{
-			log_write(error, LOG_FATAL, 0);
+			log_write(error, LOG_FATAL);
 			exit(1);
 		}
 		(*fn)(x+1,&Modules[x+1]);
