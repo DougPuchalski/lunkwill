@@ -156,7 +156,7 @@ int login_request(void *module_data, request *client_request)
 	if(client_request->user==0)
 	{
 		// Check login data
-		if(client_request->module_request != NULL && client_request->module_request[0] != 0)
+		if(client_request->module_request != NULL)
 		{
 			char *login_decoded = b64_decode(client_request->module_request, B64_DEFAULT);
 			char *delimiter_ptr;
