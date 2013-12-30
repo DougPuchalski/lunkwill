@@ -119,24 +119,16 @@ int check_user_password(struct login_data* md, char *user, char *password)
 	unsigned char hashed_password[20];
 	SHA1((unsigned char *)password, strlen(password), hashed_password);
 
-	// Search the tree for the password
-	unsigned char *real_user;
-
 	pthread_mutex_lock(&md->search_lock);
-	if((real_user = search_string(md->search, hashed_password)) == NULL)
+
+	if(check_string(md->search, hashed_password, user)!=0)
 	{
 		pthread_mutex_unlock(&md->search_lock);
-		log_write("User %s tried to login with invalid password", LOG_DBG, 1, user);
+		log_write("", LOG_ERR, 1, "User %s tried to login with invalid password", user);
 		return 1;
 	}
+
 	pthread_mutex_unlock(&md->search_lock);
-
-
-	if(strcmp((char *)real_user, (char *)user) != 0)
-	{
-		log_write("Wrong login data: User %s", LOG_DBG, 1, user);
-		return 1;
-	}
 
 	// User logged in :)
 	return 0;
@@ -173,34 +165,25 @@ int login_request(void *module_data, request *client_request)
 			if(delimiter_ptr == NULL)
 			{
 				log_write("Invalid module data", LOG_DBG, 0);
+				goto ERROR_SERVER;
 				return 1;
 			}
 
-			char username[100];
-			strncpy(username, login_decoded, delimiter_ptr-login_decoded);
+			delimiter_ptr[0]=0;
+			char *username=login_decoded;
+			char *password=delimiter_ptr+4;
 
-			char password[100];
-			delimiter_ptr += 4;
-			strncpy(password, delimiter_ptr, 99);
-
-			free(login_decoded);
-
-			printf("Try to login '%s' with '%s'\n", username, password);
 
 			if(check_user_password(module_data, username, password) == 0)
-				printf("Benutzer %s eingeloggt\n", username);
-			else
-				printf("Falsches Passwort: %s\n", password);
-
-			html_add_tag(&html->main, "<script>", "window.setCookie('login', 'BBBBBBBBBBBBBBBBBBBB');","</script>");
-			return 0;
+			{
+				html_add_tag(&html->main, "<script>", "window.setCookie('login', 'BBBBBBBBBBBBBBBBBBBB');","</script>");
+				free(login_decoded);
+				return 0;
+			}
+			free(login_decoded);
 		}
-		else
-		{
 
-			html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
-
-		}
+		html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
 
 		return 0;
 	}

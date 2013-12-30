@@ -21,7 +21,6 @@ void atexit_safe_exit()
 	sighndlr_list *sig_list;
 	while((sig_list=fifo_pop(&Sighandler))!=NULL)
 	{
-		//~ printf(".");
 		if(sig_list->func!=NULL)
 		{
 			sig_list->func(sig_list->param);

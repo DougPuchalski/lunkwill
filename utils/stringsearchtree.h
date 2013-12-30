@@ -29,7 +29,7 @@ extern void free_searchtree(node *tree);
 extern node *init_searchtree(void);
 
 /** \brief Search for a value with the key */
-extern unsigned char *search_string(node *tree, unsigned char *key);
+extern int check_string(node *tree, unsigned char *key, char *value);
 
 /** \brief Init node and all subnodes */
 char init_node(node *parent, int depth);

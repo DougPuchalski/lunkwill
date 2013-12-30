@@ -4,18 +4,16 @@ inline char init_node(node *parent, int depth)
 {
 	// Should always be != NULL
 	if(parent == NULL)
+	{
 		return 1;
+	}
 
 	// Initialize concatenated lists
-	if(depth == 4)
+	if(depth == 5)
 	{
 		// Allocate list a or fail!
-		parent->a = (list *)calloc(1, sizeof(list));
-		if(parent->a == NULL)
-			return 1;
-
-		// b points to the end of list a
-		parent->b = parent->a;
+		parent->a = NULL;
+		parent->b = NULL;
 
 		return 0;
 	}
@@ -23,7 +21,9 @@ inline char init_node(node *parent, int depth)
 	// Allocate node a or fail!
 	parent->a = calloc(1, sizeof(node));
 	if(parent->a == NULL)
+	{
 		return 1;
+	}
 
 	// Try to initialize node a or fail!
 	if(init_node(parent->a, depth+1) != 0)
@@ -72,14 +72,9 @@ node *init_searchtree(void)
 
 inline node *get_list_from_key(node *tree, unsigned char *key)
 {
-	// Our key needs to be at least 20 bytes long
-	if(strlen((char *)key) < 20)
-		return NULL;
-
 	// The 5 integers are equal to first 20 bytes of the (hashed) string.
 	unsigned int v[5];
 	memcpy(v, key, 20);
-
 
 	// Binary search inside of the tree
 	node *node_ptr = tree;
@@ -88,7 +83,7 @@ inline node *get_list_from_key(node *tree, unsigned char *key)
 	for(depth=0; depth<5; depth++)
 	{
 		// Direction in the tree: right or left?
-		if(v[depth] < UINT_MAX)
+		if(v[depth] < UINT_MAX/2)
 		{
 			node_ptr = node_ptr->a;
 		}
@@ -106,14 +101,27 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	// Get the list where the value should be stored
 	node *node_ptr = get_list_from_key(tree, key);
 	if(node_ptr == NULL)
+	{
 		return 1;
+	}
 
 
 	// Allocate list the first time
 	if(node_ptr->a == NULL)
 	{
-		node_ptr->a = calloc(1, sizeof(node));
+		node_ptr->a = calloc(1, sizeof(list));
 		node_ptr->b = node_ptr->a;
+	}
+	else
+	{
+		// Allocate next element or fail!
+		((list*)node_ptr->b)->next = calloc(1, sizeof(list));
+		if(((list*)node_ptr->b)->next == NULL)
+		{
+			return 1;
+		}
+		// Set b to the new end
+		node_ptr->b = (node *)((list*)node_ptr->b)->next;		
 	}
 
 	// Point to the end of the list!
@@ -150,42 +158,37 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 		return 1;
 	}
 
-	// Allocate next element or fail!
-	list_ptr->next = calloc(1, sizeof(list));
-	if(list_ptr->next == NULL)
-	{
-		nfree(list_ptr->key);
-		nfree(list_ptr->string);
-
-		return 1;
-	}
-
-	// Set b to the new end
-	node_ptr->b = (node *)list_ptr->next;
-
 	return 0;
 }
 
-unsigned char *search_string(node *tree, unsigned char *key)
+int check_string(node *tree, unsigned char *key, char *value)
 {
 	// Get the list where the value should be stored
 	node *node_ptr = get_list_from_key(tree, key);
 	if(node_ptr == NULL)
-		return NULL;
+	{
+		return 1;
+	}
 
 	// Point to the beginning of the list
 	list *list_ptr = (list *)node_ptr->a;
+
 	// Linear search on list
 	while(list_ptr != NULL)
 	{
 		if(memcmp((char *)list_ptr->key, (char *)key, 20) == 0)
-			return list_ptr->string;
+		{
+			if(strcmp((char *)list_ptr->string, value)==0)
+			{
+				return 0;
+			}
+		}
 
 		list_ptr = list_ptr->next;
 	}
-
+	
 	// We didn't find the key
-	return NULL;
+	return 1;
 }
 
 
