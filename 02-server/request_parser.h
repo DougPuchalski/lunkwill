@@ -2,6 +2,7 @@
 #define __REQUEST_PARSER_H__
 
 #include "../utils/lwutils.h"
+#include "http.h"
 
 /** \brief Used in requests to know, which type of file is requested, and what type the answer consists of */
 enum SPECIAL_FILE

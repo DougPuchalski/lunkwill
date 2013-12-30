@@ -1,5 +1,5 @@
 #include "login.h"
-#include "../02-server/gen_user.h"
+#include "gen_user.h"
 
 void *login_close_module(void *arg)
 {
