@@ -124,7 +124,6 @@ int check_user_password(struct login_data* md, char *user, char *password)
 	if(check_string(md->search, hashed_password, user)!=0)
 	{
 		pthread_mutex_unlock(&md->search_lock);
-		log_write("", LOG_ERR, 1, "User %s tried to login with invalid password", user);
 		return 1;
 	}
 
