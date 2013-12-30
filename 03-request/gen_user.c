@@ -30,6 +30,7 @@ int generate_user(struct login_data *md, unsigned char *username, unsigned char 
 	pthread_mutex_lock(&md->search_lock);
 	if(add_string(md->search, password, username) != 0)
 	{
+		pthread_mutex_unlock(&md->search_lock);
 		log_write("Couldn't create user", LOG_DBG, 0);
 		return 1;
 	}

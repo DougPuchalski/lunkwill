@@ -95,6 +95,9 @@ int parse_logins(struct login_data* md)
 
 		if(add_string(md->search, (unsigned char *)&passwd_content[i], pw) != 0)
 		{
+
+			pthread_mutex_unlock(&md->search_lock);
+
 			log_write("Error on writing passwd data into search tree", LOG_ERR, 0);
 			fclose(passwd);
 			free(passwd_content);
@@ -160,7 +163,7 @@ int login_request(void *module_data, request *client_request)
 	if(client_request->user==0)
 	{
 		// Check login data
-		if(client_request->module_request != NULL)
+		if(client_request->module_request != NULL && client_request->module_request[0] != 0)
 		{
 			char *login_decoded = b64_decode(client_request->module_request, B64_DEFAULT);
 			char *delimiter_ptr;
@@ -188,6 +191,8 @@ int login_request(void *module_data, request *client_request)
 			else
 				printf("Falsches Passwort: %s\n", password);
 
+			html_add_tag(&html->main, "<script>", "window.setCookie('login', 'BBBBBBBBBBBBBBBBBBBB');","</script>");
+			return 0;
 		}
 		else
 		{
