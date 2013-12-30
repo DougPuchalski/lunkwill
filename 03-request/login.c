@@ -114,6 +114,7 @@ int check_user_password(struct login_data* md, char *user, char *password)
 {
 	// Hash the given password
 	unsigned char hashed_password[20];
+	SHA1((unsigned char *)password, strlen(password), hashed_password);
 
 	// Search the tree for the password
 	unsigned char *real_user;
