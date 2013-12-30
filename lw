@@ -75,6 +75,7 @@ case $1 in
 	
 	"travis")
 		make -j99
+		ls
 	;;
 
 	"astyle")
