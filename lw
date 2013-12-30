@@ -75,7 +75,10 @@ case $1 in
 	
 	"travis")
 		make -j99
-		ls
+		./lunkwill -f
+		sleep 2
+		
+		../lunkwill/scripts/lunkwill_tests.sh travis
 	;;
 
 	"astyle")
