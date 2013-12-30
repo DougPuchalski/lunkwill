@@ -115,12 +115,6 @@ int main(int argc, char** argv)
 			close(pipe1[1]);
 			fclose(stdin);
 
-			if(!init_db())
-			{
-				err="Failed to load database";
-				goto _fail;
-			}
-
 			//Read config
 			//Modules_init;
 			if(login_init_module(0)!=0) return 1;
