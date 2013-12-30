@@ -124,7 +124,6 @@ int check_user_password(struct login_data* md, char *user, char *password)
 	if(check_string(md->search, hashed_password, user)!=0)
 	{
 		pthread_mutex_unlock(&md->search_lock);
-		log_write("", LOG_ERR, 1, "User %s tried to login with invalid password", user);
 		return 1;
 	}
 
@@ -156,7 +155,7 @@ int login_request(void *module_data, request *client_request)
 	if(client_request->user==0)
 	{
 		// Check login data
-		if(client_request->module_request != NULL)
+		if(client_request->module_request[0] != 0)
 		{
 			char *login_decoded = b64_decode(client_request->module_request, B64_DEFAULT);
 			char *delimiter_ptr;

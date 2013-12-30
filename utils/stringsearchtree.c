@@ -121,7 +121,7 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 			return 1;
 		}
 		// Set b to the new end
-		node_ptr->b = (node *)((list*)node_ptr->b)->next;		
+		node_ptr->b = (node *)((list*)node_ptr->b)->next;
 	}
 
 	// Point to the end of the list!
@@ -186,7 +186,7 @@ int check_string(node *tree, unsigned char *key, char *value)
 
 		list_ptr = list_ptr->next;
 	}
-	
+
 	// We didn't find the key
 	return 1;
 }
