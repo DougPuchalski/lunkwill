@@ -75,7 +75,7 @@ int parse_logins(struct login_data* md)
 		return 1;
 	}
 
-	if((fread(passwd_content, passwd_fs, 1, passwd)) != passwd_fs)
+	if((fread(passwd_content, passwd_fs-1, 1, passwd)) != passwd_fs-1)
 	{
 		log_write("Failed on reading passwd", LOG_ERR);
 		free(passwd_content);
@@ -176,8 +176,8 @@ int login_request(void *module_data, request *client_request)
 			free(login_decoded);
 			return 0;
 		}
-		
-	LOGIN:
+
+LOGIN:
 		free(login_decoded);
 		html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
 
