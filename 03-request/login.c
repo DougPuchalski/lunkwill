@@ -176,8 +176,9 @@ int login_request(void *module_data, request *client_request)
 			free(login_decoded);
 			return 0;
 		}
+		
+	LOGIN:
 		free(login_decoded);
-
 		html_add_tag(&html->main, "<script>", "lw_login_form();","</script>");
 
 		return 0;
