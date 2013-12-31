@@ -66,7 +66,7 @@ int parse_logins(struct login_data* md)
 		return 1;
 	}
 
-	char *passwd_content = calloc(1, passwd_fs);
+	char *passwd_content = calloc(1, passwd_fs+1);
 	if(passwd_content == NULL)
 	{
 		log_write("Failed on allocating passwd memory", LOG_ERR);
@@ -75,7 +75,7 @@ int parse_logins(struct login_data* md)
 		return 1;
 	}
 
-	if((fread(passwd_content, passwd_fs-1, 1, passwd)) != passwd_fs-1)
+	if((fread(passwd_content, passwd_fs, 1, passwd)) != passwd_fs)
 	{
 		log_write("Failed on reading passwd", LOG_ERR);
 		free(passwd_content);
