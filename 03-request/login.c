@@ -66,6 +66,10 @@ int parse_logins(struct login_data* md)
 		return 1;
 	}
 
+	// Yep - Coverity is paranoid :)
+	if(passwd_fs == INT_MAX)
+		return 1;
+
 	char *passwd_content = calloc(1, passwd_fs+1);
 	if(passwd_content == NULL)
 	{
