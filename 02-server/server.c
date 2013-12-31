@@ -21,7 +21,12 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 	{
 		struct pipe_rxtx *buffer=calloc(1,sizeof(struct pipe_rxtx));
 
-		if(read(fd_ro, buffer, sizeof(struct pipe_rxtx))!=sizeof(struct pipe_rxtx))
+		if(read(fd_ro, &buffer->size, sizeof(int))!=sizeof(int))
+		{
+			nfree(buffer);
+			break;
+		}
+		if(read(fd_ro, &buffer->fd, sizeof(int))!=sizeof(int))
 		{
 			nfree(buffer);
 			break;
@@ -158,7 +163,11 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 			else if(i==fd_ro)
 			{
 				struct pipe_rxtx buffer;
-				if(read(fd_ro, &buffer, sizeof(struct pipe_rxtx))<=0)
+				if(read(fd_ro, &buffer.size, sizeof(int))<=0)
+				{
+					return 1;
+				}
+				if(read(fd_ro, &buffer.fd, sizeof(int))<=0)
 				{
 					return 1;
 				}
@@ -206,7 +215,12 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 				else
 				{
 					todo.fd=i;
-					if(write(fd_wr, &todo, sizeof(struct pipe_rxtx))==-1)
+					if(write(fd_wr, &todo.size, sizeof(int))==-1)
+					{
+						nfree(todo.data);
+						return -1;
+					}
+					if(write(fd_wr, &todo.fd, sizeof(int))==-1)
 					{
 						nfree(todo.data);
 						return -1;

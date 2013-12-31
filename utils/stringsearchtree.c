@@ -8,16 +8,6 @@ inline char init_node(node *parent, int depth)
 		return 1;
 	}
 
-	// Initialize concatenated lists
-	if(depth == 5)
-	{
-		// Allocate list a or fail!
-		parent->a = NULL;
-		parent->b = NULL;
-
-		return 0;
-	}
-
 	// Allocate node a or fail!
 	parent->a = calloc(1, sizeof(node));
 	if(parent->a == NULL)
@@ -25,16 +15,23 @@ inline char init_node(node *parent, int depth)
 		return 1;
 	}
 
-	// Try to initialize node a or fail!
-	if(init_node(parent->a, depth+1) != 0)
+	// Allocate node b or fail!
+	parent->b = calloc(1, sizeof(node));
+	if(parent->b == NULL)
 	{
 		nfree(parent->a);
 		return 1;
 	}
 
-	// Allocate node b or fail!
-	parent->b = calloc(1, sizeof(node));
-	if(parent->b == NULL)
+	// Initialize concatenated lists
+	if(depth == 4)
+	{
+		return 0;
+	}
+
+
+	// Try to initialize node a or fail!
+	if(init_node(parent->a, depth+1) != 0)
 	{
 		nfree(parent->a);
 		return 1;
@@ -100,6 +97,7 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 {
 	// Get the list where the value should be stored
 	node *node_ptr = get_list_from_key(tree, key);
+
 	if(node_ptr == NULL)
 	{
 		return 1;
@@ -201,7 +199,7 @@ inline void free_list(list *list_ptr)
 
 		list *list_old = list_ptr;
 		list_ptr = list_ptr->next;
-
+		
 		nfree(list_old->key);
 		nfree(list_old->string);
 		nfree(list_old);
@@ -216,12 +214,11 @@ inline void free_node(node *node, int depth)
 		return;
 
 	// Free concatenated lists
-	if(depth == 4)
+	if(depth == 5)
 	{
 		// Start freeing from beginning of the list
 		free_list((list *)node->a);
 		nfree(node);
-
 		return;
 	}
 

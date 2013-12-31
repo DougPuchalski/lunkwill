@@ -74,7 +74,14 @@ PIPE:
 		{
 			pthread_mutex_lock(&sw->lock_send);
 
-			if(write(sw->send_fd, buffer, sizeof(struct pipe_rxtx))==-1)
+			if(write(sw->send_fd, &buffer->size, sizeof(int))==-1)
+			{
+				nfree(buffer->data);
+				nfree(buffer);
+				pthread_mutex_unlock(&sw->lock_send);
+				goto IQUITTODAY;
+			}
+			if(write(sw->send_fd, &buffer->fd, sizeof(int))==-1)
 			{
 				nfree(buffer->data);
 				nfree(buffer);
