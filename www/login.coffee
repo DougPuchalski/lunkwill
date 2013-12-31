@@ -22,7 +22,9 @@ window.lw_login_form = ->
 
 
 window.lw_logout_button = ->
-
+	# Reset login errors on logout
+	login_error = 0
+	
 	logout=document.createElement("a")
 
 	logout.setAttribute 'onclick', 
