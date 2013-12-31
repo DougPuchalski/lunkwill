@@ -199,7 +199,7 @@ inline void free_list(list *list_ptr)
 
 		list *list_old = list_ptr;
 		list_ptr = list_ptr->next;
-		
+
 		nfree(list_old->key);
 		nfree(list_old->string);
 		nfree(list_old);
