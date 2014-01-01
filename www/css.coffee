@@ -62,17 +62,15 @@ CSS.add ".base", "position:absolute;
 	overflow: auto;
 	white-space:nowrap"
 
-CSS.add "div.module_list_entry", "margin: 1px 10px; display: inline-block"
+CSS.add "div.module_list_entry", "display: inline-block; width: 100px; height: 20px; text-align: center;
+	user-select: none; padding: 5px; user-select: none; -moz-user-select: none; -o-user-select: none;
+	-webkit-user-select: none; -ms-user-select: none; float: left"
+CSS.add "div.module_list_entry:hover", "background-color: #E6E6E6; cursor: pointer; font-weight: bold;"
 
-CSS.add "a.module", "color:#000; margin-left:5px user-select: none"
-CSS.add "a.module:hover", "color:#000; background-color: #FF6300; margin-left:5px; cursor: pointer"
 
+CSS.add ".header", "height: 30px; background-color: #F0F0F0;  visibility: hidden; white-space:nowrap"
 
-CSS.add ".header", "margin-top: 10px;
-	height: 35px"
-
-CSS.add "a.silentlink", "color: #000000;
-	text-decoration: none"
+CSS.add "a.silentlink", "color: #000000; text-decoration: none"
 
 CSS.add "a:link", "color:#000;"
 CSS.add "a:visited", "color:#000;"

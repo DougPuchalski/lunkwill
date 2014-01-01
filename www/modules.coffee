@@ -1,14 +1,12 @@
 window.lw_show_ModuleList = ->
-	lw_mods=document.createElement("div")
-	lw_mods.id='ModuleList'
-	lw_mods.setAttribute 'style', 'display:inline-block;overflow-x:auto;margin-left:5px;width:90%'
-	lw_mods.innerHTML=''
+	document.getElementById('HEAD').style.visibility = "visible";
+	
+	lw_mods=document.getElementById('HEAD')
 
 	for Num,Name of window.lw_ModuleList
 		lw_mods.innerHTML+=
-			"<a onclick=\"window.setCookie('module','#{Num}')\"
-			 class='module'>
-			 <div class='module_list_entry'>
-			 #{Name}</div></a>" 
+			"<div class='module_list_entry' onclick=\"window.setCookie('module','#{Num}')\">
+			<div class='module'>#{Name}</div></div>"
 
+	lw_mods.innerHTML += "<div class='module_list_entry' style='float: right;'>Logout</div>"
 	window.EvalScriptElem.parentNode.insertBefore lw_mods, window.EvalScriptElem

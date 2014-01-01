@@ -3,7 +3,7 @@
 
 #include "lwutils.h"
 
-#define HEADER_OPEN "<div id='HEAD' class='header' style='white-space:nowrap;'>"
+#define HEADER_OPEN "<div id='HEAD' class='header'>"
 #define HEADER_CLOSE "</div><br>"
 
 #define SIDEBAR_OPEN "<div style='display:inline-block;width:15%;vertical-align:top;" \
