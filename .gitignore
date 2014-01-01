@@ -17,7 +17,7 @@
 *.app
 
 # Build folder
-build/
+.build/
 *.swp
 
 # Doxygen files
