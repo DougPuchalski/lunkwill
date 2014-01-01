@@ -170,7 +170,7 @@ char *html_nescape(char *string_ptr, int string_len)
 {
 	int i;
 	char *a;
-	
+
 	i=6*string_len+2;
 	if(i<=0) return NULL;
 	a=malloc(i);

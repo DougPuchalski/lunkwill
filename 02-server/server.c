@@ -36,7 +36,6 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 
 		if(buffer->size <= 0)
 		{
-			nfree(buffer);
 			return 1;
 		}
 
@@ -88,6 +87,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 	int fdmax,i;
 
 	fd_set master;
+	fd_set read_fds;
 
 	int optval = 1;
 	struct timeval tv;
@@ -138,6 +138,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 	setvbuf(stdin,NULL,_IONBF,0);
 
 	FD_ZERO(&master);
+	FD_ZERO(&read_fds);
 	FD_SET(server_sock, &master);
 	FD_SET(0, &master);
 	FD_SET(fd_ro, &master);
@@ -145,7 +146,8 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 
 	while(!Exit_Server)
 	{
-		if(select(fdmax+1, &master, NULL, NULL, NULL) == -1)
+		read_fds = master;
+		if(select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
 		{
 			log_write("Select stream failed", LOG_FATAL);
 			return -1;
@@ -153,7 +155,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 
 		for(i = 0; i <= fdmax; i++)
 		{
-			if(!FD_ISSET(i, &master)) continue;
+			if(!FD_ISSET(i, &read_fds)) continue;
 
 			if(i == server_sock)
 			{

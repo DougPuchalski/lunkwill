@@ -32,8 +32,8 @@ int init_module(int id, struct module_info *m)
 int projects_request(void *md, request *client_request)
 {
 
-	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<h3 style='margin-left:10px'>","Projects","</h3>");
-	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<table style='margin-left:10px'", NULL,"</table>");
+	html_add_tag(&((struct html_ui*)client_request->answer)->main, "<h1>Projects</h1>",NULL,NULL);
+	html_add_tag(&((struct html_ui*)client_request->answer)->main, "<table style='margin-left:10px'", NULL,"</table>");
 
 	return 0;
 }

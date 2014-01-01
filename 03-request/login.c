@@ -35,7 +35,7 @@ int login_init_module(int id)
 
 	generate_user(md, demo_user, demo_pw);
 
-	md->site="<h3>Account</h3>";
+	md->site="<h1>Account</h1>";
 
 	sighndlr_add(login_close_module, md);
 
