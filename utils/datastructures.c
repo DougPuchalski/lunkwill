@@ -119,7 +119,7 @@ tree_node *tree_add_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 
 	while(node_ptr!=NULL)
 	{
-		if((i=cmp_func(data,node_ptr->list->data)>0))
+		if((i=cmp_func(data,node_ptr->list->data))>0)
 		{
 			node_ptr=node_ptr->left;
 		}
@@ -148,7 +148,7 @@ tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 
 	while(node_ptr!=NULL)
 	{
-		if((i=cmp_func(data,node_ptr->list->data)>0))
+		if((i=cmp_func(data,node_ptr->list->data))>0)
 		{
 			old_node_ptr=node_ptr;
 			node_ptr=node_ptr->left;
