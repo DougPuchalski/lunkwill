@@ -68,7 +68,12 @@ int parse_logins(struct login_data* md)
 
 	// Yep - Coverity is paranoid :)
 	if(passwd_fs == INT_MAX)
+	{
+		log_write("user.db file is too big...", LOG_ERR)
+		fclose(passwd);
+		
 		return 1;
+	}
 
 	char *passwd_content = calloc(1, passwd_fs+1);
 	if(passwd_content == NULL)
