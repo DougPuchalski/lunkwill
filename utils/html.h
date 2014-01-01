@@ -6,7 +6,7 @@
 #define HEADER_OPEN "<div id='HEAD' class='header'>"
 #define HEADER_CLOSE "</div><br>"
 
-#define SIDEBAR_OPEN "<div style='display:inline-block;width:15%;vertical-align:top;" \
+#define SIDEBAR_OPEN "<div style='display:inline-block;width:15%;margin-right:20px;vertical-align:top;" \
 	"white-space:normal;' id='SIDEBAR' class='sidebar'>"
 #define SIDEBAR_CLOSE "</div>"
 
