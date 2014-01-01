@@ -26,14 +26,20 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 			nfree(buffer);
 			break;
 		}
+
+
 		if(read(fd_ro, &buffer->fd, sizeof(int))!=sizeof(int))
 		{
 			nfree(buffer);
 			break;
 		}
 
+		if(buffer.size <= 0 || buffer.size > INT_MAX)
+		{
+			return 1;
+		}
 
-		buffer->data=calloc(1,buffer->size);
+		buffer->data=calloc(1, buffer->size);
 		if(read(fd_ro, buffer->data, buffer->size)!=buffer->size)
 		{
 			nfree(buffer->data);
@@ -172,7 +178,12 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 					return 1;
 				}
 
-				buffer.data=malloc(buffer.size);
+				if(buffer.size <= 0 || buffer.size > INT_MAX)
+				{
+					return 1;
+				}
+
+				buffer.data = calloc(1, buffer.size);
 				if(read(fd_ro, buffer.data, buffer.size)<=0)
 				{
 					nfree(buffer.data);
