@@ -39,7 +39,12 @@ CSS.add ".title", "font-size: 46px;
 	color: #FFF;
 	font-weight:bold;
 	height:100px;
-	background:#FF6300"
+	background:#FF6300; transition: background-color 10s linear; -webkit-transition: background-color 10s linear;
+	-moz-transition: background-color 10s linear; -o-transition: background-color 10s linear; -ms-transition: background-color 10s linear;"
+
+CSS.add "body", "background:#FF6300; transition: background-color 10s linear; -webkit-transition: background-color 10s linear;
+	-moz-transition: background-color 10s linear; -o-transition: background-color 10s linear; -ms-transition: background-color 10s linear;"
+
 
 CSS.add ".menu", "width: 150px;
 	overflow: hidden;
@@ -66,7 +71,6 @@ CSS.add "div.module_list_entry", "display: inline-block; width: 100px; height: 2
 	user-select: none; padding: 5px; user-select: none; -moz-user-select: none; -o-user-select: none;
 	-webkit-user-select: none; -ms-user-select: none; float: left"
 CSS.add "div.module_list_entry:hover", "background-color: #E6E6E6; cursor: pointer; font-weight: bold;"
-
 
 CSS.add ".header", "height: 30px; background-color: #F0F0F0;  visibility: hidden; white-space:nowrap"
 

@@ -32,9 +32,9 @@ moduleCookie= ->
 window.selectColor= ->
 	document.getElementById('title').style.background = document.getElementById('selected_color').value
 	document.body.style.background = document.getElementById('selected_color').value
-	document.getElementById('logout_button').style.background = document.getElementById('selected_color').value
 	
-	window.setCookie("background_color", document.getElementById('selected_color').value)
+	# Set color to cookie (only for user selected color)
+	#window.setCookie("background_color", document.getElementById('selected_color').value)
 
 
 window.ajax= (url) ->

@@ -1,5 +1,15 @@
+window.randomColor = ->
+	hex = "0123456789abcdef"
+	color = "#" + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16]
+
+	document.getElementById('title').style.background = color
+	document.body.style.backgroundColor = color
+
+
 window.lw_show_ModuleList = ->
+	# Init interface
 	document.getElementById('HEAD').style.visibility = "visible";
+	setInterval(window.randomColor, 10000)
 	
 	lw_mods=document.getElementById('HEAD')
 
