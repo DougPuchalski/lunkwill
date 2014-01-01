@@ -76,8 +76,10 @@ CSS.add ".header", "height: 30px; background-color: #F0F0F0;  visibility: hidden
 
 CSS.add "a.silentlink", "color: #000000; text-decoration: none"
 
-CSS.add "a:link", "color:#000;"
-CSS.add "a:visited", "color:#000;"
-CSS.add "a:active", "color:#000;"
-CSS.add "a:hover", "color:#000;"
+CSS.add "a:link", "color:#000"
+CSS.add "a:visited", "color:#000"
+CSS.add "a:active", "color:#000"
+CSS.add "a:hover", "color:#000"
 
+CSS.add "div.module_title", "font-size: 28pt; margin-bottom: 20px; margin-left: -100px"
+CSS.add "div.sidebar", "padding-top: 55px; padding-left: 20px"
