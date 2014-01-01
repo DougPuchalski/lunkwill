@@ -55,7 +55,7 @@ int logprint(struct logger log, char *message, int error_level, char print_stder
 	if(log.file!=NULL)
 	{
 		fprintf(log.file, "%s\t%s\t%s\n", Error_level[error_level], t_buf, buffer);
-		
+
 		// Save data to disk in case we crash
 		fflush(log.file);
 	}
