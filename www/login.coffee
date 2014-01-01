@@ -30,7 +30,9 @@ window.lw_logout_button = ->
 	logout.setAttribute 'onclick', 
 		"javascript:window.setCookie('login', ''),window.ajax('')"
 
-	logout.setAttribute 'style', 'background:#aa2211;color:#FFF;
+	logout.setAttribute 'id', 'logout_button'
+
+	logout.setAttribute 'style', 'background:#FF6300;color:#FFF;cursor:pointer;
 		margin-right:5px;width:9%;vertical-align: top;'
 
 	logout.innerHTML = "<div style='margin:1px 10px;display: inline-block;'>

@@ -25,7 +25,10 @@ int answer_request(void *md, request *client_request)
 {
 
 	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<h3 style='margin-left:10px'>","DUMMY","</h3>");
-	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<table style='margin-left:10px'", NULL,"</table>");
+	html_add_tag(&((struct html_ui*)client_request->answer)->sidebar, "<b>Dummy Index</b>", NULL, NULL);
+	html_add_tag(&((struct html_ui*)client_request->answer)->main, "<table style='margin-left:10px'", NULL,"</table>");
+	html_add_tag(&((struct html_ui*)client_request->answer)->main, "Select your color!<span style='margin-left: 50px;'> </span>", "<input type='color' id='selected_color' onchange='selectColor()'>", NULL);
+
 
 	return 0;
 }

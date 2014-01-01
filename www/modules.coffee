@@ -7,8 +7,8 @@ window.lw_show_ModuleList = ->
 	for Num,Name of window.lw_ModuleList
 		lw_mods.innerHTML+=
 			"<a onclick=\"window.setCookie('module','#{Num}')\"
-			 style='background:#aa2211;color:#FFF;margin-left:5px;'>
-			 <div style='margin:1px 10px;display: inline-block;'>
+			 class='module'>
+			 <div class='module_list_entry'>
 			 #{Name}</div></a>" 
 
 	window.EvalScriptElem.parentNode.insertBefore lw_mods, window.EvalScriptElem

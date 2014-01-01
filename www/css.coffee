@@ -32,14 +32,14 @@ CSS.flush = ->
 				head.appendChild style
 	
 #Add default css values
-CSS.add "body", "background-color: #aa2211;
+CSS.add "body", "background-color: #FF6300;
 	font-family: Verdana, Helvetica, Arial"
 		
 CSS.add ".title", "font-size: 46px;
 	color: #FFF;
 	font-weight:bold;
 	height:100px;
-	background:#aa2211"
+	background:#FF6300"
 
 CSS.add ".menu", "width: 150px;
 	overflow: hidden;
@@ -47,6 +47,8 @@ CSS.add ".menu", "width: 150px;
 	background: #aa2211;
 	font-weight: bold;
 	height: 5px"
+
+CSS.add ".menu:hover", "background-color: #FF6300"
 
 CSS.add ".base", "position:absolute;
 	top:80px;
@@ -59,6 +61,12 @@ CSS.add ".base", "position:absolute;
 	background:#FFF;
 	overflow: auto;
 	white-space:nowrap"
+
+CSS.add "div.module_list_entry", "margin: 1px 10px; display: inline-block"
+
+CSS.add "a.module", "color:#000; margin-left:5px user-select: none"
+CSS.add "a.module:hover", "color:#000; background-color: #FF6300; margin-left:5px; cursor: pointer"
+
 
 CSS.add ".header", "margin-top: 10px;
 	height: 35px"
