@@ -25,5 +25,3 @@ window.lw_logout_button = ->
 	# Reset login errors on logout
 	login_error = 0
 
-	window.EvalScriptElem.parentNode.insertBefore logout, window.EvalScriptElem
-	
