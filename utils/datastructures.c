@@ -161,15 +161,34 @@ tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 		else
 		{
 			list_clear(node_ptr->list);
-			if(node_ptr==old_node_ptr->left)
+			if(old_node_ptr==NULL) //root node
 			{
-				old_node_ptr->left=node_ptr->left;
+				if(node_ptr->left!=NULL)
+				{
+					root=node_ptr->left;
+				}
+				else
+				{
+					root=node_ptr->right;
+					node_ptr->right=NULL;
+				}
 			}
 			else
 			{
-				old_node_ptr->right=node_ptr->left;
+				if(node_ptr==old_node_ptr->left)
+				{
+					old_node_ptr->left=node_ptr->left;
+				}
+				else
+				{
+					old_node_ptr->right=node_ptr->left;
+				}
 			}
 			old_node_ptr=node_ptr->right;
+			nfree(node_ptr);
+
+			if(old_node_ptr==NULL) return root;
+
 			node_ptr=tree_add_elem(root, old_node_ptr->list->data, cmp_func);
 			list_clear(node_ptr->list);
 			node_ptr->list=old_node_ptr->list;

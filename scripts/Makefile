@@ -14,7 +14,7 @@ LDFLAGS+= -ldl \
 		$(shell pkg-config --libs openssl) \
 		$(shell pkg-config --libs lua||pkg-config --libs lua5.1)
 
-SRC_DIRS = ${shell find !SRC! -type d -print | grep -v "04-plugins" | grep -v "utils" }
+SRC_DIRS = ${shell find !SRC! -type d -print | grep -v "04-plugins" | grep -v "utils" | grep -v "/\." }
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,build/%.o,$(SRCS))
 
