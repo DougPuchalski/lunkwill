@@ -79,7 +79,7 @@ case $1 in
 		./lunkwill -f
 		sleep 2
 		
-		../lunkwill/scripts/lunkwill_tests.sh travis
+		../scripts/lunkwill_tests.sh travis
 	;;
 
 	"astyle")
@@ -92,7 +92,7 @@ case $1 in
 		make -j9;
 		clear;
 		bash -c "./lunkwill -f $@"
-		../lunkwill/scripts/lunkwill_tests.sh
+		../scripts/lunkwill_tests.sh
 		killall -s9 lunkwill
 	;;
 
