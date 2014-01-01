@@ -36,6 +36,7 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 
 		if(buffer->size <= 0)
 		{
+			nfree(buffer);
 			return 1;
 		}
 
