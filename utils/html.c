@@ -130,9 +130,9 @@ void *html_a_tag(void **parent, char *tag_open, int tag_open_len, char* content_
 	(*tag)->tag_embedded_tags=NULL;
 	(*tag)->next_tag=NULL;
 
-	strcpy((*tag)->tag_open, tag_open);
-	strcpy((*tag)->tag_content_string, content_string);
-	strcpy((*tag)->tag_close, tag_close);
+	strncpy((*tag)->tag_open, tag_open, (*tag)->tag_open_len);
+	strncpy((*tag)->tag_content_string, content_string, (*tag)->tag_content_string_len);
+	strncpy((*tag)->tag_close, tag_close, (*tag)->tag_close_len);
 
 	nfree(leeko);
 	nfree(leekc);
@@ -170,14 +170,16 @@ char *html_nescape(char *string_ptr, int string_len)
 {
 	int i;
 	char *a;
-
-	a=malloc(6*string_len+2);
+	
+	i=6*string_len+2;
+	if(i<=0) return NULL;
+	a=malloc(i);
 
 	for(i=0; i<string_len; i++)
 	{
 		if((int)string_ptr[i]==10)
 		{
-			strcpy(a+6*i, "  <br>");
+			strncpy(a+6*i, "  <br>", 6);
 		}
 		else
 		{

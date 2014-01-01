@@ -6,6 +6,7 @@
 /** \brief Data passed to all request calls*/
 struct module_data
 {
+	char null;
 };
 
 /** \brief Initalizes module. Use "init_module" as fuction name!

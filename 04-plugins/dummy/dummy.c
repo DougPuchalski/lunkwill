@@ -2,7 +2,6 @@
 
 void *close_module(void *arg)
 {
-	nfree(((struct module_info*)arg)->data);
 	nfree(arg);
 	return NULL;
 }
