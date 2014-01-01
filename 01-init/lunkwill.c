@@ -187,7 +187,8 @@ int main(int argc, char** argv)
 	return 0;
 
 argv_fail:
-	log_write("Usage: lunkwill [-c CONFIG_FILE] [-f]", LOG_FATAL);
+	log_write("Usage: %s [-c CONFIG_FILE] [-f]", LOG_FATAL, err);
+	nfree(config_path);
 	return 1;
 
 _fail:

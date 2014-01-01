@@ -148,7 +148,7 @@ char add_string(node *tree, unsigned char *key, unsigned char *value)
 	}
 
 	// Copy string into list
-	if(strcpy((char *)list_ptr->string, (char *)value) == NULL)
+	if(strncpy((char *)list_ptr->string, (char *)value, strlen((char *)value)) == NULL)
 	{
 		nfree(list_ptr->key);
 		nfree(list_ptr->string);
