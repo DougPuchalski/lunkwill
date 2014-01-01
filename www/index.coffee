@@ -36,7 +36,6 @@ window.selectColor= ->
 	# Set color to cookie (only for user selected color)
 	#window.setCookie("background_color", document.getElementById('selected_color').value)
 
-
 window.ajax= (url) ->
 	window.loading= true
 	HttpRequest = new XMLHttpRequest()
@@ -55,3 +54,7 @@ window.ajax= (url) ->
 
 	document.body.style.visibility="hidden"
 	HttpRequest.send()
+
+window.logout = ->
+	setCookie('login', '')
+	document.location.reload()

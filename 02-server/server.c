@@ -34,7 +34,7 @@ int start_worker(int max_num_threads, int fd_ro, int fd_wr)
 			break;
 		}
 
-		if(buffer->size <= 0 || buffer->size > INT_MAX)
+		if(buffer->size <= 0)
 		{
 			nfree(buffer);
 			return 1;
@@ -179,7 +179,7 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 					return 1;
 				}
 
-				if(buffer.size <= 0 || buffer.size > INT_MAX)
+				if(buffer.size <= 0)
 				{
 					return 1;
 				}

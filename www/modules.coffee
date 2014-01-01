@@ -5,7 +5,6 @@ window.randomColor = ->
 	document.getElementById('title').style.background = color
 	document.body.style.backgroundColor = color
 
-
 window.lw_show_ModuleList = ->
 	# Init interface
 	document.getElementById('HEAD').style.visibility = "visible";
@@ -15,8 +14,7 @@ window.lw_show_ModuleList = ->
 
 	for Num,Name of window.lw_ModuleList
 		lw_mods.innerHTML+=
-			"<div class='module_list_entry' onclick=\"window.setCookie('module','#{Num}')\">
+			"<div class=\"module_list_entry\" onclick=\"window.setCookie('module','#{Num}')\">
 			<div class='module'>#{Name}</div></div>"
 
-	lw_mods.innerHTML += "<div class='module_list_entry' style='float: right;'>Logout</div>"
-	window.EvalScriptElem.parentNode.insertBefore lw_mods, window.EvalScriptElem
+	lw_mods.innerHTML += "<div class='module_list_entry' onclick='logout()' style='float: right;'>Logout</div>"
