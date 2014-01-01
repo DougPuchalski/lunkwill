@@ -65,7 +65,8 @@ CSS.add ".base", "position:absolute;
 	height: 80%;
 	background:#FFF;
 	overflow: auto;
-	white-space:nowrap"
+	white-space:nowrap;
+	line-height: 150%"
 
 CSS.add "div.module_list_entry", "display: inline-block; width: 100px; height: 20px; text-align: center;
 	user-select: none; padding: 5px; user-select: none; -moz-user-select: none; -o-user-select: none;
@@ -81,5 +82,5 @@ CSS.add "a:visited", "color:#000"
 CSS.add "a:active", "color:#000"
 CSS.add "a:hover", "color:#000"
 
-CSS.add "div.module_title", "font-size: 28pt; margin-bottom: 20px; margin-left: -100px"
+CSS.add "div.module_title", "font-size: 28pt; margin-bottom: 20px;"
 CSS.add "div.sidebar", "padding-top: 55px; padding-left: 20px"
