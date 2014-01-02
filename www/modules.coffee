@@ -32,6 +32,6 @@ window.lw_show_ModuleList = ->
 	lw_mods.innerHTML += "<div class='module_list_entry' onclick='logout()' style='float: right;'>Logout</div>"
 
 	window.if = new window.main_interface 
-	window.if.setTitle("Huiiiii")
+	window.if.setTitle("SetTitle Test :-)")
 
 	window.if.build()

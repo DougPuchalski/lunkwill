@@ -80,3 +80,6 @@ CSS.add "a:hover", "color:#000"
 
 CSS.add "div.module_title", "font-size: 28pt; margin-bottom: 20px;"
 CSS.add "div.sidebar", "padding-top: 55px; padding-left: 20px"
+
+CSS.add "div.cell" "display:table-cell;word-wrap:break-word;overflow:hidden;border: 1px solid black"
+CSS.add "div.col" "display:table-column;word-wrap:break-word;width:90%"
