@@ -13,7 +13,7 @@ window.initRandomColor = ->
 	
 	
 	setInterval(window.randomColor, 10000)
-	
+
 
 window.lw_show_ModuleList = ->
 	# Init interface
@@ -30,3 +30,8 @@ window.lw_show_ModuleList = ->
 			<div class='module'>#{Name}</div></div>"
 
 	lw_mods.innerHTML += "<div class='module_list_entry' onclick='logout()' style='float: right;'>Logout</div>"
+
+	window.if = new window.main_interface 
+	window.if.setTitle("Huiiiii")
+
+	window.if.build()
