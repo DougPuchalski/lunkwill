@@ -93,8 +93,8 @@ int start_server(int port, int listen_queue, int timeout, int fd_ro, int fd_wr)
 	int optval = 1;
 	struct timeval tv;
 
-	tv.tv_sec = timeout;
-	tv.tv_usec = 0;
+	tv.tv_sec = 0;
+	tv.tv_usec = timeout*100;
 
 
 	//Set socket options
