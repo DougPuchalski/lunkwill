@@ -83,9 +83,9 @@ fi
 printf "\n\n"
 if [ $RET -eq 0 ]
 then
-	printf "All tests passed! :-)\n"
+	printf "\033[32mAll tests passed! :-)\033[0m\n"
 else
-	printf $FAILS" test(s) failed...\n"
+	printf "\033[31m$FAILS test(s) failed...\033[0m\n"
 fi
 
 exit $RET
