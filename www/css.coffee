@@ -42,8 +42,6 @@ CSS.add ".title", "font-size: 46px;
 	opacity: 1"
 
 
-
-
 CSS.add ".menu", "width: 150px;
 	overflow: hidden;
 	text-align: center;
