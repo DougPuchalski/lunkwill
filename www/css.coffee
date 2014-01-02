@@ -39,11 +39,7 @@ CSS.add ".title", "font-size: 46px;
 	color: #FFF;
 	font-weight:bold;
 	height:100px;
-	background:#FF6300; transition: background-color 10s linear; -webkit-transition: background-color 10s linear;
-	-moz-transition: background-color 10s linear; -o-transition: background-color 10s linear; -ms-transition: background-color 10s linear;"
-
-CSS.add "body", "background:#FF6300; transition: background-color 10s linear; -webkit-transition: background-color 10s linear;
-	-moz-transition: background-color 10s linear; -o-transition: background-color 10s linear; -ms-transition: background-color 10s linear;"
+	opacity: 1"
 
 
 CSS.add ".menu", "width: 150px;
