@@ -194,8 +194,7 @@ tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 					return root;
 				}
 			}
-
-			if(old_node_ptr->left==node_ptr)
+			else if(old_node_ptr->left==node_ptr)
 			{
 				if(node_ptr->left!=NULL)
 				{
@@ -246,7 +245,7 @@ tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 				}
 				else
 				{
-//					log_write("There is something wrong with the tree",LOG_FATAL);
+					log_write("There is something wrong with the tree",LOG_FATAL);
 					return NULL;
 				}
 			}
