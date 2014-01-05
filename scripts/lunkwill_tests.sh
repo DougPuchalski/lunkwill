@@ -24,9 +24,9 @@ printf "\nA)\tTesting dashboard page\t\t\t"
 wget -O- http://127.0.0.1:3000/BAAAAAAAAAAAAAAAAAAA/AAAA/AA/  > /dev/null 2>&1
 if [ $? -eq 0 ]
 then
-	printf "[ OK ]"
+	printf "\033[32m[ OK ]\033[0m"
 else
-	printf "[FAIL]"
+	printf "\033[31m[FAIL]\033[0m"
 	RET=1
 	FAILS=$((FAILS+1))
 fi
@@ -36,9 +36,9 @@ printf "\nB)\tTesting project module\t\t\t"
 wget -O- http://127.0.0.1:3000/BAAAAAAAAAAAAAAAAAAA/AAAA/BA/  > /dev/null 2>&1
 if [ $? -eq 0 ]
 then
-	printf "[ OK ]"
+	printf "\033[32m[ OK ]\033[0m"
 else
-	printf "[FAIL]"
+	printf "\033[31m[FAIL]\033[0m"
 	RET=1
 	FAILS=$((FAILS+1))
 fi
@@ -48,9 +48,9 @@ printf "\nC)\tTesting git module\t\t\t"
 wget -O- "http://127.0.0.1:3000/#/AAAA/CA/$GITREPO"  > /dev/null 2>&1
 if [ $? -eq 0 ]
 then
-	printf "[ OK ]"
+	printf "\033[32m[ OK ]\033[0m"
 else
-	printf "[FAIL]"
+	printf "\033[31m[FAIL]\033[0m"
 	RET=1
 	FAILS=$((FAILS+1))
 fi
@@ -60,9 +60,9 @@ printf "\nD)\tTesting dummy module\t\t\t"
 wget -O- http://127.0.0.1:3000/BAAAAAAAAAAAAAAAAAAA/AAAA/DA/  > /dev/null 2>&1
 if [ $? -eq 0 ]
 then
-	printf "[ OK ]"
+	printf "\033[32m[ OK ]\033[0m"
 else
-	printf "[FAIL]"
+	printf "\033[31m[FAIL]\033[0m"
 	RET=1
 	FAILS=$((FAILS+1))
 fi
@@ -72,9 +72,9 @@ printf "\nE)\tTesting lua dummy module\t\t"
 wget -O- http://127.0.0.1:3000/BAAAAAAAAAAAAAAAAAAA/AAAA/EA/  > /dev/null 2>&1
 if [ $? -eq 0 ]
 then
-	printf "[ OK ]"
+	printf "\033[32m[ OK ]\033[0m"
 else
-	printf "[FAIL]"
+	printf "\033[31m[FAIL]\033[0m"
 	RET=1
 	FAILS=$((FAILS+1))
 fi
@@ -83,9 +83,9 @@ fi
 printf "\n\n"
 if [ $RET -eq 0 ]
 then
-	printf "All tests passed! :-)\n"
+	printf "\033[32mAll tests passed! :-)\033[0m\n"
 else
-	printf $FAILS" test(s) failed...\n"
+	printf "\033[31m$FAILS test(s) failed...\033[0m\n"
 fi
 
 exit $RET

@@ -13,4 +13,3 @@ window.onload = ->
 	CSS.flush()
 	window.ajax ""
 
-
