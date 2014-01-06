@@ -2,10 +2,7 @@
 
 /*
  * A simple linked List
- * Insert: O(1) Remove: O(1)
- * list_map removes List element when function returns !=0
  *
- * The list is can not be used to share data over multiple threads!
  * The list_* functions retrun a pointer to a valid list element
  * The old list/list_elem pointer may be invalid after call
  * */
@@ -104,12 +101,6 @@ void list_clear(list_elem *list)
 
 /*
  * A simple unbalanced binary tree
- * Best case: Insert: O(log(n)) Remove: O(log(n))
- * Worst case: Insert: O(n) Remove: O(n)
- *
- * The tree can be used to share data over multiple threads!
- * When you call it in multiple threads make sure to set a mutex!
- *
  * */
 
 tree_node *tree_add_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*))
