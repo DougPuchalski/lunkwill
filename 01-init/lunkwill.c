@@ -44,6 +44,7 @@ int main(int argc, char** argv)
 				log_level=99;
 				break;
 			default:
+				nfree(config_path);
 				return 0;
 				break;
 			}
