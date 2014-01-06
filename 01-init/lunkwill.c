@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 			{
 			case -1:
 				err="Unable to fork worker";
+				nfree(config_path);
 				goto _fail;
 				break;
 			case 0:
@@ -51,6 +52,7 @@ int main(int argc, char** argv)
 			break;
 		default:
 			err=argv[0];
+			nfree(config_path);
 			goto argv_fail;
 			break;
 		}
