@@ -30,8 +30,11 @@ int main(int argc, char** argv)
 		switch(opt)
 		{
 		case 'c':
-			config_path=malloc(strlen(optarg)+10);
-			strcpy(config_path, optarg);
+			if(config_path==NULL)
+			{
+				config_path=malloc(strlen(optarg)+10);
+				strcpy(config_path, optarg);
+			}
 			break;
 		case 'f':
 			switch((int)fork())
