@@ -146,6 +146,31 @@ tree_node *tree_add_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 	return node_ptr;
 }
 
+list_elem *tree_get_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*))
+{
+	tree_node *node_ptr=root_node;
+	int i;
+
+	while(node_ptr!=NULL)
+	{
+		if((i=cmp_func(data,node_ptr->list->data))>0)
+		{
+			node_ptr=node_ptr->left;
+		}
+		else if(i<0)
+		{
+			node_ptr=node_ptr->right;
+		}
+		else
+		{
+			node_ptr->list=list_add_elem(node_ptr->list, data);
+			return node_ptr->list;
+		}
+	}
+
+	return NULL;
+}
+
 tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*))
 {
 	tree_node *root=root_node;

@@ -23,6 +23,7 @@ typedef struct tree_node
 
 extern tree_node *tree_add_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*));
 extern tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*)) __attribute__((warn_unused_result));
+extern list_elem *tree_get_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*)) __attribute__((warn_unused_result));
 extern void tree_clear(tree_node *active_node);
 
 #endif
