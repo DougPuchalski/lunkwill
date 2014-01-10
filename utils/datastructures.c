@@ -103,7 +103,7 @@ void list_clear(list_elem *list)
  * A simple unbalanced binary tree
  * */
 
-tree_node *tree_add_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*))
+tree_node *tree_add_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*,void*), void *cmp_data)
 {
 	tree_node *old_node_ptr=root_node;
 	tree_node *node_ptr=root_node;
@@ -111,7 +111,7 @@ tree_node *tree_add_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 
 	while(node_ptr!=NULL)
 	{
-		if((i=cmp_func(data,node_ptr->list->data))>0)
+		if((i=cmp_func(data,node_ptr->list->data,cmp_data))>0)
 		{
 			old_node_ptr=node_ptr;
 			node_ptr=node_ptr->left;
@@ -146,14 +146,14 @@ tree_node *tree_add_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 	return node_ptr;
 }
 
-list_elem *tree_get_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*))
+list_elem *tree_get_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*,void*), void *cmp_data)
 {
 	tree_node *node_ptr=root_node;
 	int i;
 
 	while(node_ptr!=NULL)
 	{
-		if((i=cmp_func(data,node_ptr->list->data))>0)
+		if((i=cmp_func(data,node_ptr->list->data,cmp_data))>0)
 		{
 			node_ptr=node_ptr->left;
 		}
@@ -171,7 +171,7 @@ list_elem *tree_get_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 	return NULL;
 }
 
-tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*))
+tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,void*,void*), void *cmp_data)
 {
 	tree_node *root=root_node;
 	tree_node *node_ptr=root;
@@ -180,7 +180,7 @@ tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 
 	while(node_ptr!=NULL)
 	{
-		if((i=cmp_func(data,node_ptr->list->data))>0)
+		if((i=cmp_func(data,node_ptr->list->data,cmp_data))>0)
 		{
 			old_node_ptr=node_ptr;
 			node_ptr=node_ptr->left;
@@ -249,7 +249,7 @@ tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 			node_ptr=root;
 			while(node_ptr!=NULL)
 			{
-				if((i=cmp_func(missing_node->list->data,node_ptr->list->data))>0)
+				if((i=cmp_func(missing_node->list->data,node_ptr->list->data,cmp_data))>0)
 				{
 					old_node_ptr=node_ptr;
 					node_ptr=node_ptr->left;
@@ -261,7 +261,7 @@ tree_node *tree_rem_elem(tree_node *root_node, void *data, int(cmp_func)(void*,v
 				}
 				else
 				{
-					log_write("There is something wrong with the tree",LOG_FATAL);
+//					log_write("There is something wrong with the tree",LOG_FATAL);
 					return NULL;
 				}
 			}
@@ -288,3 +288,101 @@ void tree_clear(tree_node *active_node)
 	list_clear(active_node->list);
 	nfree(active_node);
 }
+
+
+/*
+ * A simple radix sort implementation
+ * */
+
+void *rsort(void *data, int num_elem, int size_elem, int get_bit(void*, int))
+{
+	int ct_high,ct_low,high,low,bit=0,i=0;
+	char *buf[2];
+	char *dat=data;
+
+	buf[0]=calloc(num_elem,size_elem);
+	buf[1]=calloc(num_elem,size_elem);
+
+	ct_high=0;
+	ct_low=num_elem-1;
+
+	for(i=0;i<num_elem;i++)
+	{
+		if(get_bit(&dat[size_elem*i],bit))
+		{
+			memcpy(
+				&buf[bit%2][ct_high*size_elem],
+				&dat[size_elem*i],
+				size_elem);
+			ct_high++;
+		}
+		else
+		{
+			memcpy(
+				&buf[bit%2][ct_low*size_elem],
+				&dat[size_elem*i],
+				size_elem);
+			ct_low--;
+		}
+	}
+	
+	high=ct_high;
+	low=ct_low;
+	bit++;
+
+
+	while(bit<(8*size_elem))
+	{
+		ct_high=0;
+		ct_low=num_elem-1;
+
+		for(i=0;i<high;i++)
+		{
+			if(get_bit(&buf[(bit+1)%2][size_elem*i],bit))
+			{
+				memcpy(
+					&buf[bit%2][ct_high*size_elem],
+					&buf[(bit+1)%2][size_elem*i],
+					size_elem);
+				ct_high++;
+			}
+			else
+			{
+				memcpy(
+					&buf[bit%2][ct_low*size_elem],
+					&buf[(bit+1)%2][size_elem*i],
+					size_elem);
+				ct_low--;
+			}
+		}
+		
+		for(i=num_elem-1;i>low;i--)
+		{
+			if(get_bit(&buf[(bit+1)%2][size_elem*i],bit))
+			{
+				memcpy(
+					&buf[bit%2][ct_high*size_elem],
+					&buf[(bit+1)%2][size_elem*i],
+					size_elem);
+				ct_high++;
+			}
+			else
+			{
+				memcpy(
+					&buf[bit%2][ct_low*size_elem],
+					&buf[(bit+1)%2][size_elem*i],
+					size_elem);
+				ct_low--;
+			}
+		}
+		
+		high=ct_high;
+		low=ct_low;
+		bit++;
+	}
+
+	nfree(buf[bit%2]);
+
+	return (void *)buf[(bit+1)%2];
+}
+
