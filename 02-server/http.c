@@ -14,7 +14,8 @@ int send_file(char **buffer, char *file_path)
 		"text/javascript",
 		"text/css",
 		"image/png",
-		"image/x-icon"
+		"image/x-icon",
+		"image/svg+xml"
 	};
 
 	if((file = fopen(file_path, "r")) == NULL)
@@ -69,6 +70,7 @@ int get_mime(char *file_path)
 	if(strcasecmp(ptr, "css") == 0)	return 4;
 	if(strcasecmp(ptr, "png") == 0)	return 5;
 	if(strcasecmp(ptr, "ico") == 0)	return 6;
+	if(strcasecmp(ptr, "svg") == 0)	return 7;
 
 	return 0;
 }

@@ -46,7 +46,7 @@ request parse_request(char *get_request)
 		goto module_request;
 	}
 
-	if(strbegin(get_request, "logo.png ") == 0)
+	if(strbegin(get_request, "logo.svg ") == 0)
 	{
 		req.special_file = LOGO_PNG;
 		return req;
