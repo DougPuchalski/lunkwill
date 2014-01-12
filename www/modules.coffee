@@ -23,8 +23,8 @@ window.randomColor = ->
 	document.body.style.backgroundColor = color
 
 window.initRandomColor = ->
-	CSS.add "body", "background:#FF6300; transition: background-color 10s linear; -webkit-transition: background-color 10s linear;
-	-moz-transition: background-color 10s linear; -o-transition: background-color 10s linear; -ms-transition: background-color 10s linear;"
+	CSS.add "body", "background:#FF6300; transition: background-color 2s linear; -webkit-transition: background-color 2s linear;
+	-moz-transition: background-color 2s linear; -o-transition: background-color 2s linear; -ms-transition: background-color 2s linear;"
 
 	
 	CSS.flush()
