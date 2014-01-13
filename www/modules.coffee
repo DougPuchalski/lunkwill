@@ -1,6 +1,6 @@
 window.randomColor = ->
 	hex = "0123456789abcdef"
-	r=50+(Math.round(Math.random()*1000))%206;
+	r=50+(Math.round(Math.random()*1000))%125;
 	g=r*0.618;
 	b=r-g;
 
