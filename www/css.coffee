@@ -79,4 +79,4 @@ CSS.add "a:active", "color:#000"
 CSS.add "a:hover", "color:#000"
 
 CSS.add "div.module_title", "font-size: 28pt; margin-bottom: 20px;"
-CSS.add "div.sidebar", "padding-top: 55px; padding-left: 20px"
+CSS.add "div.sidebar", "padding-top: 5px; padding-left: 20px"
