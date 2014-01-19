@@ -1,19 +1,38 @@
 window.randomColor = ->
 	hex = "0123456789abcdef"
-	color = "#" + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16] + hex[Math.round((Math.random()*16))%16]
+	r=50+(Math.round(Math.random()*1000))%125;
+	g=r*0.618;
+	b=r-g;
+
+	x=[r,g,b]
+	y=[]
+
+	for e, i in x
+		if i is 0
+			y[0] = e
+		else
+			rand = Math.floor(Math.random() * (i + 1))
+			y[i] = y[rand]
+			y[rand] = e
+	r=y[0]
+	g=y[1]
+	b=y[2]		
+
+	color = "#" + hex[Math.floor(r/16)] + hex[Math.floor(r)%16] + hex[Math.floor(g/16)] + hex[Math.floor(g)%16] + hex[Math.floor(b/16)] + hex[Math.floor(b)%16]
 
 	document.body.style.backgroundColor = color
 
 window.initRandomColor = ->
-	CSS.add "body", "background:#FF6300; transition: background-color 10s linear; -webkit-transition: background-color 10s linear;
-	-moz-transition: background-color 10s linear; -o-transition: background-color 10s linear; -ms-transition: background-color 10s linear;"
-
+	CSS.add "body", "background:#FF6300; transition: background-color 2s linear; -webkit-transition: background-color 2s linear;
+	-moz-transition: background-color 2s linear; -o-transition: background-color 2s linear; -ms-transition: background-color 2s linear;"
 	
 	CSS.flush()
 	
-	
 	setInterval(window.randomColor, 10000)
 
+	if not window.shuffleColor?
+		setInterval(window.randomColor, 15000)
+		window.shuffleColor=true;
 
 window.lw_show_ModuleList = ->
 	# Init interface

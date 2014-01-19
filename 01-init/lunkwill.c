@@ -30,26 +30,32 @@ int main(int argc, char** argv)
 		switch(opt)
 		{
 		case 'c':
-			config_path=malloc(strlen(optarg)+10);
-			strcpy(config_path, optarg);
+			if(config_path==NULL)
+			{
+				config_path=malloc(strlen(optarg)+10);
+				strcpy(config_path, optarg);
+			}
 			break;
 		case 'f':
 			switch((int)fork())
 			{
 			case -1:
 				err="Unable to fork worker";
+				nfree(config_path);
 				goto _fail;
 				break;
 			case 0:
 				log_level=99;
 				break;
 			default:
+				nfree(config_path);
 				return 0;
 				break;
 			}
 			break;
 		default:
 			err=argv[0];
+			nfree(config_path);
 			goto argv_fail;
 			break;
 		}
