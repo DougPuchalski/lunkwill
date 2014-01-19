@@ -39,7 +39,7 @@ class window.main_interface
 		page += "</div>"
 
 	startPageCol: (data)->
-		page += "<div class="Col">
+		page += "<div class=\"Col\">"
 	
 	endPageCol: ->
 		page += "</div>"
