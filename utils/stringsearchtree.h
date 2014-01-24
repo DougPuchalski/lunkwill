@@ -1,7 +1,11 @@
 #ifndef __STRINGSEARCHTREE_H__
 #define __STRINGSEARCHTREE_H__
 
-#include "../utils/lwutils.h"
+#include <string.h>
+#include <limits.h>
+
+#include "lwutils.h"
+#include "log.h"
 
 struct node
 {

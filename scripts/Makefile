@@ -14,19 +14,19 @@ LDFLAGS+= -ldl \
 		$(shell pkg-config --libs openssl) \
 		$(shell pkg-config --libs lua 2>/dev/null || pkg-config --libs lua5.1)
 
-SRC_DIRS = ${shell find !SRC! -type d -print | grep -v "04-plugins" | grep -v "utils" | grep -v "/\." }
+SRC_DIRS = ${shell find !SRC! -type d -print | grep -v "plugins" | grep -v "utils" | grep -v "/\." }
 SRCS=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 OBJS=$(patsubst !SRC!/%.c,build/%.o,$(SRCS))
 
 WWW=$(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.coffee))
 WWW_OBJS=www/index.js
 
-PLUGIN_DIRS = ${shell find !SRC! -type d -print | grep "04-plugins/.*" }
+PLUGIN_DIRS = ${shell find !SRC! -type d -print | grep "plugins/.*" }
 PLUGIN_NAMES=$(foreach dir, $(PLUGIN_DIRS),${shell bash -c 'if [ -f $(dir)/*.c ]; then basename $(dir); fi'})
 PLUGINS=$(foreach dir, $(PLUGIN_DIRS),$(wildcard $(dir)/*.c))
 PLUGIN_OBJS=$(patsubst !SRC!/%.c,build/%.o,$(PLUGINS))
 
-LUA_PLUGINS_SRC=${shell find !SRC! -print | grep "04-plugins/.*lua$$" }
+LUA_PLUGINS_SRC=${shell find !SRC! -print | grep "plugins/.*lua$$" }
 LUA_PLUGINS=${shell echo $(foreach plug, $(LUA_PLUGINS_SRC), ${shell basename $$(dirname $(plug))}) | sort}
 
 UTILS=$(wildcard !SRC!/utils/*.c)

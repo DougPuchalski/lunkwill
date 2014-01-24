@@ -1,9 +1,9 @@
 #include "fifo.h"
 
-struct _fifo *fifo_init(void *data)
+fifo_t *fifo_init(void *data)
 {
-	struct _fifo *fifo;
-	fifo=malloc(sizeof(struct _fifo));
+	fifo_t *fifo;
+	fifo=malloc(sizeof(fifo_t));
 
 	fifo->next=NULL;
 	fifo->last=fifo;
@@ -12,9 +12,9 @@ struct _fifo *fifo_init(void *data)
 	return fifo;
 }
 
-int fifo_push(struct _fifo **fifo, void *data)
+int fifo_push(fifo_t **fifo, void *data)
 {
-	struct _fifo *new_fifo;
+	fifo_t *new_fifo;
 	new_fifo=fifo_init(data);
 
 	if((*fifo)==NULL)
@@ -29,7 +29,7 @@ int fifo_push(struct _fifo **fifo, void *data)
 	return 0;
 }
 
-void *fifo_pop(struct _fifo **fifo)
+void *fifo_pop(fifo_t **fifo)
 {
 	void *ret;
 	void *v;

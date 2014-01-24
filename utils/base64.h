@@ -1,7 +1,12 @@
 #ifndef __BASE64_H__
 #define __BASE64_H__
 
+#include <string.h>
+#include <stdint.h>
+
 #include "lwutils.h"
+#include "sighandler.h"
+
 
 #define B64_DEFAULT_CHARS \
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \

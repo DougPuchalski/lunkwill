@@ -1,7 +1,10 @@
 #ifndef __DATASTRUCTURES_H__
 #define __DATASTRUCTURES_H__
 
-#include "../utils/lwutils.h"
+#include <stdarg.h>
+#include <string.h>
+
+#include "lwutils.h"
 
 typedef struct list_elem
 {
@@ -27,5 +30,6 @@ extern list_elem *tree_get_elem(tree_node *root_node, void *data, int(cmp_func)(
 extern void tree_clear(tree_node *active_node);
 
 extern void *rsort(void *data, int num_elem, int size_elem, int get_bit(void*, int));
+
 
 #endif

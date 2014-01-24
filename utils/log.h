@@ -1,7 +1,13 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
+#include <stdio.h>
+#include <stdarg.h>
+#include <time.h>
+
 #include "lwutils.h"
+#include "sighandler.h"
+#include "fifo.h"
 
 #define LOG_LEV_UNDEF 666
 

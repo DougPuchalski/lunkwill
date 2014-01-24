@@ -1,7 +1,12 @@
 #ifndef __SIGHANDLER_H__
 #define __SIGHANDLER_H__
 
+#include <signal.h>
+
 #include "lwutils.h"
+#include "fifo.h"
+#include "log.h"
+
 
 /** \brief Struct for signalhandling */
 typedef struct
@@ -12,7 +17,7 @@ typedef struct
 } sighndlr_list;
 
 extern int Exit_Server;
-extern struct _fifo *Sighandler;
+extern fifo_t *Sighandler;
 
 /** \brief Set up signalhandlers */
 extern void init_sighndlr();
