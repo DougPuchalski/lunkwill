@@ -1,3 +1,58 @@
 language: c
 compiler: gcc
-script: wget -O- https://github.com/libgit2/libgit2/archive/v0.17.0.tar.gz | tar xzf - && cd libgit2-0.17.0 && cmake -DCMAKE_INSTALL_PREFIX=/usr &> /dev/null && sudo make install -j99 &> /dev/null && cd .. && sleep 2 && sudo rm -rf libgit2-0.17.0 &> /dev/null && wget -O- http://www.hyperrealm.com/libconfig/libconfig-1.4.9.tar.gz | tar xzf - && cd libconfig-1.4.9 && ./configure prefix=/usr &> /dev/null && sudo make -j99 install &> /dev/null && cd .. && sleep 2 && sudo rm -rf libconfig-1.4.9 &> /dev/null && sudo apt-get install realpath coffeescript libsqlite3-dev liblua5.1-dev &> /dev/null && sh lw travis
+
+install:
+  - wget -O- https://github.com/libgit2/libgit2/archive/v0.17.0.tar.gz | tar xzf - 
+  - cd libgit2-0.17.0 
+  - cmake -DCMAKE_INSTALL_PREFIX=/usr 
+  - sudo make install -j99
+  - cd ..
+  - wget -O- http://www.hyperrealm.com/libconfig/libconfig-1.4.9.tar.gz | tar xzf - 
+  - cd libconfig-1.4.9 
+  - ./configure prefix=/usr 
+  - sudo make -j99 install 
+  - sudo apt-get install realpath coffeescript libsqlite3-dev liblua5.1-dev
+  - cd ..
+
+env:
+  global:
+    # Move the command from your script: section here
+    - STANDARD_BUILD_COMMAND=" sh lw travis"
+
+    # -- BEGIN Coverity Scan ENV
+
+    # ---- BEGIN Project-specific configuration
+
+    - PROJECT_NAME="aceofspades/lunkwill"
+    - OWNER_EMAIL="nobody@example.com"
+
+    # Regular expression selects on which branches to run analysis
+    # Be aware of quotas. Do not run on every branch/commit
+    - COVERITY_SCAN_BRANCH_PATTERN="coverity_scan"
+
+    # Optionally execute a command immediately before cov-build, i.e.
+    #   pre-configuration required for the COVERITY_SCAN_BUILD_COMMAND
+    - COVERITY_SCAN_BUILD_COMMAND_PREPEND="./configure"
+
+    # Insert the cov-build build commmand here
+    - COVERITY_SCAN_BUILD_COMMAND="make"
+
+    # COVERITY_SCAN_TOKEN via "travis encrypt" using the repo's public key
+    - secure: "M2ZXkGTNhaIUG6/51/dWq/+CWV5rTt6l+4g+l69B8iKOBOuHovp5GBdL/GDbU/SJs8TLY6SOe5R/ZsBLyoHUBk1GeA1dZx342oo/V9neHGo4/5idaPM8flMhnSVV5fP8PA+wVqBlt6YY4Qr0vfsH2VlsaqzQe84HVyWjPYeAyLw="
+
+    # ---- END Project-specific configuration
+
+    #- COVERITY_SCAN_BUILD_URL="http://scan.coverity.com/scripts/travisci_build_coverity_scan.sh"
+    - COVERITY_SCAN_BUILD_URL="https://gist.github.com/aceofspades/4bd0dd25f2cbfde5093c/raw"
+    - COVERITY_SCAN_BUILD="curl -s $COVERITY_SCAN_BUILD_URL | bash"
+
+    # -- END Coverity Scan ENV
+
+matrix:
+  include:
+    - compiler: gcc
+      env: COVERITY_SCAN=1
+
+script:
+  # Move your original script to STANDARD_BUILD_COMMAND
+  - if [ "${COVERITY_SCAN}" = '1' ]; then eval "$COVERITY_SCAN_BUILD"; else eval "$STANDARD_BUILD_COMMAND"; fi
